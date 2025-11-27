@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 
-function App() {
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import NavigationMenu from "./components/NavigationMenu";
+
+import HomePage from "./pages/HomePage";
+import JudgeSearchPage from "./pages/JudgeSearchPage";
+import JudgeProfilePage from "./pages/JudgeProfilePage";
+import AboutPage from "./pages/AboutPage";
+import DataSourcesPage from "./pages/DataSourcesPage";
+import WhichJudgeGamePage from "./pages/WhichJudgeGamePage";
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-root">
+      <Header />
+      <NavigationMenu />
+
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<JudgeSearchPage />} />
+          <Route path="/judge/:judgeId" element={<JudgeProfilePage />} />
+          <Route path="/data-sources" element={<DataSourcesPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/which-judge" element={<WhichJudgeGamePage />} />
+        </Routes>
+      </main>
+
+      <Footer />
     </div>
   );
-}
+};
 
 export default App;

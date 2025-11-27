@@ -1,38 +1,462 @@
-.App {
-  text-align: center;
+/* ---------------------------------------------------------
+   Global Reset + Base Styles
+--------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background-color: #0b1020;
+  color: #f5f5f5;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.app-root {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  padding: 1.5rem 1.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header,
+footer {
+  background: linear-gradient(90deg, #141a33, #1d2747);
+  color: #ffffff;
+}
+
+header {
+  padding: 1rem 1.5rem;
+}
+
+footer {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------------------------------------------------------
+   Navigation Menu
+--------------------------------------------------------- */
+
+.nav-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #10162b;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #d6ddff;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #2a3a78;
+  color: #ffffff;
+}
+
+.nav-link-active {
+  background-color: #4f6df5;
+  color: #ffffff;
+}
+
+/* ---------------------------------------------------------
+   Hero Section
+--------------------------------------------------------- */
+
+.hero-container {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: radial-gradient(circle at top left, #283a96, #0b1020);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.hero-heading {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero-subheading {
+  font-size: 1rem;
+  max-width: 640px;
+  color: #d6ddff;
+}
+
+.hero-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.hero-pill {
+  padding: 0.15rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.75rem;
+  color: #e8ebff;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.hero-button-primary,
+.hero-button-secondary {
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.hero-button-primary {
+  background-color: #4f6df5;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.hero-button-primary:hover {
+  background-color: #3e57c4;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.hero-button-secondary {
+  background-color: transparent;
+  color: #e8ebff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.hero-stat-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: #cbd2ff;
+}
+
+/* ---------------------------------------------------------
+   Cards + Grids
+--------------------------------------------------------- */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.card {
+  background-color: #141a33;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.card-description {
+  font-size: 0.85rem;
+  color: #d1d6f5;
+}
+
+/* ---------------------------------------------------------
+   Section Titles
+--------------------------------------------------------- */
+
+.section-heading {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-subheading {
+  font-size: 0.9rem;
+  color: #c3c9f5;
+  margin-bottom: 1rem;
+}
+
+/* ---------------------------------------------------------
+   Judge Search
+--------------------------------------------------------- */
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background-color: #0b1020;
+  color: white;
+}
+
+.search-input::placeholder {
+  color: #8187b3;
+}
+
+.search-button {
+  padding: 0.55rem 1.2rem;
+  border-radius: 999px;
+  border: none;
+  background-color: #4f6df5;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.search-button:hover {
+  background-color: #3e57c4;
+}
+
+.judge-list {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.judge-card {
+  background-color: #141a33;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.judge-card-main {
+  max-width: 70%;
+}
+
+.judge-card-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.judge-card-meta {
+  font-size: 0.8rem;
+  color: #c3c9f5;
+}
+
+.judge-card-button {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background-color: #2f3fb5;
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.judge-card-button:hover {
+  background-color: #243392;
+}
+
+/* ---------------------------------------------------------
+   Opinion Cards
+--------------------------------------------------------- */
+
+.opinion-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.opinion-card {
+  background-color: #141a33;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.opinion-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.opinion-meta {
+  font-size: 0.8rem;
+  color: #c3c9f5;
+  margin-top: 0.2rem;
+}
+
+.opinion-snippet {
+  font-size: 0.8rem;
+  color: #dde1ff;
+  margin-top: 0.4rem;
+}
+
+/* ---------------------------------------------------------
+   Quiz ("Which Judge Are You?")
+--------------------------------------------------------- */
+
+.quiz-progress {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #cbd2ff;
+}
+
+.quiz-answers {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.quiz-answer-button {
+  text-align: left;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-color: #10162b;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    transform 0.08s ease;
+}
+
+.quiz-answer-button:hover {
+  background-color: #192144;
+  border-color: #4f6df5;
+  transform: translateY(-1px);
+}
+
+.quiz-answer-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.quiz-answer-text {
+  font-size: 0.8rem;
+  color: #dde1ff;
+}
+
+.quiz-breakdown {
+  margin-top: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #10162b;
+  padding: 0.5rem 0.75rem;
+}
+
+.quiz-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.quiz-breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.quiz-breakdown-name {
+  max-width: 75%;
+}
+
+.quiz-breakdown-score {
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------
+   Ad Spots Section
+--------------------------------------------------------- */
+
+.ad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.ad-card {
+  background-color: #141a33;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+.ad-meta {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: #b2b8e8;
+}
+
+.ad-placeholder {
+  margin-top: 0.75rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  text-align: center;
+  color: #dde1ff;
+  background: repeating-linear-gradient(
+    -45deg,
+    #10162b,
+    #10162b 6px,
+    #151c34 6px,
+    #151c34 12px
+  );
+}
+
+/* ---------------------------------------------------------
+   Small Labels
+--------------------------------------------------------- */
+
+.small-label {
+  font-size: 0.75rem;
+  color: #b2b8e8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ---------------------------------------------------------
+   Mobile Adjustments
+--------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 1rem;
   }
-  to {
-    transform: rotate(360deg);
+
+  .hero-heading {
+    font-size: 1.6rem;
   }
 }
