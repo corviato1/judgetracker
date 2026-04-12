@@ -35,8 +35,10 @@
   --accent-dark-hover: #243392;
 
   /* Navigation */
-  --nav-link-color: #d6ddff;
-  --nav-hover-bg:   #2a3a78;
+  --nav-link-color:  #d6ddff;
+  --nav-hover-bg:    #2a3a78;
+  --nav-hover-text:  #ffffff;
+  --nav-active-text: #ffffff;
 
   /* Header / Footer (intentionally the same in both themes — brand blue) */
   --header-gradient: linear-gradient(90deg, #141a33, #1d2747);
@@ -115,8 +117,10 @@
   --text-faint:     #6070a8;
 
   /* Navigation */
-  --nav-link-color: #1e2d80;
-  --nav-hover-bg:   rgba(79, 109, 245, 0.12);
+  --nav-link-color:  #1e2d80;
+  --nav-hover-bg:    rgba(79, 109, 245, 0.12);
+  --nav-hover-text:  #0f1535;
+  --nav-active-text: #ffffff;
 
   /* Footer border for light theme */
   --footer-border: rgba(0, 0, 0, 0.08);
@@ -213,12 +217,12 @@ footer {
 
 .nav-link:hover {
   background-color: var(--nav-hover-bg);
-  color: #ffffff;
+  color: var(--nav-hover-text);
 }
 
 .nav-link-active {
   background-color: var(--accent);
-  color: #ffffff;
+  color: var(--nav-active-text);
 }
 
 /* ---------------------------------------------------------
