@@ -1,5 +1,5 @@
-// High level configuration notes for the pitch.
-// In production, these values would live in environment variables.
+// Frontend security configuration.
+// In production, sensitive values live in environment variables.
 
 export const securityConfig = {
   enforceHttps: true,
