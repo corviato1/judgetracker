@@ -42,14 +42,15 @@ npm
   - `server/middleware/rateLimiter.js` — Rate limiting (100 req/15min global, 30 req/15min search)
   - `server/middleware/validation.js` — Input sanitization
   - `server/routes/judges.js` — Judge search/profile/opinions/stats routes
-  - `server/scripts/migrate.js` — DB schema migrations
+  - `server/routes/duel.js` — Judge Duel game API (`GET /api/duel/pair`)
+  - `server/scripts/migrate.js` — DB schema migrations (includes `judge_stats`, `group_stats`, `duel_plays` tables)
   - `server/scripts/computeStats.js` — Batch stats computation script (run on a schedule, e.g. weekly)
 - `src/API/` — Frontend API layer
   - `src/API/api.js` — Unified API with backend → mock fallback
   - `src/API/courtListenerApi.js` — Real backend HTTP client (relative URLs, uses CRA proxy)
   - `src/API/mockApi.js` — Mock data fallback
 - `src/components/` — Reusable UI components
-- `src/pages/` — Page-level components
+- `src/pages/` — Page-level components (includes `JudgeDuelPage.jsx`)
 - `src/data/` — Static sample/mock data
 - `src/security/` — Frontend input validation helpers
 - `public/` — Static HTML, icons, manifest

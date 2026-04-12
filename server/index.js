@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const cors = require("cors");
 const { globalLimiter } = require("./middleware/rateLimiter");
 const judgesRouter = require("./routes/judges");
+const duelRouter = require("./routes/duel");
 
 const PORT = process.env.BACKEND_PORT || 3001;
 const app = express();
@@ -78,6 +79,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/judges", judgesRouter);
+app.use("/api/duel", duelRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Endpoint not found." });

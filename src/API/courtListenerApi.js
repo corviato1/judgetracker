@@ -35,5 +35,15 @@ export async function fetchJudgeStats(judgeId) {
   return data;
 }
 
-const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats };
+export async function fetchDuelPair(filters = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([k, v]) => {
+    if (v && v !== "any") params.set(k, v);
+  });
+  const qs = params.toString();
+  const data = await apiFetch(`/api/duel/pair${qs ? `?${qs}` : ""}`);
+  return data;
+}
+
+const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchDuelPair };
 export default courtListenerApi;

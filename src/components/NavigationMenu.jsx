@@ -16,6 +16,9 @@ const NavigationMenu = () => {
       <NavLink to="/which-judge" className={navClassName}>
         Which Judge Are You?
       </NavLink>
+      <NavLink to="/judge-duel" className={navClassName}>
+        Judge Duel
+      </NavLink>
       <NavLink to="/data-sources" className={navClassName}>
         Data and Coverage
       </NavLink>

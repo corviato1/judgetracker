@@ -69,6 +69,11 @@ const migrations = [
 
   `CREATE INDEX IF NOT EXISTS idx_judge_stats_judge_id ON judge_stats(judge_id)`,
   `CREATE INDEX IF NOT EXISTS idx_group_stats_lookup ON group_stats(group_type, group_value)`,
+
+  `CREATE TABLE IF NOT EXISTS duel_plays (
+    id SERIAL PRIMARY KEY,
+    played_at TIMESTAMP DEFAULT NOW()
+  )`,
 ];
 
 async function migrate() {
