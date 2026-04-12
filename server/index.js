@@ -3,9 +3,13 @@ require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { globalLimiter } = require("./middleware/rateLimiter");
 const judgesRouter = require("./routes/judges");
 const duelRouter = require("./routes/duel");
+const adminRouter = require("./routes/admin");
+const trackRouter = require("./routes/track");
+const quizRouter = require("./routes/quiz");
 
 const PORT = process.env.BACKEND_PORT || 3001;
 const app = express();
@@ -69,8 +73,9 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "50kb" }));
+app.use(express.json({ limit: "200kb" }));
 app.use(express.urlencoded({ extended: false, limit: "50kb" }));
+app.use(cookieParser());
 
 app.use(globalLimiter);
 
@@ -80,6 +85,9 @@ app.get("/health", (req, res) => {
 
 app.use("/api/judges", judgesRouter);
 app.use("/api/duel", duelRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/track", trackRouter);
+app.use("/api/quiz", quizRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Endpoint not found." });

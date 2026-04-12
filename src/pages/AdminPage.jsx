@@ -1,0 +1,765 @@
+import React, { useState, useEffect, useCallback } from "react";
+import "./AdminPage.css";
+
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "traffic", label: "Search & Traffic" },
+  { id: "players", label: "Game Players" },
+  { id: "duel", label: "Judge Duel" },
+  { id: "email", label: "Email Results" },
+  { id: "ratelimits", label: "API & Rate Limits" },
+  { id: "ads", label: "Ad Space" },
+];
+
+function StatCard({ label, value }) {
+  return (
+    <div className="adm-stat-card">
+      <div className="adm-stat-value">{value ?? "—"}</div>
+      <div className="adm-stat-label">{label}</div>
+    </div>
+  );
+}
+
+function AdminLogin({ onLogin }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        onLogin();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Invalid password.");
+      }
+    } catch {
+      setError("Could not reach server.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="adm-login-wrap">
+      <div className="adm-login-box">
+        <h2 className="adm-login-title">Admin Access</h2>
+        <p className="adm-login-sub">JudgeTracker internal dashboard</p>
+        <form onSubmit={handleSubmit} className="adm-login-form">
+          <input
+            type="password"
+            className="adm-login-input"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoFocus
+          />
+          {error && <p className="adm-login-error">{error}</p>}
+          <button className="adm-login-btn" type="submit" disabled={loading}>
+            {loading ? "Checking…" : "Log in"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function OverviewTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/overview", { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load."));
+  }, []);
+
+  if (err) return <p className="adm-err">{err}</p>;
+  if (!data) return <p className="adm-loading">Loading…</p>;
+
+  return (
+    <div>
+      <div className="adm-stat-grid">
+        <StatCard label="Page views (7d)" value={data.pageViews7d} />
+        <StatCard label="Page views (30d)" value={data.pageViews30d} />
+        <StatCard label="Unique sessions (7d)" value={data.uniqueSessions7d} />
+        <StatCard label="Unique sessions (30d)" value={data.uniqueSessions30d} />
+        <StatCard label="Active users (1h)" value={data.activeUsers1h} />
+        <StatCard label="New sessions (30d)" value={data.newSessions} />
+        <StatCard label="Returning sessions (30d)" value={data.returningSessions} />
+      </div>
+
+      <div className="adm-two-col">
+        <div>
+          <h3 className="adm-section-title">Top 10 Judges Viewed</h3>
+          <table className="adm-table">
+            <thead><tr><th>Judge ID</th><th>Views</th></tr></thead>
+            <tbody>
+              {(data.topJudges || []).map((r, i) => (
+                <tr key={i}><td>{r.judge_id}</td><td>{r.views}</td></tr>
+              ))}
+              {!data.topJudges?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 className="adm-section-title">Top 10 Search Queries</h3>
+          <table className="adm-table">
+            <thead><tr><th>Query</th><th>Count</th></tr></thead>
+            <tbody>
+              {(data.topSearches || []).map((r, i) => (
+                <tr key={i}><td>{r.query}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.topSearches?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrafficTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/traffic", { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load."));
+  }, []);
+
+  if (err) return <p className="adm-err">{err}</p>;
+  if (!data) return <p className="adm-loading">Loading…</p>;
+
+  return (
+    <div>
+      <div className="adm-two-col">
+        <div>
+          <h3 className="adm-section-title">Daily Search Volume (30d)</h3>
+          <table className="adm-table">
+            <thead><tr><th>Day</th><th>Searches</th></tr></thead>
+            <tbody>
+              {(data.dailySearchVolume || []).map((r, i) => (
+                <tr key={i}><td>{r.day?.slice(0, 10)}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.dailySearchVolume?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 className="adm-section-title">No-Results Queries</h3>
+          <table className="adm-table">
+            <thead><tr><th>Query</th><th>Count</th></tr></thead>
+            <tbody>
+              {(data.noResultsQueries || []).map((r, i) => (
+                <tr key={i}><td>{r.query}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.noResultsQueries?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="adm-two-col">
+        <div>
+          <h3 className="adm-section-title">Referrers</h3>
+          <table className="adm-table">
+            <thead><tr><th>Referrer</th><th>Count</th></tr></thead>
+            <tbody>
+              {(data.referrers || []).map((r, i) => (
+                <tr key={i}><td className="adm-truncate">{r.referrer || "(direct)"}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.referrers?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 className="adm-section-title">Devices</h3>
+          <table className="adm-table">
+            <thead><tr><th>Device</th><th>Count</th></tr></thead>
+            <tbody>
+              {(data.devices || []).map((r, i) => (
+                <tr key={i}><td>{r.device_type}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.devices?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="adm-two-col">
+        <div>
+          <h3 className="adm-section-title">Browsers</h3>
+          <table className="adm-table">
+            <thead><tr><th>Browser</th><th>Count</th></tr></thead>
+            <tbody>
+              {(data.browsers || []).map((r, i) => (
+                <tr key={i}><td>{r.browser}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.browsers?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 className="adm-section-title">Countries (30d)</h3>
+          <table className="adm-table">
+            <thead><tr><th>Country</th><th>Sessions</th></tr></thead>
+            <tbody>
+              {(data.countries || []).map((r, i) => (
+                <tr key={i}><td>{r.country}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.countries?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3 className="adm-section-title">Avg Time on Page (by route)</h3>
+      <table className="adm-table">
+        <thead><tr><th>Route</th><th>Avg (ms)</th><th>Views</th></tr></thead>
+        <tbody>
+          {(data.timeOnPage || []).map((r, i) => (
+            <tr key={i}><td>{r.route}</td><td>{Math.round(r.avg_ms)}</td><td>{r.views}</td></tr>
+          ))}
+          {!data.timeOnPage?.length && <tr><td colSpan="3" className="adm-empty">No data yet</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PlayersTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+  const [search, setSearch] = useState("");
+  const [expandedId, setExpandedId] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const load = useCallback(() => {
+    fetch(`/api/admin/players?search=${encodeURIComponent(search)}&page=${page}`, { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load."));
+  }, [search, page]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const expand = async (sessionId) => {
+    if (expandedId === sessionId) { setExpandedId(null); setDetail(null); return; }
+    setExpandedId(sessionId);
+    setDetail(null);
+    try {
+      const res = await fetch(`/api/admin/players/${sessionId}`, { credentials: "include" });
+      const d = await res.json();
+      setDetail(d);
+    } catch {
+      setDetail({ error: "Failed to load timeline." });
+    }
+  };
+
+  if (err) return <p className="adm-err">{err}</p>;
+  if (!data) return <p className="adm-loading">Loading…</p>;
+
+  const t = data.totals || {};
+
+  return (
+    <div>
+      <div className="adm-stat-grid">
+        <StatCard label="Total unique players" value={t.total_players} />
+        <StatCard label="Avg rounds/session" value={t.avg_rounds ? Number(t.avg_rounds).toFixed(1) : "—"} />
+        <StatCard label="Duel sessions" value={t.duel_count} />
+        <StatCard label="Quiz sessions" value={t.quiz_count} />
+      </div>
+
+      <div className="adm-search-bar">
+        <input
+          className="adm-search-input"
+          placeholder="Search by session ID…"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+        />
+      </div>
+
+      <table className="adm-table adm-table-full">
+        <thead>
+          <tr>
+            <th>Session ID</th>
+            <th>Game</th>
+            <th>Started</th>
+            <th>Rounds</th>
+            <th>Score</th>
+            <th>Result</th>
+            <th>Device</th>
+            <th>Country</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(data.sessions || []).map((s) => (
+            <React.Fragment key={s.id}>
+              <tr
+                className={`adm-row-clickable ${expandedId === s.session_id ? "adm-row-expanded" : ""}`}
+                onClick={() => expand(s.session_id)}
+              >
+                <td className="adm-mono adm-truncate">{s.session_id}</td>
+                <td>{s.game_type}</td>
+                <td>{s.started_at?.slice(0, 16)}</td>
+                <td>{s.rounds_completed}</td>
+                <td>{s.final_score ?? "—"}</td>
+                <td>{s.result_label || "—"}</td>
+                <td>{s.device_type || "—"}</td>
+                <td>{s.country || "—"}</td>
+              </tr>
+              {expandedId === s.session_id && (
+                <tr>
+                  <td colSpan="8" className="adm-timeline-cell">
+                    {!detail ? (
+                      <p className="adm-loading">Loading timeline…</p>
+                    ) : detail.error ? (
+                      <p className="adm-err">{detail.error}</p>
+                    ) : (
+                      <div className="adm-timeline">
+                        <strong>Event Timeline</strong>
+                        <table className="adm-table" style={{ marginTop: "0.5rem" }}>
+                          <thead><tr><th>Time</th><th>Type</th><th>Route</th><th>Details</th></tr></thead>
+                          <tbody>
+                            {(detail.events || []).map((ev, i) => (
+                              <tr key={i}>
+                                <td>{ev.created_at?.slice(11, 19)}</td>
+                                <td>{ev.event_type}</td>
+                                <td>{ev.route || "—"}</td>
+                                <td className="adm-truncate">{ev.query || ev.judge_id || JSON.stringify(ev.metadata || {}).slice(0, 60)}</td>
+                              </tr>
+                            ))}
+                            {!detail.events?.length && <tr><td colSpan="4" className="adm-empty">No events</td></tr>}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          ))}
+          {!data.sessions?.length && (
+            <tr><td colSpan="8" className="adm-empty">No player sessions yet</td></tr>
+          )}
+        </tbody>
+      </table>
+
+      <div className="adm-pagination">
+        <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="adm-page-btn">← Prev</button>
+        <span>Page {page}</span>
+        <button disabled={data.sessions?.length < 50} onClick={() => setPage((p) => p + 1)} className="adm-page-btn">Next →</button>
+      </div>
+    </div>
+  );
+}
+
+function DuelTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/duel-stats", { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load."));
+  }, []);
+
+  if (err) return <p className="adm-err">{err}</p>;
+  if (!data) return <p className="adm-loading">Loading…</p>;
+
+  const t = data.totals || {};
+
+  return (
+    <div>
+      <div className="adm-stat-grid">
+        <StatCard label="Total games played" value={t.total_games} />
+        <StatCard label="Avg score" value={t.avg_score ? Number(t.avg_score).toFixed(1) : "—"} />
+        <StatCard label="Completion rate" value={t.completion_rate ? `${(t.completion_rate * 100).toFixed(0)}%` : "—"} />
+      </div>
+
+      <div className="adm-two-col">
+        <div>
+          <h3 className="adm-section-title">Most-Selected Winning Judges</h3>
+          <table className="adm-table">
+            <thead><tr><th>Judge</th><th>Wins</th></tr></thead>
+            <tbody>
+              {(data.winningJudges || []).map((r, i) => (
+                <tr key={i}><td>{r.judge_name || r.selected_judge_id}</td><td>{r.wins}</td></tr>
+              ))}
+              {!data.winningJudges?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 className="adm-section-title">Most-Used Filter Combos</h3>
+          <table className="adm-table">
+            <thead><tr><th>Filters</th><th>Count</th></tr></thead>
+            <tbody>
+              {(data.filterCombos || []).map((r, i) => (
+                <tr key={i}><td className="adm-truncate">{r.filter_combo}</td><td>{r.count}</td></tr>
+              ))}
+              {!data.filterCombos?.length && <tr><td colSpan="2" className="adm-empty">No data yet</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3 className="adm-section-title">Per-Stat Win Rates</h3>
+      <table className="adm-table">
+        <thead><tr><th>Stat</th><th>Win Rate</th><th>Rounds</th></tr></thead>
+        <tbody>
+          {(data.statWinRates || []).map((r, i) => (
+            <tr key={i}><td>{r.stat_key}</td><td>{(r.win_rate * 100).toFixed(0)}%</td><td>{r.rounds}</td></tr>
+          ))}
+          {!data.statWinRates?.length && <tr><td colSpan="3" className="adm-empty">No data yet</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function EmailTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+  const [filters, setFilters] = useState({ email: "", dateFrom: "", dateTo: "", judge: "" });
+  const [page, setPage] = useState(1);
+  const [downloading, setDownloading] = useState(null);
+
+  const load = useCallback(() => {
+    const params = new URLSearchParams({
+      page,
+      ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v)),
+    });
+    fetch(`/api/admin/quiz-email-submissions?${params}`, { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load."));
+  }, [filters, page]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const downloadPdf = async (id, email) => {
+    setDownloading(id);
+    try {
+      const res = await fetch(`/api/admin/quiz-email-submissions/${id}/pdf`, { credentials: "include" });
+      if (!res.ok) { alert("PDF not available for this submission."); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `quiz-result-${email.split("@")[0]}-${id}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Download failed.");
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  if (err) return <p className="adm-err">{err}</p>;
+
+  return (
+    <div>
+      <div className="adm-filter-bar">
+        <input className="adm-filter-input" placeholder="Filter by email…" value={filters.email}
+          onChange={(e) => { setFilters((f) => ({ ...f, email: e.target.value })); setPage(1); }} />
+        <input className="adm-filter-input" placeholder="Filter by judge…" value={filters.judge}
+          onChange={(e) => { setFilters((f) => ({ ...f, judge: e.target.value })); setPage(1); }} />
+        <input className="adm-filter-input" type="date" title="From date" value={filters.dateFrom}
+          onChange={(e) => { setFilters((f) => ({ ...f, dateFrom: e.target.value })); setPage(1); }} />
+        <input className="adm-filter-input" type="date" title="To date" value={filters.dateTo}
+          onChange={(e) => { setFilters((f) => ({ ...f, dateTo: e.target.value })); setPage(1); }} />
+      </div>
+
+      {!data ? <p className="adm-loading">Loading…</p> : (
+        <>
+          <table className="adm-table adm-table-full">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Email</th>
+                <th>Session ID</th>
+                <th>Matched Judge</th>
+                <th>Result</th>
+                <th>Submitted</th>
+                <th>PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data.submissions || []).map((s, i) => (
+                <tr key={s.id}>
+                  <td>{(page - 1) * 50 + i + 1}</td>
+                  <td>{s.email}</td>
+                  <td className="adm-mono adm-truncate">{s.session_id}</td>
+                  <td>{s.judge_name || s.matched_judge_id || "—"}</td>
+                  <td>{s.result_label || "—"}</td>
+                  <td>{s.created_at?.slice(0, 16)}</td>
+                  <td>
+                    <button
+                      className="adm-pdf-btn"
+                      disabled={downloading === s.id}
+                      onClick={() => downloadPdf(s.id, s.email)}
+                    >
+                      {downloading === s.id ? "…" : "Download PDF"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {!data.submissions?.length && (
+                <tr><td colSpan="7" className="adm-empty">No submissions yet</td></tr>
+              )}
+            </tbody>
+          </table>
+
+          <div className="adm-pagination">
+            <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="adm-page-btn">← Prev</button>
+            <span>Page {page}</span>
+            <button disabled={data.submissions?.length < 50} onClick={() => setPage((p) => p + 1)} className="adm-page-btn">Next →</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function RateLimitsTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/admin/rate-limits", { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load."));
+  }, []);
+
+  if (err) return <p className="adm-err">{err}</p>;
+  if (!data) return <p className="adm-loading">Loading…</p>;
+
+  const api = data.apiCalls || {};
+  const cache = data.cacheStats || {};
+
+  return (
+    <div>
+      <h3 className="adm-section-title">CourtListener API Calls</h3>
+      <div className="adm-stat-grid">
+        <StatCard label="Today" value={api.today} />
+        <StatCard label="This week" value={api.week} />
+        <StatCard label="This month" value={api.month} />
+        <StatCard label="Cache entries (total)" value={cache.total_entries} />
+        <StatCard label="Cache entries (active)" value={cache.active_entries} />
+      </div>
+
+      <h3 className="adm-section-title">Recent Errors (last 50)</h3>
+      <table className="adm-table">
+        <thead><tr><th>Time</th><th>Type</th><th>Details</th></tr></thead>
+        <tbody>
+          {(data.recentErrors || []).map((e, i) => (
+            <tr key={i}>
+              <td>{e.created_at?.slice(0, 16)}</td>
+              <td>{e.event_type}</td>
+              <td className="adm-truncate">{JSON.stringify(e.metadata || {}).slice(0, 80)}</td>
+            </tr>
+          ))}
+          {!data.recentErrors?.length && <tr><td colSpan="3" className="adm-empty">No errors logged</td></tr>}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AdsTab() {
+  const [placements, setPlacements] = useState(null);
+  const [impressions, setImpressions] = useState(null);
+  const [err, setErr] = useState(null);
+  const [form, setForm] = useState({ name: "", slug: "", dimensions: "", notes: "", active: true });
+  const [saving, setSaving] = useState(false);
+  const [formErr, setFormErr] = useState("");
+
+  const loadPlacements = () =>
+    fetch("/api/admin/ads", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => setPlacements(d.placements))
+      .catch(() => setErr("Failed to load ad placements."));
+
+  const loadImpressions = () =>
+    fetch("/api/admin/ads/impressions", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => setImpressions(d.impressions))
+      .catch(() => {});
+
+  useEffect(() => { loadPlacements(); loadImpressions(); }, []);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setFormErr("");
+    if (!form.name || !form.slug) { setFormErr("Name and slug are required."); return; }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/ads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setFormErr(d.error || "Save failed.");
+      } else {
+        setForm({ name: "", slug: "", dimensions: "", notes: "", active: true });
+        await loadPlacements();
+      }
+    } catch {
+      setFormErr("Network error.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleActive = async (id, current) => {
+    await fetch(`/api/admin/ads/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ active: !current }),
+    });
+    await loadPlacements();
+  };
+
+  if (err) return <p className="adm-err">{err}</p>;
+
+  return (
+    <div>
+      <h3 className="adm-section-title">Ad Placements</h3>
+      {!placements ? <p className="adm-loading">Loading…</p> : (
+        <table className="adm-table adm-table-full">
+          <thead>
+            <tr><th>Name</th><th>Slug</th><th>Dimensions</th><th>Notes</th><th>Active</th></tr>
+          </thead>
+          <tbody>
+            {placements.map((p) => (
+              <tr key={p.id}>
+                <td>{p.name}</td>
+                <td className="adm-mono">{p.slug}</td>
+                <td>{p.dimensions || "—"}</td>
+                <td className="adm-truncate">{p.notes || "—"}</td>
+                <td>
+                  <button
+                    className={p.active ? "adm-toggle-on" : "adm-toggle-off"}
+                    onClick={() => toggleActive(p.id, p.active)}
+                  >
+                    {p.active ? "Active" : "Inactive"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {!placements.length && (
+              <tr><td colSpan="5" className="adm-empty">No placements yet</td></tr>
+            )}
+          </tbody>
+        </table>
+      )}
+
+      <h3 className="adm-section-title" style={{ marginTop: "1.5rem" }}>Add New Placement</h3>
+      <form className="adm-ad-form" onSubmit={handleCreate}>
+        <input className="adm-filter-input" placeholder="Name" value={form.name}
+          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+        <input className="adm-filter-input" placeholder="Slug (e.g. sidebar-top)" value={form.slug}
+          onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
+        <input className="adm-filter-input" placeholder="Dimensions (e.g. 300x250)" value={form.dimensions}
+          onChange={(e) => setForm((f) => ({ ...f, dimensions: e.target.value }))} />
+        <input className="adm-filter-input" placeholder="Notes" value={form.notes}
+          onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+        {formErr && <p className="adm-err">{formErr}</p>}
+        <button className="adm-pdf-btn" type="submit" disabled={saving}>{saving ? "Saving…" : "Add Placement"}</button>
+      </form>
+
+      <h3 className="adm-section-title" style={{ marginTop: "1.5rem" }}>Impressions (last 30d)</h3>
+      {!impressions ? <p className="adm-loading">Loading…</p> : (
+        <table className="adm-table">
+          <thead><tr><th>Placement</th><th>Day</th><th>Impressions</th></tr></thead>
+          <tbody>
+            {impressions.map((r, i) => (
+              <tr key={i}><td>{r.name}</td><td>{r.day?.slice(0, 10)}</td><td>{r.impressions}</td></tr>
+            ))}
+            {!impressions.length && <tr><td colSpan="3" className="adm-empty">No impressions yet</td></tr>}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+const TAB_COMPONENTS = {
+  overview: OverviewTab,
+  traffic: TrafficTab,
+  players: PlayersTab,
+  duel: DuelTab,
+  email: EmailTab,
+  ratelimits: RateLimitsTab,
+  ads: AdsTab,
+};
+
+const AdminPage = () => {
+  const [authenticated, setAuthenticated] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    fetch("/api/admin/session", { credentials: "include" })
+      .then((r) => { if (r.ok) setAuthenticated(true); else setAuthenticated(false); })
+      .catch(() => setAuthenticated(false));
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST", credentials: "include" });
+    setAuthenticated(false);
+  };
+
+  if (authenticated === null) return <p className="adm-loading" style={{ padding: "2rem" }}>Checking session…</p>;
+  if (!authenticated) return <AdminLogin onLogin={() => setAuthenticated(true)} />;
+
+  const TabContent = TAB_COMPONENTS[activeTab] || (() => <p>Tab not found.</p>);
+
+  return (
+    <div className="adm-shell">
+      <div className="adm-header">
+        <span className="adm-header-title">JudgeTracker Admin</span>
+        <button className="adm-logout-btn" onClick={handleLogout}>Log out</button>
+      </div>
+
+      <div className="adm-tabbar">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            className={`adm-tab ${activeTab === t.id ? "adm-tab-active" : ""}`}
+            onClick={() => setActiveTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="adm-content">
+        <TabContent />
+      </div>
+    </div>
+  );
+};
+
+export default AdminPage;

@@ -1,0 +1,330 @@
+.adm-shell {
+  min-height: 100vh;
+  background: #0f1117;
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.adm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: #1a1d2e;
+  border-bottom: 1px solid #2d3142;
+}
+
+.adm-header-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #7c9eff;
+  letter-spacing: 0.03em;
+}
+
+.adm-logout-btn {
+  background: transparent;
+  border: 1px solid #4a5568;
+  color: #a0aec0;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.adm-logout-btn:hover { border-color: #7c9eff; color: #7c9eff; }
+
+.adm-tabbar {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  background: #161925;
+  border-bottom: 1px solid #2d3142;
+  padding: 0 1rem;
+  scrollbar-width: none;
+}
+.adm-tabbar::-webkit-scrollbar { display: none; }
+
+.adm-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #718096;
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.adm-tab:hover { color: #a0aec0; }
+.adm-tab-active {
+  color: #7c9eff;
+  border-bottom-color: #7c9eff;
+}
+
+.adm-content {
+  padding: 1.5rem;
+  max-width: 1200px;
+}
+
+.adm-stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.adm-stat-card {
+  background: #1a1d2e;
+  border: 1px solid #2d3142;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  min-width: 140px;
+  flex: 1;
+}
+
+.adm-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #7c9eff;
+  line-height: 1.1;
+}
+
+.adm-stat-label {
+  font-size: 0.78rem;
+  color: #718096;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adm-section-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #a0aec0;
+  margin: 1.25rem 0 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #2d3142;
+  padding-bottom: 0.35rem;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  margin-bottom: 1rem;
+}
+
+.adm-table th {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  color: #718096;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #2d3142;
+}
+
+.adm-table td {
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid #1e2130;
+  color: #cbd5e0;
+}
+
+.adm-table-full { width: 100%; }
+
+.adm-empty {
+  text-align: center;
+  color: #4a5568;
+  padding: 1rem 0 !important;
+  font-style: italic;
+}
+
+.adm-loading {
+  color: #718096;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
+.adm-err {
+  color: #fc8181;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+}
+
+.adm-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 700px) {
+  .adm-two-col { grid-template-columns: 1fr; }
+}
+
+.adm-truncate {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-mono {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.78rem;
+  color: #a0aec0;
+}
+
+.adm-search-bar, .adm-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.adm-search-input, .adm-filter-input {
+  background: #1a1d2e;
+  border: 1px solid #2d3142;
+  color: #e2e8f0;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  flex: 1;
+  min-width: 140px;
+}
+
+.adm-search-input:focus, .adm-filter-input:focus {
+  outline: none;
+  border-color: #7c9eff;
+}
+
+.adm-row-clickable { cursor: pointer; }
+.adm-row-clickable:hover td { background: #1e2238; }
+.adm-row-expanded td { background: #1a1f35; }
+
+.adm-timeline-cell {
+  background: #141720 !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.adm-timeline { font-size: 0.83rem; }
+
+.adm-pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.adm-page-btn {
+  background: #1a1d2e;
+  border: 1px solid #2d3142;
+  color: #a0aec0;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.adm-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.adm-page-btn:not(:disabled):hover { border-color: #7c9eff; color: #7c9eff; }
+
+.adm-pdf-btn {
+  background: #1a1d2e;
+  border: 1px solid #2d3142;
+  color: #7c9eff;
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.adm-pdf-btn:hover { background: #1e2a4a; }
+.adm-pdf-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.adm-toggle-on, .adm-toggle-off {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border: 1px solid;
+}
+.adm-toggle-on { background: #1a3a2a; border-color: #38a169; color: #68d391; }
+.adm-toggle-off { background: #2d1a1a; border-color: #c53030; color: #fc8181; }
+
+.adm-ad-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.adm-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f1117;
+}
+
+.adm-login-box {
+  background: #1a1d2e;
+  border: 1px solid #2d3142;
+  border-radius: 10px;
+  padding: 2rem;
+  width: 320px;
+  max-width: 90vw;
+}
+
+.adm-login-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 0.25rem;
+}
+
+.adm-login-sub {
+  color: #718096;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.adm-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.adm-login-input {
+  background: #0f1117;
+  border: 1px solid #2d3142;
+  color: #e2e8f0;
+  padding: 0.6rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.adm-login-input:focus { outline: none; border-color: #7c9eff; }
+
+.adm-login-error {
+  color: #fc8181;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.adm-login-btn {
+  background: #2b3fa0;
+  color: #fff;
+  border: none;
+  padding: 0.65rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.adm-login-btn:hover:not(:disabled) { background: #3651c9; }
+.adm-login-btn:disabled { opacity: 0.6; cursor: not-allowed; }

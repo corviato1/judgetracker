@@ -74,6 +74,89 @@ const migrations = [
     id SERIAL PRIMARY KEY,
     played_at TIMESTAMP DEFAULT NOW()
   )`,
+
+  `CREATE TABLE IF NOT EXISTS events (
+    id BIGSERIAL PRIMARY KEY,
+    event_type VARCHAR(100) NOT NULL,
+    session_id VARCHAR(100) NOT NULL,
+    judge_id VARCHAR(50),
+    query VARCHAR(255),
+    route VARCHAR(255),
+    metadata JSONB DEFAULT '{}',
+    ip_hash VARCHAR(32),
+    country VARCHAR(100),
+    region VARCHAR(100),
+    device_type VARCHAR(50),
+    browser VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_events_session ON events(session_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type)`,
+  `CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at)`,
+
+  `CREATE TABLE IF NOT EXISTS game_sessions (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(100) NOT NULL,
+    game_type VARCHAR(20) NOT NULL,
+    started_at TIMESTAMP DEFAULT NOW(),
+    completed_at TIMESTAMP,
+    rounds_completed INTEGER DEFAULT 0,
+    final_score INTEGER,
+    result_label VARCHAR(255),
+    filters JSONB DEFAULT '{}'
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_game_sessions_session ON game_sessions(session_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_game_sessions_type ON game_sessions(game_type)`,
+
+  `CREATE TABLE IF NOT EXISTS game_rounds (
+    id SERIAL PRIMARY KEY,
+    game_session_id INTEGER NOT NULL REFERENCES game_sessions(id) ON DELETE CASCADE,
+    round_number INTEGER NOT NULL,
+    stat_key VARCHAR(100),
+    judge1_id VARCHAR(50),
+    judge2_id VARCHAR(50),
+    selected_judge_id VARCHAR(50),
+    correct BOOLEAN,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_game_rounds_session ON game_rounds(game_session_id)`,
+
+  `CREATE TABLE IF NOT EXISTS quiz_email_submissions (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(100) NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    matched_judge_id VARCHAR(50),
+    result_label VARCHAR(255),
+    match_explanation JSONB DEFAULT '[]',
+    pdf_blob BYTEA,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_quiz_email_session ON quiz_email_submissions(session_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_quiz_email_created ON quiz_email_submissions(created_at)`,
+
+  `CREATE TABLE IF NOT EXISTS ad_placements (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    dimensions VARCHAR(100),
+    notes TEXT,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,
+
+  `CREATE TABLE IF NOT EXISTS ad_impressions (
+    id BIGSERIAL PRIMARY KEY,
+    placement_id INTEGER NOT NULL REFERENCES ad_placements(id) ON DELETE CASCADE,
+    session_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_ad_impressions_placement ON ad_impressions(placement_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_ad_impressions_created ON ad_impressions(created_at)`,
 ];
 
 async function migrate() {
