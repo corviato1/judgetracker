@@ -9,14 +9,23 @@ const judgesRouter = require("./routes/judges");
 const PORT = process.env.BACKEND_PORT || 3001;
 const app = express();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:5000",
-  `http://localhost:5000`,
-  `http://0.0.0.0:5000`,
-];
+function buildAllowedOriginSet() {
+  const origins = new Set();
+  const add = (v) => v && origins.add(v.replace(/\/$/, "").toLowerCase());
 
-if (process.env.REPLIT_DEV_DOMAIN) {
-  allowedOrigins.push(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+  add("http://localhost:5000");
+  add("http://127.0.0.1:5000");
+  if (process.env.FRONTEND_URL) add(process.env.FRONTEND_URL);
+  if (process.env.REPLIT_DEV_DOMAIN) add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+
+  return origins;
+}
+
+const ALLOWED_ORIGINS = buildAllowedOriginSet();
+
+function isOriginAllowed(origin) {
+  if (!origin) return false;
+  return ALLOWED_ORIGINS.has(origin.replace(/\/$/, "").toLowerCase());
 }
 
 app.set("trust proxy", 1);
@@ -44,10 +53,15 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.some((o) => origin.startsWith(o.replace(/\/$/, "")))) {
+      if (!origin) {
+        callback(null, false);
+        return;
+      }
+      if (isOriginAllowed(origin)) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS: origin '${origin}' not allowed`));
+        console.warn(`[CORS] Rejected origin: ${origin}`);
+        callback(null, false);
       }
     },
     credentials: true,
