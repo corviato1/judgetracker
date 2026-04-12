@@ -26,7 +26,7 @@ npm
 
 ## Tech Stack
 - **Frontend:** React 19, React Router 7, Create React App
-- **Backend:** Node.js, Express 4, Helmet, CORS, express-rate-limit
+- **Backend:** Node.js, Express 5, Helmet, CORS, express-rate-limit
 - **Database:** PostgreSQL (Replit built-in, `pg` package)
 - **Styling:** CSS3 (global + component styles)
 

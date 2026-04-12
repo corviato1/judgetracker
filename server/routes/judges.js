@@ -191,6 +191,15 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
 
     await setCache(cacheKey, opinions);
 
+    for (const o of opinions) {
+      await pool.query(
+        `INSERT INTO opinions (courtlistener_id, judge_id, case_name, court_name, date_filed, opinion_type, citation, summary)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (courtlistener_id) DO NOTHING`,
+        [o.id || null, id, o.caseName, o.courtName, o.dateFiled || null, o.opinionType, o.citation, o.summary]
+      ).catch((err) => console.warn("[DB] Opinion insert skip:", err.message));
+    }
+
     return res.json({ opinions, cached: false });
   } catch (err) {
     console.error("[CL] Opinions fetch error:", err.message);

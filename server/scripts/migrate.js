@@ -18,6 +18,7 @@ const migrations = [
 
   `CREATE TABLE IF NOT EXISTS opinions (
     id SERIAL PRIMARY KEY,
+    courtlistener_id VARCHAR(50) UNIQUE,
     judge_id VARCHAR(50) NOT NULL,
     case_name VARCHAR(500),
     court_name VARCHAR(255),
@@ -38,6 +39,8 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_api_cache_expires ON api_cache(expires_at)`,
   `CREATE INDEX IF NOT EXISTS idx_judges_name ON judges(name)`,
   `CREATE INDEX IF NOT EXISTS idx_opinions_judge_id ON opinions(judge_id)`,
+  `ALTER TABLE opinions ADD COLUMN IF NOT EXISTS courtlistener_id VARCHAR(50)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_opinions_cl_id ON opinions(courtlistener_id) WHERE courtlistener_id IS NOT NULL`,
 ];
 
 async function migrate() {
