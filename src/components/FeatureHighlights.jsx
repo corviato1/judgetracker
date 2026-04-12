@@ -4,10 +4,10 @@ import featureHighlights from "../data/featureHighlights";
 const FeatureHighlights = () => {
   return (
     <section>
-      <h3 className="section-heading">What JudgeTracker will deliver</h3>
+      <h3 className="section-heading">What JudgeTracker does</h3>
       <p className="section-subheading">
-        This demo focuses on the core experience: finding a judge, exploring
-        their rulings, and understanding patterns that matter to practitioners.
+        Find any federal judge, explore their rulings, and understand the
+        patterns that matter to practitioners, journalists, and policy teams.
       </p>
       <div className="card-grid">
         {featureHighlights.map((feature) => (

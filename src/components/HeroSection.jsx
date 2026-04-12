@@ -8,7 +8,6 @@ const HeroSection = () => {
   return (
     <section className="hero-container">
       <div>
-        <p className="small-label">Pitch Demo</p>
         <h2 className="hero-heading">
           A search engine for judges, rulings, and case histories.
         </h2>
@@ -29,13 +28,13 @@ const HeroSection = () => {
             className="hero-button-primary"
             onClick={() => navigate("/search")}
           >
-            Try the judge search demo
+            Search judges
           </button>
           <button
             className="hero-button-secondary"
             onClick={() => navigate("/data-sources")}
           >
-            View data and coverage plan
+            Data &amp; coverage
           </button>
         </div>
       </div>

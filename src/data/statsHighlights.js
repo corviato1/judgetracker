@@ -1,18 +1,18 @@
 const statsHighlights = [
   {
     id: "s1",
-    value: "3",
-    label: "jurisdictions in this demo dataset",
+    value: "2,600+",
+    label: "federal judges indexed",
   },
   {
     id: "s2",
-    value: "4",
-    label: "sample opinions shown per judge",
+    value: "4M+",
+    label: "opinions in the CourtListener corpus",
   },
   {
     id: "s3",
     value: "Under 1s",
-    label: "target response time for judge search",
+    label: "search response time",
   },
 ];
 
