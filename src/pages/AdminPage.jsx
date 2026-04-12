@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./AdminPage.css";
+import ThemeToggle from "../components/ThemeToggle";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -740,7 +741,10 @@ const AdminPage = () => {
     <div className="adm-shell">
       <div className="adm-header">
         <span className="adm-header-title">JudgeTracker Admin</span>
-        <button className="adm-logout-btn" onClick={handleLogout}>Log out</button>
+        <div className="adm-header-right">
+          <ThemeToggle />
+          <button className="adm-logout-btn" onClick={handleLogout}>Log out</button>
+        </div>
       </div>
 
       <div className="adm-tabbar">

@@ -1,8 +1,83 @@
+/* ---------------------------------------------------------
+   Admin CSS Variables — Dark defaults
+--------------------------------------------------------- */
+
+:root {
+  --adm-bg:         #0f1117;
+  --adm-card:       #1a1d2e;
+  --adm-surface:    #161925;
+  --adm-input-bg:   #0f1117;
+  --adm-border:     #2d3142;
+  --adm-border-sub: #1e2130;
+  --adm-row-hover:  #1e2238;
+  --adm-row-expand: #1a1f35;
+  --adm-timeline:   #141720;
+  --adm-text:       #e2e8f0;
+  --adm-text-sec:   #cbd5e0;
+  --adm-text-mut:   #a0aec0;
+  --adm-text-faint: #718096;
+  --adm-text-empty: #4a5568;
+  --adm-accent:     #7c9eff;
+  --adm-accent-bg:  #1e2a4a;
+  --adm-pdf-hover:  #1e2a4a;
+  --adm-error:      #fc8181;
+  --adm-mono:       #a0aec0;
+  --adm-toggle-on-bg:     #1a3a2a;
+  --adm-toggle-on-border: #38a169;
+  --adm-toggle-on-text:   #68d391;
+  --adm-toggle-off-bg:     #2d1a1a;
+  --adm-toggle-off-border: #c53030;
+  --adm-toggle-off-text:   #fc8181;
+  --adm-login-btn:       #2b3fa0;
+  --adm-login-btn-hover: #3651c9;
+  --adm-pagination-color: #718096;
+}
+
+/* ---------------------------------------------------------
+   Light theme admin overrides
+--------------------------------------------------------- */
+
+[data-theme="light"] {
+  --adm-bg:         #f5f7ff;
+  --adm-card:       #ffffff;
+  --adm-surface:    #edf0ff;
+  --adm-input-bg:   #ffffff;
+  --adm-border:     rgba(0, 0, 0, 0.10);
+  --adm-border-sub: rgba(0, 0, 0, 0.06);
+  --adm-row-hover:  #f0f4ff;
+  --adm-row-expand: #eef1ff;
+  --adm-timeline:   #f8faff;
+  --adm-text:       #0f1535;
+  --adm-text-sec:   #1e2d60;
+  --adm-text-mut:   #3a4a80;
+  --adm-text-faint: #5060a0;
+  --adm-text-empty: #6875b0;
+  --adm-accent:     #4f6df5;
+  --adm-accent-bg:  rgba(79, 109, 245, 0.08);
+  --adm-pdf-hover:  rgba(79, 109, 245, 0.08);
+  --adm-error:      #b91c1c;
+  --adm-mono:       #3a4a80;
+  --adm-toggle-on-bg:     rgba(56, 161, 105, 0.10);
+  --adm-toggle-on-border: #38a169;
+  --adm-toggle-on-text:   #166534;
+  --adm-toggle-off-bg:     rgba(197, 48, 48, 0.08);
+  --adm-toggle-off-border: #c53030;
+  --adm-toggle-off-text:   #9b1c1c;
+  --adm-login-btn:  #3a52d4;
+  --adm-login-btn-hover: #4f6df5;
+  --adm-pagination-color: #5060a0;
+}
+
+/* ---------------------------------------------------------
+   Admin Shell
+--------------------------------------------------------- */
+
 .adm-shell {
   min-height: 100vh;
-  background: #0f1117;
-  color: #e2e8f0;
+  background: var(--adm-bg);
+  color: var(--adm-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .adm-header {
@@ -10,37 +85,45 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: #1a1d2e;
-  border-bottom: 1px solid #2d3142;
+  background: var(--adm-card);
+  border-bottom: 1px solid var(--adm-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .adm-header-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #7c9eff;
+  color: var(--adm-accent);
   letter-spacing: 0.03em;
+}
+
+.adm-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .adm-logout-btn {
   background: transparent;
-  border: 1px solid #4a5568;
-  color: #a0aec0;
+  border: 1px solid var(--adm-text-faint);
+  color: var(--adm-text-mut);
   padding: 0.3rem 0.75rem;
   border-radius: 4px;
   font-size: 0.82rem;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
-.adm-logout-btn:hover { border-color: #7c9eff; color: #7c9eff; }
+.adm-logout-btn:hover { border-color: var(--adm-accent); color: var(--adm-accent); }
 
 .adm-tabbar {
   display: flex;
   gap: 0;
   overflow-x: auto;
-  background: #161925;
-  border-bottom: 1px solid #2d3142;
+  background: var(--adm-surface);
+  border-bottom: 1px solid var(--adm-border);
   padding: 0 1rem;
   scrollbar-width: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .adm-tabbar::-webkit-scrollbar { display: none; }
 
@@ -48,17 +131,17 @@
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #718096;
+  color: var(--adm-text-faint);
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 }
-.adm-tab:hover { color: #a0aec0; }
+.adm-tab:hover { color: var(--adm-text-mut); }
 .adm-tab-active {
-  color: #7c9eff;
-  border-bottom-color: #7c9eff;
+  color: var(--adm-accent);
+  border-bottom-color: var(--adm-accent);
 }
 
 .adm-content {
@@ -74,24 +157,25 @@
 }
 
 .adm-stat-card {
-  background: #1a1d2e;
-  border: 1px solid #2d3142;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   padding: 1rem 1.25rem;
   min-width: 140px;
   flex: 1;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .adm-stat-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #7c9eff;
+  color: var(--adm-accent);
   line-height: 1.1;
 }
 
 .adm-stat-label {
   font-size: 0.78rem;
-  color: #718096;
+  color: var(--adm-text-faint);
   margin-top: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -100,11 +184,11 @@
 .adm-section-title {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #a0aec0;
+  color: var(--adm-text-mut);
   margin: 1.25rem 0 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid #2d3142;
+  border-bottom: 1px solid var(--adm-border);
   padding-bottom: 0.35rem;
 }
 
@@ -118,37 +202,37 @@
 .adm-table th {
   text-align: left;
   padding: 0.45rem 0.6rem;
-  color: #718096;
+  color: var(--adm-text-faint);
   font-weight: 600;
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #2d3142;
+  border-bottom: 1px solid var(--adm-border);
 }
 
 .adm-table td {
   padding: 0.45rem 0.6rem;
-  border-bottom: 1px solid #1e2130;
-  color: #cbd5e0;
+  border-bottom: 1px solid var(--adm-border-sub);
+  color: var(--adm-text-sec);
 }
 
 .adm-table-full { width: 100%; }
 
 .adm-empty {
   text-align: center;
-  color: #4a5568;
+  color: var(--adm-text-empty);
   padding: 1rem 0 !important;
   font-style: italic;
 }
 
 .adm-loading {
-  color: #718096;
+  color: var(--adm-text-faint);
   font-size: 0.9rem;
   padding: 1rem 0;
 }
 
 .adm-err {
-  color: #fc8181;
+  color: var(--adm-error);
   font-size: 0.9rem;
   padding: 0.5rem 0;
 }
@@ -174,7 +258,7 @@
 .adm-mono {
   font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 0.78rem;
-  color: #a0aec0;
+  color: var(--adm-mono);
 }
 
 .adm-search-bar, .adm-filter-bar {
@@ -185,27 +269,28 @@
 }
 
 .adm-search-input, .adm-filter-input {
-  background: #1a1d2e;
-  border: 1px solid #2d3142;
-  color: #e2e8f0;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-text);
   padding: 0.4rem 0.75rem;
   border-radius: 4px;
   font-size: 0.85rem;
   flex: 1;
   min-width: 140px;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .adm-search-input:focus, .adm-filter-input:focus {
   outline: none;
-  border-color: #7c9eff;
+  border-color: var(--adm-accent);
 }
 
 .adm-row-clickable { cursor: pointer; }
-.adm-row-clickable:hover td { background: #1e2238; }
-.adm-row-expanded td { background: #1a1f35; }
+.adm-row-clickable:hover td { background: var(--adm-row-hover); }
+.adm-row-expanded td { background: var(--adm-row-expand); }
 
 .adm-timeline-cell {
-  background: #141720 !important;
+  background: var(--adm-timeline) !important;
   padding: 0.75rem 1rem !important;
 }
 
@@ -216,33 +301,35 @@
   align-items: center;
   gap: 1rem;
   margin-top: 0.75rem;
-  color: #718096;
+  color: var(--adm-pagination-color);
   font-size: 0.85rem;
 }
 
 .adm-page-btn {
-  background: #1a1d2e;
-  border: 1px solid #2d3142;
-  color: #a0aec0;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-text-mut);
   padding: 0.3rem 0.75rem;
   border-radius: 4px;
   font-size: 0.82rem;
   cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 .adm-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.adm-page-btn:not(:disabled):hover { border-color: #7c9eff; color: #7c9eff; }
+.adm-page-btn:not(:disabled):hover { border-color: var(--adm-accent); color: var(--adm-accent); }
 
 .adm-pdf-btn {
-  background: #1a1d2e;
-  border: 1px solid #2d3142;
-  color: #7c9eff;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-accent);
   padding: 0.3rem 0.65rem;
   border-radius: 4px;
   font-size: 0.8rem;
   cursor: pointer;
   white-space: nowrap;
+  transition: background-color 0.3s ease;
 }
-.adm-pdf-btn:hover { background: #1e2a4a; }
+.adm-pdf-btn:hover { background: var(--adm-pdf-hover); }
 .adm-pdf-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .adm-toggle-on, .adm-toggle-off {
@@ -252,8 +339,16 @@
   cursor: pointer;
   border: 1px solid;
 }
-.adm-toggle-on { background: #1a3a2a; border-color: #38a169; color: #68d391; }
-.adm-toggle-off { background: #2d1a1a; border-color: #c53030; color: #fc8181; }
+.adm-toggle-on {
+  background: var(--adm-toggle-on-bg);
+  border-color: var(--adm-toggle-on-border);
+  color: var(--adm-toggle-on-text);
+}
+.adm-toggle-off {
+  background: var(--adm-toggle-off-bg);
+  border-color: var(--adm-toggle-off-border);
+  color: var(--adm-toggle-off-text);
+}
 
 .adm-ad-form {
   display: flex;
@@ -263,32 +358,38 @@
   margin-bottom: 1rem;
 }
 
+/* ---------------------------------------------------------
+   Login Screen
+--------------------------------------------------------- */
+
 .adm-login-wrap {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0f1117;
+  background: var(--adm-bg);
+  transition: background-color 0.3s ease;
 }
 
 .adm-login-box {
-  background: #1a1d2e;
-  border: 1px solid #2d3142;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-border);
   border-radius: 10px;
   padding: 2rem;
   width: 320px;
   max-width: 90vw;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .adm-login-title {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--adm-text);
   margin-bottom: 0.25rem;
 }
 
 .adm-login-sub {
-  color: #718096;
+  color: var(--adm-text-faint);
   font-size: 0.85rem;
   margin-bottom: 1.25rem;
 }
@@ -300,23 +401,24 @@
 }
 
 .adm-login-input {
-  background: #0f1117;
-  border: 1px solid #2d3142;
-  color: #e2e8f0;
+  background: var(--adm-input-bg);
+  border: 1px solid var(--adm-border);
+  color: var(--adm-text);
   padding: 0.6rem 0.85rem;
   border-radius: 6px;
   font-size: 0.95rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
-.adm-login-input:focus { outline: none; border-color: #7c9eff; }
+.adm-login-input:focus { outline: none; border-color: var(--adm-accent); }
 
 .adm-login-error {
-  color: #fc8181;
+  color: var(--adm-error);
   font-size: 0.85rem;
   margin: 0;
 }
 
 .adm-login-btn {
-  background: #2b3fa0;
+  background: var(--adm-login-btn);
   color: #fff;
   border: none;
   padding: 0.65rem;
@@ -326,5 +428,5 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.adm-login-btn:hover:not(:disabled) { background: #3651c9; }
+.adm-login-btn:hover:not(:disabled) { background: var(--adm-login-btn-hover); }
 .adm-login-btn:disabled { opacity: 0.6; cursor: not-allowed; }

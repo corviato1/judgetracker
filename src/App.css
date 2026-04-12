@@ -17,7 +17,7 @@
   --border-l:     rgba(255, 255, 255, 0.25);
   --border-input: rgba(255, 255, 255, 0.35);
 
-  /* Text */
+  /* Text on variable-background surfaces */
   --text-primary:   #f5f5f5;
   --text-secondary: #e8ebff;
   --text-tertiary:  #d6ddff;
@@ -29,14 +29,46 @@
   --text-faint:     #8187b3;
 
   /* Accent — identical in both themes */
-  --accent:              #4f6df5;
-  --accent-hover:        #3e57c4;
-  --accent-dark:         #2f3fb5;
-  --accent-dark-hover:   #243392;
+  --accent:            #4f6df5;
+  --accent-hover:      #3e57c4;
+  --accent-dark:       #2f3fb5;
+  --accent-dark-hover: #243392;
 
   /* Navigation */
-  --nav-link-color:    #d6ddff;
-  --nav-hover-bg:      #2a3a78;
+  --nav-link-color: #d6ddff;
+  --nav-hover-bg:   #2a3a78;
+
+  /* Header / Footer (intentionally the same in both themes — brand blue) */
+  --header-gradient: linear-gradient(90deg, #141a33, #1d2747);
+  --header-text:     #ffffff;
+  --footer-border:   rgba(255, 255, 255, 0.08);
+
+  /* "On blue" — text/borders inside always-blue containers (hero, duel banner, etc.) */
+  --on-blue-text:         #e8ebff;
+  --on-blue-muted:        #d6ddff;
+  --on-blue-dimmer:       #c3c9f5;
+  --on-blue-stat:         #cbd2ff;
+  --on-blue-border:       rgba(255, 255, 255, 0.18);
+  --on-blue-border-btn:   rgba(255, 255, 255, 0.30);
+  --on-blue-hover:        rgba(255, 255, 255, 0.08);
+
+  /* Results (inside always-blue duel-results-header) */
+  --results-verdict: #93c5fd;
+  --results-pct:     #c3c9f5;
+
+  /* Status / Semantic colors */
+  --status-win-border:      #22c55e;
+  --status-win-bg:          rgba(34, 197, 94, 0.08);
+  --status-win-badge-bg:    #22c55e;
+  --status-win-badge-text:  #0b1020;
+  --status-correct-bg:      rgba(34, 197, 94, 0.15);
+  --status-correct-border:  rgba(34, 197, 94, 0.35);
+  --status-correct-text:    #86efac;
+  --status-wrong-bg:        rgba(239, 68, 68, 0.12);
+  --status-wrong-border:    rgba(239, 68, 68, 0.30);
+  --status-wrong-text:      #fca5a5;
+  --status-correct-outcome: #22c55e;
+  --status-wrong-outcome:   #ef4444;
 
   /* Gradients */
   --hero-gradient:          radial-gradient(circle at top left, #283a96, #0b1020);
@@ -44,17 +76,16 @@
   --duel-question-gradient: linear-gradient(135deg, #1e295e, #141a33);
   --duel-results-gradient:  radial-gradient(circle at center, #1e295e, #0b1020);
 
-  /* Special */
-  --progress-bg:       rgba(255, 255, 255, 0.12);
+  /* Misc */
+  --progress-bg:         rgba(255, 255, 255, 0.12);
   --duel-question-color: #e8ebff;
-  --duel-vs-color:     #8187b3;
-  --ad-stripe-a:       #10162b;
-  --ad-stripe-b:       #151c34;
+  --duel-vs-color:       #8187b3;
+  --ad-stripe-a:         #10162b;
+  --ad-stripe-b:         #151c34;
 }
 
 /* ---------------------------------------------------------
-   Light theme overrides  (applied via data-theme="light"
-   on <html>, set by ThemeProvider)
+   Light theme overrides  (data-theme="light" on <html>)
 --------------------------------------------------------- */
 
 [data-theme="light"] {
@@ -72,7 +103,7 @@
   --border-l:     rgba(0, 0, 0, 0.18);
   --border-input: rgba(0, 0, 0, 0.25);
 
-  /* Text */
+  /* Text on variable-background surfaces */
   --text-primary:   #0f1535;
   --text-secondary: #1a2460;
   --text-tertiary:  #2a3870;
@@ -84,21 +115,28 @@
   --text-faint:     #6070a8;
 
   /* Navigation */
-  --nav-link-color:  #1e2d80;
-  --nav-hover-bg:    rgba(79, 109, 245, 0.12);
+  --nav-link-color: #1e2d80;
+  --nav-hover-bg:   rgba(79, 109, 245, 0.12);
 
-  /* Gradients — hero/banner stays blue in light mode */
+  /* Footer border for light theme */
+  --footer-border: rgba(0, 0, 0, 0.08);
+
+  /* Gradients — hero/duel-banner stays blue in light mode */
   --hero-gradient:          radial-gradient(circle at top left, #3a52d4, #4f6df5);
   --duel-banner-gradient:   radial-gradient(circle at top left, #3a52d4, #4f6df5);
   --duel-question-gradient: linear-gradient(135deg, #dde5ff, #eef1ff);
   --duel-results-gradient:  radial-gradient(circle at center, #3a52d4, #4f6df5);
 
-  /* Special */
-  --progress-bg:        rgba(0, 0, 0, 0.10);
+  /* Misc */
+  --progress-bg:         rgba(0, 0, 0, 0.10);
   --duel-question-color: #0f1535;
-  --duel-vs-color:      #6070a8;
-  --ad-stripe-a:        #f0f4ff;
-  --ad-stripe-b:        #e8eeff;
+  --duel-vs-color:       #6070a8;
+  --ad-stripe-a:         #f0f4ff;
+  --ad-stripe-b:         #e8eeff;
+
+  /* Status — adjust text for light card backgrounds */
+  --status-correct-text: #15803d;
+  --status-wrong-text:   #b91c1c;
 }
 
 /* ---------------------------------------------------------
@@ -131,12 +169,11 @@ body {
   margin: 0 auto;
 }
 
-/* Header and footer keep the dark blue gradient in both themes — this is
-   the "blue" constant that makes the app feel branded. */
+/* Header and footer keep the blue gradient in both themes — brand constant */
 header,
 footer {
-  background: linear-gradient(90deg, #141a33, #1d2747);
-  color: #ffffff;
+  background: var(--header-gradient);
+  color: var(--header-text);
 }
 
 header {
@@ -147,7 +184,7 @@ footer {
   padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--footer-border);
 }
 
 /* ---------------------------------------------------------
@@ -186,7 +223,7 @@ footer {
 
 /* ---------------------------------------------------------
    Hero Section
-   (background is always blue; most text stays white)
+   (background is always blue; text stays white on blue)
 --------------------------------------------------------- */
 
 .hero-container {
@@ -207,7 +244,7 @@ footer {
 .hero-subheading {
   font-size: 1rem;
   max-width: 640px;
-  color: #d6ddff;
+  color: var(--on-blue-muted);
 }
 
 .hero-pill-row {
@@ -220,9 +257,9 @@ footer {
 .hero-pill {
   padding: 0.15rem 0.75rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--on-blue-border);
   font-size: 0.75rem;
-  color: #e8ebff;
+  color: var(--on-blue-text);
 }
 
 .hero-actions {
@@ -244,7 +281,7 @@ footer {
 
 .hero-button-primary {
   background-color: var(--accent);
-  color: white;
+  color: var(--header-text);
 }
 
 .hero-button-primary:hover {
@@ -253,12 +290,12 @@ footer {
 
 .hero-button-secondary {
   background-color: transparent;
-  color: #e8ebff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--on-blue-text);
+  border: 1px solid var(--on-blue-border-btn);
 }
 
 .hero-button-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--on-blue-hover);
 }
 
 .hero-stat-bar {
@@ -267,7 +304,7 @@ footer {
   gap: 1.25rem;
   margin-top: 1.25rem;
   font-size: 0.85rem;
-  color: #cbd2ff;
+  color: var(--on-blue-stat);
 }
 
 /* ---------------------------------------------------------
@@ -347,7 +384,7 @@ footer {
   border-radius: 999px;
   border: none;
   background-color: var(--accent);
-  color: white;
+  color: var(--header-text);
   cursor: pointer;
   font-weight: 500;
 }
@@ -392,7 +429,7 @@ footer {
   border-radius: 999px;
   border: none;
   background-color: var(--accent-dark);
-  color: white;
+  color: var(--header-text);
   cursor: pointer;
   font-size: 0.8rem;
 }
@@ -602,7 +639,7 @@ footer {
 
 .duel-subtitle {
   font-size: 0.95rem;
-  color: #c3c9f5;
+  color: var(--on-blue-dimmer);
   margin: 0;
 }
 
@@ -663,7 +700,7 @@ footer {
   border-radius: 999px;
   border: none;
   background-color: var(--accent);
-  color: white;
+  color: var(--header-text);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -798,8 +835,8 @@ footer {
 }
 
 .duel-card-winner {
-  border-color: #22c55e;
-  background-color: rgba(34, 197, 94, 0.08);
+  border-color: var(--status-win-border);
+  background-color: var(--status-win-bg);
 }
 
 .duel-card-loser {
@@ -817,8 +854,8 @@ footer {
 
 .duel-card-winner-badge {
   display: inline-block;
-  background-color: #22c55e;
-  color: #0b1020;
+  background-color: var(--status-win-badge-bg);
+  color: var(--status-win-badge-text);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.15rem 0.55rem;
@@ -902,15 +939,15 @@ footer {
 }
 
 .duel-result-correct {
-  background-color: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.35);
-  color: #86efac;
+  background-color: var(--status-correct-bg);
+  border: 1px solid var(--status-correct-border);
+  color: var(--status-correct-text);
 }
 
 .duel-result-wrong {
-  background-color: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
+  background-color: var(--status-wrong-bg);
+  border: 1px solid var(--status-wrong-border);
+  color: var(--status-wrong-text);
 }
 
 .duel-result-icon {
@@ -924,7 +961,7 @@ footer {
   border-radius: 999px;
   border: none;
   background-color: var(--accent);
-  color: white;
+  color: var(--header-text);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -943,10 +980,10 @@ footer {
 
 .duel-error {
   padding: 1rem 1.25rem;
-  background-color: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: var(--status-wrong-bg);
+  border: 1px solid var(--status-wrong-border);
   border-radius: 0.75rem;
-  color: #fca5a5;
+  color: var(--status-wrong-text);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -960,6 +997,7 @@ footer {
   margin: 0 auto;
 }
 
+/* Results header stays blue in both themes (like hero/duel-banner) */
 .duel-results-header {
   text-align: center;
   padding: 2rem 1.5rem;
@@ -973,12 +1011,13 @@ footer {
   font-size: 1.6rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
+  color: var(--header-text);
 }
 
 .duel-results-verdict {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #93c5fd;
+  color: var(--results-verdict);
   margin-bottom: 0.5rem;
 }
 
@@ -986,11 +1025,12 @@ footer {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 0.25rem;
+  color: var(--header-text);
 }
 
 .duel-results-pct {
   font-size: 0.95rem;
-  color: #c3c9f5;
+  color: var(--results-pct);
 }
 
 .duel-results-breakdown {
@@ -1037,11 +1077,11 @@ footer {
 }
 
 .duel-results-row-correct .duel-results-outcome {
-  color: #22c55e;
+  color: var(--status-correct-outcome);
 }
 
 .duel-results-row-wrong .duel-results-outcome {
-  color: #ef4444;
+  color: var(--status-wrong-outcome);
 }
 
 .duel-results-actions {
