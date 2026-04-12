@@ -17,7 +17,7 @@ for i in $(seq 1 15); do
   sleep 1
 done
 
-echo "[STARTUP] Starting React frontend on port 5000..."
-PORT=5000 HOST=0.0.0.0 npm start
+echo "[STARTUP] Starting frontend on port 5000..."
+npm start
 
 kill $BACKEND_PID 2>/dev/null || true
