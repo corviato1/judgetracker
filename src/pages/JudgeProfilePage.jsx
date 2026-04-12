@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
-import sampleJudges from "../data/sampleJudges";
-import { getOpinionsForJudge } from "../API/mockApi";
-
+import { getJudgeById, getOpinionsForJudge } from "../API/api";
 import JudgeDetail from "../components/JudgeDetail";
 import OpinionList from "../components/OpinionList";
 
@@ -11,28 +8,60 @@ const JudgeProfilePage = () => {
   const { judgeId } = useParams();
   const [judge, setJudge] = useState(null);
   const [opinions, setOpinions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!judgeId) return;
-    const numericId = Number(judgeId);
-    const foundJudge = sampleJudges.find((j) => j.id === numericId);
-    setJudge(foundJudge || null);
 
-    const fetchOpinions = async () => {
-      const judgeOpinions = await getOpinionsForJudge(numericId);
-      setOpinions(judgeOpinions);
-    };
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-    fetchOpinions();
+    async function load() {
+      try {
+        const [foundJudge, judgeOpinions] = await Promise.all([
+          getJudgeById(judgeId),
+          getOpinionsForJudge(judgeId),
+        ]);
+        if (!cancelled) {
+          setJudge(foundJudge || null);
+          setOpinions(judgeOpinions);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
   }, [judgeId]);
+
+  if (loading) {
+    return (
+      <div>
+        <h2 className="section-heading">Judge profile</h2>
+        <p className="section-subheading">Loading judge data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h2 className="section-heading">Judge profile</h2>
+        <p className="section-subheading">Error: {error}</p>
+      </div>
+    );
+  }
 
   if (!judge) {
     return (
       <div>
         <h2 className="section-heading">Judge profile</h2>
-        <p className="section-subheading">
-          No judge found for this identifier in the sample dataset.
-        </p>
+        <p className="section-subheading">No judge found for this identifier.</p>
       </div>
     );
   }

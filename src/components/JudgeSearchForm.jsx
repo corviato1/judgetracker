@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { sanitizeSearchQuery } from "../security/inputValidation";
-import { searchJudgesByName } from "../API/mockApi";
+import { searchJudgesByName } from "../API/api";
 
 const JudgeSearchForm = ({ onResults }) => {
   const [query, setQuery] = useState("");

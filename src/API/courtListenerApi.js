@@ -1,39 +1,34 @@
-// This file describes how the production API layer will look.
-// For the demo, the application uses mockApi.js instead.
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "https://api.example.com";
-
-export const fetchJudges = async (query) => {
-  const url = new URL("/judges/search", API_BASE_URL);
-  url.searchParams.set("name", query);
-
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+async function apiFetch(path, options = {}) {
+  const url = `${BACKEND_URL}${path}`;
+  const response = await fetch(url, {
+    headers: { "Content-Type": "application/json", ...options.headers },
+    ...options,
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch judges: ${response.status}`);
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || `API error ${response.status}`);
   }
 
   return response.json();
-};
+}
 
-export const fetchJudgeOpinions = async (judgeId) => {
-  const url = new URL(`/judges/${judgeId}/opinions`, API_BASE_URL);
+export async function searchJudges(query) {
+  const data = await apiFetch(`/api/judges/search?q=${encodeURIComponent(query)}`);
+  return data.results || [];
+}
 
-  const response = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export async function fetchJudgeById(id) {
+  const data = await apiFetch(`/api/judges/${id}`);
+  return data.judge;
+}
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch opinions: ${response.status}`);
-  }
+export async function fetchJudgeOpinions(judgeId) {
+  const data = await apiFetch(`/api/judges/${judgeId}/opinions`);
+  return data.opinions || [];
+}
 
-  return response.json();
-};
+const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions };
+export default courtListenerApi;

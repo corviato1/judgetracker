@@ -4,7 +4,7 @@ import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeList from "../components/JudgeList";
 import JudgeDetail from "../components/JudgeDetail";
 import OpinionList from "../components/OpinionList";
-import { getOpinionsForJudge } from "../API/mockApi";
+import { getOpinionsForJudge } from "../API/api";
 
 const JudgeSearchPage = () => {
   const [results, setResults] = useState([]);
@@ -27,11 +27,10 @@ const JudgeSearchPage = () => {
 
   return (
     <div>
-      <h2 className="section-heading">Judge search demo</h2>
+      <h2 className="section-heading">Judge search</h2>
       <p className="section-subheading">
-        This is a fully front-end prototype wired to sample data. In the
-        production version, this search will query a backend that aggregates
-        public case law, dockets, and judge metadata.
+        Search for a federal or state judge by name. Results are sourced from
+        CourtListener's public database and cached for performance.
       </p>
 
       <JudgeSearchForm onResults={handleResults} />

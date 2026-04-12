@@ -1,0 +1,201 @@
+const express = require("express");
+const router = express.Router();
+const pool = require("../db");
+const { searchLimiter } = require("../middleware/rateLimiter");
+const { validateSearchQuery, validateJudgeId } = require("../middleware/validation");
+
+const CL_BASE = "https://www.courtlistener.com/api/rest/v4";
+const CACHE_TTL_HOURS = 24;
+
+function getAuthHeaders() {
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  return token ? { Authorization: `Token ${token}` } : {};
+}
+
+async function getCached(key) {
+  try {
+    const result = await pool.query(
+      "SELECT value FROM api_cache WHERE key = $1 AND expires_at > NOW()",
+      [key]
+    );
+    if (result.rows.length > 0) {
+      return JSON.parse(result.rows[0].value);
+    }
+  } catch (err) {
+    console.error("[CACHE] Read error:", err.message);
+  }
+  return null;
+}
+
+async function setCache(key, value) {
+  try {
+    const serialized = JSON.stringify(value);
+    await pool.query(
+      `INSERT INTO api_cache (key, value, expires_at)
+       VALUES ($1, $2, NOW() + INTERVAL '${CACHE_TTL_HOURS} hours')
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, expires_at = EXCLUDED.expires_at`,
+      [key, serialized]
+    );
+  } catch (err) {
+    console.error("[CACHE] Write error:", err.message);
+  }
+}
+
+function normalizePerson(person) {
+  const position = (person.positions || [])[0] || {};
+  return {
+    id: String(person.id),
+    fullName: [person.name_first, person.name_middle, person.name_last]
+      .filter(Boolean)
+      .join(" "),
+    courtName: position.court_short || position.court || "",
+    jurisdiction: position.position_type_display || position.position_type || "",
+    appointer: position.appointing_president || "",
+    partyOfAppointment: position.political_affiliation_display || position.political_affiliation || "",
+    serviceStartYear: position.date_start
+      ? new Date(position.date_start).getFullYear()
+      : null,
+    gender: person.gender_display || person.gender || "",
+    state: position.court_short || "",
+    sampleCaseCount: null,
+    source: "courtlistener",
+  };
+}
+
+router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
+  const q = req.cleanQuery;
+  const cacheKey = `search:${q.toLowerCase()}`;
+
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return res.json({ results: cached, cached: true });
+  }
+
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  if (!token) {
+    return res
+      .status(503)
+      .json({ error: "CourtListener API token not configured. Using demo mode.", results: [] });
+  }
+
+  try {
+    const url = `${CL_BASE}/people/?full_name=${encodeURIComponent(q)}&format=json&type=judge`;
+    const response = await fetch(url, {
+      headers: { ...getAuthHeaders(), "User-Agent": "JudgeTracker/1.0" },
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`[CL] Search failed ${response.status}: ${errText}`);
+      return res.status(502).json({ error: "Upstream API error.", results: [] });
+    }
+
+    const data = await response.json();
+    const results = (data.results || []).slice(0, 20).map(normalizePerson);
+
+    await setCache(cacheKey, results);
+
+    for (const judge of results) {
+      await pool.query(
+        `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         ON CONFLICT (courtlistener_id) DO UPDATE SET
+           name = EXCLUDED.name, court = EXCLUDED.court, last_synced = NOW()`,
+        [judge.id, judge.fullName, judge.courtName, judge.state, judge.gender, judge.partyOfAppointment, judge.serviceStartYear]
+      );
+    }
+
+    return res.json({ results, cached: false });
+  } catch (err) {
+    console.error("[CL] Search error:", err.message);
+    return res.status(500).json({ error: "Internal error during judge search.", results: [] });
+  }
+});
+
+router.get("/:id", validateJudgeId, async (req, res) => {
+  const id = req.cleanId;
+  const cacheKey = `judge:${id}`;
+
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return res.json({ judge: cached, cached: true });
+  }
+
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  if (!token) {
+    return res.status(503).json({ error: "CourtListener API token not configured." });
+  }
+
+  try {
+    const response = await fetch(`${CL_BASE}/people/${id}/?format=json`, {
+      headers: { ...getAuthHeaders(), "User-Agent": "JudgeTracker/1.0" },
+    });
+
+    if (!response.ok) {
+      return res.status(response.status === 404 ? 404 : 502).json({ error: "Judge not found." });
+    }
+
+    const data = await response.json();
+    const judge = normalizePerson(data);
+    await setCache(cacheKey, judge);
+
+    await pool.query(
+      `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+       ON CONFLICT (courtlistener_id) DO UPDATE SET name = EXCLUDED.name, last_synced = NOW()`,
+      [judge.id, judge.fullName, judge.courtName, judge.state, judge.gender, judge.partyOfAppointment, judge.serviceStartYear]
+    );
+
+    return res.json({ judge, cached: false });
+  } catch (err) {
+    console.error("[CL] Judge fetch error:", err.message);
+    return res.status(500).json({ error: "Internal error fetching judge." });
+  }
+});
+
+router.get("/:id/opinions", validateJudgeId, async (req, res) => {
+  const id = req.cleanId;
+  const cacheKey = `opinions:${id}`;
+
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return res.json({ opinions: cached, cached: true });
+  }
+
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  if (!token) {
+    return res.status(503).json({ error: "CourtListener API token not configured.", opinions: [] });
+  }
+
+  try {
+    const url = `${CL_BASE}/search/?type=o&judge=${encodeURIComponent(id)}&format=json&order_by=score+desc`;
+    const response = await fetch(url, {
+      headers: { ...getAuthHeaders(), "User-Agent": "JudgeTracker/1.0" },
+    });
+
+    if (!response.ok) {
+      return res.status(502).json({ error: "Upstream API error.", opinions: [] });
+    }
+
+    const data = await response.json();
+    const opinions = (data.results || []).slice(0, 20).map((o) => ({
+      id: String(o.id),
+      judgeId: id,
+      caseName: o.caseName || o.case_name || "",
+      courtName: o.court || "",
+      dateFiled: o.dateFiled || o.date_filed || "",
+      opinionType: o.type || "",
+      citation: (o.citation && o.citation[0]) || "",
+      summary: o.snippet || "",
+    }));
+
+    await setCache(cacheKey, opinions);
+
+    return res.json({ opinions, cached: false });
+  } catch (err) {
+    console.error("[CL] Opinions fetch error:", err.message);
+    return res.status(500).json({ error: "Internal error fetching opinions.", opinions: [] });
+  }
+});
+
+module.exports = router;
