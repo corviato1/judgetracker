@@ -84,10 +84,10 @@ const WhichJudgeGamePage = () => {
     <div>
       <h2 className="section-heading">Which judge are you?</h2>
       <p className="section-subheading">
-        Answer a handful of case-style questions and see which federal judge
-        your instincts most resemble. This is a playful quiz, not a scientific
-        measurement — but it maps your preferences to real judicial tendencies
-        from the CourtListener corpus.
+        Answer a handful of case-style questions and see which judicial
+        profile your instincts most resemble. This is a playful quiz, not a
+        scientific measurement — but it maps your preferences to distinct
+        judicial philosophies drawn from real case patterns.
       </p>
 
       {!started && !result && <QuizIntro onStart={handleStart} />}

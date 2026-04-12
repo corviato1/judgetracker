@@ -34,7 +34,7 @@ const JudgeDetail = ({ judge }) => {
         <article className="card">
           <h4 className="card-title">Docket footprint</h4>
           <p className="card-description">
-            Sample data shows coverage across{" "}
+            Coverage across{" "}
             <strong>{judge.sampleCaseCount}</strong> indexed cases, including
             both civil and criminal matters.
           </p>

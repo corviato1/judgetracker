@@ -1,4 +1,3 @@
-// src/components/AdSpots.jsx
 import React from "react";
 
 const AdSpots = () => {
@@ -31,12 +30,11 @@ const AdSpots = () => {
 
   return (
     <section style={{ marginTop: "2rem" }}>
-      <h3 className="section-heading">Monetization and sponsor placement</h3>
+      <h3 className="section-heading">Advertising &amp; partnerships</h3>
       <p className="section-subheading">
-        JudgeTracker can support a clear, transparent sponsor model without
-        interfering with the integrity of search results. These sample ad
-        locations illustrate where legal technology vendors, law firms, and
-        data providers could appear.
+        JudgeTracker supports a transparent sponsor model that keeps search
+        results clean. Placements are available for legal technology vendors,
+        law firms, and data providers.
       </p>
 
       <div className="ad-grid">

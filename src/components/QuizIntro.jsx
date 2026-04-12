@@ -7,7 +7,7 @@ const QuizIntro = ({ onStart }) => {
       <p className="card-description">
         You will see short, simplified case-style scenarios. For each one,
         pick the outcome that feels most fair to you. Behind the scenes, the
-        quiz maps your choices to tendencies associated with real federal judges.
+        quiz maps your choices to tendencies associated with distinct judicial profiles.
       </p>
       <p className="card-description" style={{ marginTop: "0.5rem" }}>
         At the end, you will get:
