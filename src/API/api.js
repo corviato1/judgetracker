@@ -1,4 +1,4 @@
-import { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats } from "./courtListenerApi";
+import { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchAllJudges } from "./courtListenerApi";
 import { searchJudgesByName as mockSearch, getOpinionsForJudge as mockOpinions } from "./mockApi";
 import sampleJudges from "../data/sampleJudges";
 
@@ -26,6 +26,15 @@ export async function getJudgeById(judgeId) {
   } catch (err) {
     console.warn("[API] Backend unavailable, using mock data:", err.message);
     return sampleJudges.find((j) => j.id === Number(judgeId)) || null;
+  }
+}
+
+export async function listAllJudges() {
+  try {
+    return await fetchAllJudges();
+  } catch (err) {
+    console.warn("[API] listAllJudges unavailable, using sample data:", err.message);
+    return sampleJudges;
   }
 }
 

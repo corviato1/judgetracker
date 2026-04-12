@@ -62,6 +62,33 @@ function normalizePerson(person) {
   };
 }
 
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT courtlistener_id, name, court, state, gender, party_of_appointment, service_start
+       FROM judges
+       ORDER BY name ASC`
+    );
+    const judges = result.rows.map((row) => ({
+      id: String(row.courtlistener_id),
+      fullName: row.name || "",
+      courtName: row.court || "",
+      jurisdiction: row.state || "",
+      appointer: "",
+      partyOfAppointment: row.party_of_appointment || "",
+      serviceStartYear: row.service_start ? Number(row.service_start) : null,
+      gender: row.gender || "",
+      state: row.state || "",
+      sampleCaseCount: null,
+      source: "local",
+    }));
+    return res.json({ judges });
+  } catch (err) {
+    console.error("[DB] List judges error:", err.message);
+    return res.status(500).json({ error: "Internal error listing judges.", judges: [] });
+  }
+});
+
 router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
   const q = req.cleanQuery;
   const cacheKey = `search:${q.toLowerCase()}`;

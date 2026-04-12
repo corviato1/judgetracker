@@ -1,6 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const JudgeCard = ({ judge, onSelectJudge }) => {
+  const navigate = useNavigate();
+
+  const handleViewProfile = () => {
+    if (onSelectJudge) {
+      onSelectJudge();
+    } else {
+      navigate(`/judge/${judge.id}`);
+    }
+  };
+
   return (
     <article className="judge-card">
       <div className="judge-card-main">
@@ -14,7 +25,7 @@ const JudgeCard = ({ judge, onSelectJudge }) => {
           </p>
         )}
       </div>
-      <button className="judge-card-button" onClick={onSelectJudge}>
+      <button className="judge-card-button" onClick={handleViewProfile}>
         View profile
       </button>
     </article>

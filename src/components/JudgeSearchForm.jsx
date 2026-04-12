@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { sanitizeSearchQuery } from "../security/inputValidation";
 import { searchJudgesByName } from "../API/api";
 
-const JudgeSearchForm = ({ onResults }) => {
+const JudgeSearchForm = ({ onResults, onQueryChange }) => {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+
+  const handleChange = (event) => {
+    const val = event.target.value;
+    setQuery(val);
+    if (onQueryChange) onQueryChange(val);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -34,7 +40,7 @@ const JudgeSearchForm = ({ onResults }) => {
         type="text"
         placeholder="Search by judge name, for example: Jane Doe"
         value={query}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={handleChange}
       />
       <button className="search-button" type="submit" disabled={isSearching}>
         {isSearching ? "Searching..." : "Search"}

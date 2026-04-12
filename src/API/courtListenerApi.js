@@ -35,6 +35,11 @@ export async function fetchJudgeStats(judgeId) {
   return data;
 }
 
+export async function fetchAllJudges() {
+  const data = await apiFetch(`/api/judges`);
+  return data.judges || [];
+}
+
 export async function fetchDuelPair(filters = {}) {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([k, v]) => {
