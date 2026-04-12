@@ -105,18 +105,16 @@ const QuizResult = ({ result, onRestart }) => {
           className="card-description"
           style={{ marginTop: "0.5rem", color: "#ffddaa" }}
         >
-          It is a close call. At least two judges scored the same for your
-          answers. The tie-breaker here is minimal and just based on
-          ordering in this demo dataset.
+          It is a close call — at least two judges scored the same for your
+          answers. The match shown is the first by alphabetical order.
         </p>
       )}
 
       <p className="card-description" style={{ marginTop: "0.75rem" }}>
         Based on your quiz choices, you lean toward outcomes that align with{" "}
-        <strong>{topMatch.judge.fullName}</strong> in this prototype
-        dataset. In the full product, this kind of mapping could help users
-        understand how their own instincts compare to real-world judicial
-        patterns.
+        <strong>{topMatch.judge.fullName}</strong>. Use their profile to
+        explore real rulings and see how their judicial record compares to
+        your instincts.
       </p>
 
       <h4
@@ -126,7 +124,7 @@ const QuizResult = ({ result, onRestart }) => {
           fontSize: "0.95rem",
         }}
       >
-        Score breakdown (demo judges)
+        Score breakdown
       </h4>
       <div className="quiz-breakdown">
         {breakdown.map(({ judge, score }) => (

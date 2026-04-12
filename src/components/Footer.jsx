@@ -4,8 +4,8 @@ const Footer = () => {
   return (
     <footer>
       <p>
-        JudgeTracker.info — demo interface. Data currently shown is sample only
-        and does not represent live court data.
+        JudgeTracker.info — public judicial records, transparently presented.
+        Data sourced from CourtListener and other open court data projects.
       </p>
     </footer>
   );

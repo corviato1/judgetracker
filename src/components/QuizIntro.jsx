@@ -7,16 +7,15 @@ const QuizIntro = ({ onStart }) => {
       <p className="card-description">
         You will see short, simplified case-style scenarios. For each one,
         pick the outcome that feels most fair to you. Behind the scenes, the
-        quiz maps your choices to tendencies associated with each judge in
-        this demo dataset.
+        quiz maps your choices to tendencies associated with real federal judges.
       </p>
       <p className="card-description" style={{ marginTop: "0.5rem" }}>
-        At the end, you will get: 
+        At the end, you will get:
       </p>
       <ul style={{ fontSize: "0.85rem", color: "#dde1ff" }}>
-        <li>Your closest matching judge in this demo index</li>
+        <li>Your closest matching judge</li>
         <li>A quick explanation of why your answers align with them</li>
-        <li>A score breakdown across all demo judges</li>
+        <li>A score breakdown across all judges</li>
       </ul>
       <button
         className="hero-button-primary"

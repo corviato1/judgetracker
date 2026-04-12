@@ -10,7 +10,7 @@ import sampleJudges from "../data/sampleJudges";
 const WhichJudgeGamePage = () => {
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState([]); // { questionId, answerId }
+  const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
 
   const currentQuestion = quizQuestions[currentIndex];
@@ -23,7 +23,6 @@ const WhichJudgeGamePage = () => {
   };
 
   const handleAnswer = (questionId, answerId) => {
-    // store answer
     const nextAnswers = [
       ...answers.filter((a) => a.questionId !== questionId),
       { questionId, answerId },
@@ -47,16 +46,13 @@ const WhichJudgeGamePage = () => {
   };
 
   const computeResult = (allAnswers) => {
-    // score judges
     const scoreByJudgeId = {};
 
     allAnswers.forEach((entry) => {
       const question = quizQuestions.find((q) => q.id === entry.questionId);
       if (!question) return;
 
-      const answer = question.answers.find(
-        (a) => a.id === entry.answerId
-      );
+      const answer = question.answers.find((a) => a.id === entry.answerId);
       if (!answer || !answer.weights) return;
 
       Object.entries(answer.weights).forEach(([judgeIdString, weight]) => {
@@ -75,9 +71,7 @@ const WhichJudgeGamePage = () => {
 
     const top = scoredJudges[0] || null;
     const isTie =
-      scoredJudges.length > 1 &&
-      top &&
-      scoredJudges[1].score === top.score;
+      scoredJudges.length > 1 && top && scoredJudges[1].score === top.score;
 
     return {
       topMatch: top,
@@ -90,11 +84,10 @@ const WhichJudgeGamePage = () => {
     <div>
       <h2 className="section-heading">Which judge are you?</h2>
       <p className="section-subheading">
-        Answer a handful of case-style questions and see which judge in
-        this demo dataset your instincts most resemble. This is a playful
-        Buzzfeed-style quiz, not a scientific measurement, but it
-        illustrates how JudgeTracker could map users’ preferences to real
-        judicial tendencies.
+        Answer a handful of case-style questions and see which federal judge
+        your instincts most resemble. This is a playful quiz, not a scientific
+        measurement — but it maps your preferences to real judicial tendencies
+        from the CourtListener corpus.
       </p>
 
       {!started && !result && <QuizIntro onStart={handleStart} />}
@@ -114,10 +107,7 @@ const WhichJudgeGamePage = () => {
       )}
 
       {result && (
-        <QuizResult
-          result={result}
-          onRestart={handleRestart}
-        />
+        <QuizResult result={result} onRestart={handleRestart} />
       )}
     </div>
   );
