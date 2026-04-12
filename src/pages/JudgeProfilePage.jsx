@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getJudgeById, getOpinionsForJudge } from "../API/api";
+import { getJudgeById, getOpinionsForJudge, getJudgeStats } from "../API/api";
 import JudgeDetail from "../components/JudgeDetail";
 import OpinionList from "../components/OpinionList";
+import JudgeComparison from "../components/JudgeComparison";
 
 const JudgeProfilePage = () => {
   const { judgeId } = useParams();
   const [judge, setJudge] = useState(null);
   const [opinions, setOpinions] = useState([]);
+  const [statsData, setStatsData] = useState(undefined);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -16,7 +19,9 @@ const JudgeProfilePage = () => {
 
     let cancelled = false;
     setLoading(true);
+    setStatsLoading(true);
     setError(null);
+    setStatsData(undefined);
 
     async function load() {
       try {
@@ -35,7 +40,19 @@ const JudgeProfilePage = () => {
       }
     }
 
+    async function loadStats() {
+      try {
+        const stats = await getJudgeStats(judgeId);
+        if (!cancelled) setStatsData(stats);
+      } catch (err) {
+        if (!cancelled) setStatsData(null);
+      } finally {
+        if (!cancelled) setStatsLoading(false);
+      }
+    }
+
     load();
+    loadStats();
     return () => { cancelled = true; };
   }, [judgeId]);
 
@@ -69,6 +86,7 @@ const JudgeProfilePage = () => {
   return (
     <div>
       <JudgeDetail judge={judge} />
+      <JudgeComparison statsData={statsLoading ? undefined : statsData} />
       <OpinionList opinions={opinions} />
     </div>
   );

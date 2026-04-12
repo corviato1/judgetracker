@@ -15,8 +15,13 @@ A React web application for tracking and analyzing judicial behavior in the Unit
 - Requires `COURTLISTENER_API_TOKEN` env secret for live data (graceful 503 without it)
 
 ### Database (Replit PostgreSQL)
-- Schema: `judges`, `opinions`, `api_cache`
+- Schema: `judges`, `opinions`, `api_cache`, `judge_stats`, `group_stats`
 - Run `npm run migrate` to apply/re-apply migrations
+
+#### Stats Schema
+- **`judge_stats`** — one row per (judge_id, stat_key); stat_keys: `reversal_rate`, `opinions_per_year`, `years_on_bench`, `case_volume`, `criminal_pct`, `civil_pct`, `family_pct`, `administrative_pct`
+- **`group_stats`** — pre-computed group averages; group_type ∈ `{national, state, court_type, party}`; group_value is the specific value (e.g. "CA", "Democratic"); includes `judge_count` for context
+- To add new stat types: derive them in `computeStats.js` and write them using the same `upsertJudgeStats` / `upsertGroupStats` pattern — no schema changes needed
 
 ## Startup
 The `bash start.sh` script starts the backend in the background, waits for it to be ready, then starts the React dev server. Both processes run under a single workflow.
@@ -36,8 +41,9 @@ npm
   - `server/db.js` — PostgreSQL connection pool
   - `server/middleware/rateLimiter.js` — Rate limiting (100 req/15min global, 30 req/15min search)
   - `server/middleware/validation.js` — Input sanitization
-  - `server/routes/judges.js` — Judge search/profile/opinions routes
+  - `server/routes/judges.js` — Judge search/profile/opinions/stats routes
   - `server/scripts/migrate.js` — DB schema migrations
+  - `server/scripts/computeStats.js` — Batch stats computation script (run on a schedule, e.g. weekly)
 - `src/API/` — Frontend API layer
   - `src/API/api.js` — Unified API with backend → mock fallback
   - `src/API/courtListenerApi.js` — Real backend HTTP client (relative URLs, uses CRA proxy)

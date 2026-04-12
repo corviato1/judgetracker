@@ -41,6 +41,34 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_opinions_judge_id ON opinions(judge_id)`,
   `ALTER TABLE opinions ADD COLUMN IF NOT EXISTS courtlistener_id VARCHAR(50)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_opinions_cl_id ON opinions(courtlistener_id) WHERE courtlistener_id IS NOT NULL`,
+
+  // judge_stats: one row per judge per stat_key, refreshed by computeStats.js
+  // stat_key examples: reversal_rate, opinions_per_year, years_on_bench,
+  //   case_volume, criminal_pct, civil_pct, family_pct, administrative_pct
+  `CREATE TABLE IF NOT EXISTS judge_stats (
+    id SERIAL PRIMARY KEY,
+    judge_id VARCHAR(50) NOT NULL,
+    stat_key VARCHAR(100) NOT NULL,
+    stat_value NUMERIC(12,4),
+    computed_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(judge_id, stat_key)
+  )`,
+
+  // group_stats: pre-computed averages per group; group_type ∈ {national, state, court_type, party}
+  // group_value: the specific value, e.g. "CA" for state, "federal_district" for court_type, "Democratic" for party
+  `CREATE TABLE IF NOT EXISTS group_stats (
+    id SERIAL PRIMARY KEY,
+    group_type VARCHAR(50) NOT NULL,
+    group_value VARCHAR(200) NOT NULL,
+    stat_key VARCHAR(100) NOT NULL,
+    stat_value NUMERIC(12,4),
+    judge_count INTEGER DEFAULT 0,
+    computed_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(group_type, group_value, stat_key)
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_judge_stats_judge_id ON judge_stats(judge_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_group_stats_lookup ON group_stats(group_type, group_value)`,
 ];
 
 async function migrate() {

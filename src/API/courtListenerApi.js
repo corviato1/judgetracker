@@ -30,5 +30,10 @@ export async function fetchJudgeOpinions(judgeId) {
   return data.opinions || [];
 }
 
-const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions };
+export async function fetchJudgeStats(judgeId) {
+  const data = await apiFetch(`/api/judges/${judgeId}/stats`);
+  return data;
+}
+
+const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats };
 export default courtListenerApi;
