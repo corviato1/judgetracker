@@ -78,7 +78,7 @@ const QuizResult = ({ result, onRestart }) => {
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setEmailStatus({ ok: true, message: data.message || "Saved! The admin will send your results from their inbox." });
+        setEmailStatus({ ok: true, message: data.message || "Your results have been submitted successfully." });
         setEmail("");
       } else {
         setEmailStatus({ ok: false, message: data.error || "Submission failed. Please try again." });
@@ -169,7 +169,7 @@ const QuizResult = ({ result, onRestart }) => {
           }}
         >
           <p style={{ fontSize: "0.85rem", marginBottom: "0.6rem", color: "#a0aec0" }}>
-            Enter your email and the admin will send your results from their inbox.
+            Enter your email to receive your results as a PDF attachment.
           </p>
           <p style={{ fontSize: "0.78rem", marginBottom: "0.75rem", color: "#718096" }}>
             Your email will only be used to send your results.

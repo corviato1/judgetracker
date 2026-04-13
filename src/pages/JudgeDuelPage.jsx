@@ -223,7 +223,8 @@ function RoundScreen({ round, totalRounds, score, duelData, onNext, loading }) {
     setRevealed(true);
   };
 
-  const correct = selected != null && duelData != null && selected === duelData.winnerId;
+  const statsPending = duelData && duelData.statsPending;
+  const correct = !statsPending && selected != null && duelData != null && selected === duelData.winnerId;
 
   return (
     <div className="duel-round-screen">
@@ -244,6 +245,17 @@ function RoundScreen({ round, totalRounds, score, duelData, onNext, loading }) {
 
       {loading ? (
         <div className="duel-loading">Loading next duel...</div>
+      ) : statsPending ? (
+        <div className="duel-pending-banner">
+          <div className="duel-pending-icon">⏳</div>
+          <h3 className="duel-pending-title">Statistics Pending</h3>
+          <p className="duel-pending-message">
+            {duelData.pendingReason || "Judge statistics have not been computed yet. Run the sync script to populate real data."}
+          </p>
+          <button className="duel-next-button" onClick={() => onNext(null)}>
+            {round < totalRounds ? "Skip Round →" : "See Results →"}
+          </button>
+        </div>
       ) : (
         <>
           <div className="duel-question-banner">
@@ -313,10 +325,10 @@ function ResultsScreen({ score, rounds, onPlayAgain, onChangeFilters }) {
       <div className="duel-results-breakdown">
         <h3 className="duel-results-breakdown-heading">Round Breakdown</h3>
         {rounds.map((r, i) => (
-          <div key={i} className={`duel-results-row ${r.correct ? "duel-results-row-correct" : "duel-results-row-wrong"}`}>
+          <div key={i} className={`duel-results-row ${r.skipped ? "duel-results-row-skipped" : r.correct ? "duel-results-row-correct" : "duel-results-row-wrong"}`}>
             <span className="duel-results-round-num">Round {i + 1}</span>
             <span className="duel-results-question">{r.question}</span>
-            <span className="duel-results-outcome">{r.correct ? "✓" : "✗"}</span>
+            <span className="duel-results-outcome">{r.skipped ? "—" : r.correct ? "✓" : "✗"}</span>
           </div>
         ))}
       </div>
@@ -368,11 +380,12 @@ const JudgeDuelPage = () => {
 
   const handleNext = async (correct) => {
     const roundRecord = {
-      question: duelData.statCategory.question,
+      question: duelData.statCategory ? duelData.statCategory.question : "Stats pending",
       correct,
+      skipped: correct === null,
     };
     const nextRounds = [...rounds, roundRecord];
-    const nextScore = correct ? score + 1 : score;
+    const nextScore = correct === true ? score + 1 : score;
 
     setRounds(nextRounds);
     setScore(nextScore);

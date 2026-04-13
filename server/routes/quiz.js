@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const rateLimit = require("express-rate-limit");
+const nodemailer = require("nodemailer");
 const { generateQuizResultPdf } = require("../pdfService");
-const { requireAdmin } = require("../middleware/adminAuth");
 
 const emailLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -19,6 +19,24 @@ const downloadLimiter = rateLimit({
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function createTransporter() {
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port: port ? parseInt(port, 10) : 587,
+    secure: parseInt(port, 10) === 465,
+    auth: { user, pass },
+  });
 }
 
 router.post("/email-results", emailLimiter, async (req, res) => {
@@ -61,7 +79,39 @@ router.post("/email-results", emailLimiter, async (req, res) => {
       ]
     );
 
-    res.json({ ok: true, message: "Your result has been saved. The admin will send it from their inbox." });
+    const transporter = createTransporter();
+
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: `"JudgeTracker" <${process.env.SMTP_USER}>`,
+          to: safeEmail,
+          subject: `Your JudgeTracker Quiz Result: ${resultData.resultLabel || "Your Judge Match"}`,
+          text: `Hi,\n\nAttached is your JudgeTracker quiz result PDF.\n\nYour matched judge: ${resultData.judgeFullName || "Unknown"}\nMatch score: ${resultData.matchScore !== undefined ? resultData.matchScore + "%" : "N/A"}\n\nThank you for using JudgeTracker!\n`,
+          html: `<p>Hi,</p><p>Attached is your JudgeTracker quiz result PDF.</p><p><strong>Your matched judge:</strong> ${resultData.judgeFullName || "Unknown"}<br><strong>Match score:</strong> ${resultData.matchScore !== undefined ? resultData.matchScore + "%" : "N/A"}</p><p>Thank you for using JudgeTracker!</p>`,
+          attachments: [
+            {
+              filename: "quiz-result.pdf",
+              content: pdfBuffer,
+              contentType: "application/pdf",
+            },
+          ],
+        });
+        return res.json({ ok: true, message: "Your results have been emailed to you." });
+      } catch (mailErr) {
+        console.error("[QUIZ email-results] SMTP send failed:", mailErr.message);
+        return res.json({
+          ok: true,
+          message: "Your result has been saved. Email delivery failed — please try downloading your PDF instead.",
+        });
+      }
+    } else {
+      console.warn("[QUIZ email-results] SMTP not configured. Result saved to DB only.");
+      return res.json({
+        ok: true,
+        message: "Your result has been saved. Email delivery is not configured — please download your PDF directly.",
+      });
+    }
   } catch (err) {
     console.error("[QUIZ email-results]", err.message);
     res.status(500).json({ error: "Internal error saving your submission." });

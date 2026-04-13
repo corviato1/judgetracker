@@ -102,7 +102,7 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
   if (!token) {
     return res
       .status(503)
-      .json({ error: "CourtListener API token not configured. Using demo mode.", results: [] });
+      .json({ error: "CourtListener API token not configured. Set COURTLISTENER_API_TOKEN to enable judge search.", results: [] });
   }
 
   try {
