@@ -1,4 +1,5 @@
 import React from "react";
+import templateAdBanner from "../media/ads/template-ad-banner.png";
 
 const AdSpots = () => {
   const adSlots = [
@@ -44,9 +45,19 @@ const AdSpots = () => {
             <h4 className="card-title">{slot.title}</h4>
             <p className="card-description">{slot.description}</p>
             <p className="ad-meta">{slot.size}</p>
-            <div className="ad-placeholder">
-              Ad preview
-            </div>
+            {slot.id === "ad1" ? (
+              <div className="ad-placeholder ad-placeholder--image">
+                <img
+                  src={templateAdBanner}
+                  alt="Your Ad Here — JudgeTracker.info"
+                  className="ad-template-image"
+                />
+              </div>
+            ) : (
+              <div className="ad-placeholder">
+                Ad preview
+              </div>
+            )}
           </article>
         ))}
       </div>

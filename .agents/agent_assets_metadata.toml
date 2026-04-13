@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "MDcymugwTiBOX5nWto1jl"
+uri = "file://src/media/ads/template-ad-banner.png"
+type = "image"
+title = "generated_image"
