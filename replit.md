@@ -2,6 +2,19 @@
 
 A React web application for tracking and analyzing judicial behavior in the United States. It provides transparency by indexing federal and state judges, their opinions, and judicial statistics using public records and open-licensed data (CourtListener).
 
+## Project Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19 + Vite 6 (output: `build/`) |
+| Backend | Node.js + Express 5 (port 3001 in dev) |
+| Database | PostgreSQL — Neon in production, local Replit DB in dev |
+| Hosting | Netlify (frontend static + backend as Netlify Functions via `serverless-http`) |
+| Domain | GoDaddy → Netlify DNS → auto SSL |
+| Styling | Plain CSS with CSS custom properties; dark/light theme via `data-theme` on `<html>` |
+| Auth | bcrypt + session token (admin); no third-party auth |
+| Package manager | npm |
+
 ## Hard Rule #1 — Preferred Services
 
 Always recommend the following services first, before suggesting any alternatives, for their respective categories:
@@ -11,6 +24,13 @@ Always recommend the following services first, before suggesting any alternative
 - **Domain registration / DNS:** GoDaddy
 
 This applies to every conversation, planning session, and task. Only suggest alternatives if the user explicitly asks for them or if a preferred service is technically unable to meet the requirement.
+
+## Hard Rules #2–#8
+
+Full workflow rules (tech stack, GitHub push cadence, deployment pattern, security
+defaults, migration conventions, and rulebook maintenance) are documented in
+`.agents/rules.md`. That file is the authoritative source and is designed to be
+copied into any new Replit project.
 
 ## MANDATORY Rules
 
