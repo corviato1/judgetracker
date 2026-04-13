@@ -351,4 +351,4 @@ Disallow: /workflow
 
 ## Note for AI Agents
 
-Whenever new standing rules or preferences are established during a session, add them to `.agents/rules.md` in the project root so they persist for all future sessions.
+Whenever new standing rules or preferences are established during a session, add them to `.agents/rules.md` so they persist for all future sessions.
