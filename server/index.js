@@ -21,6 +21,7 @@ function buildAllowedOriginSet() {
   add("http://localhost:5000");
   add("http://127.0.0.1:5000");
   if (process.env.FRONTEND_URL) add(process.env.FRONTEND_URL);
+  if (process.env.NETLIFY_URL) add(process.env.NETLIFY_URL);
   if (process.env.REPLIT_DEV_DOMAIN) add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
 
   return origins;
@@ -98,8 +99,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "An internal server error occurred." });
 });
 
-app.listen(PORT, "127.0.0.1", () => {
-  console.log(`[SERVER] JudgeTracker API running on http://127.0.0.1:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, "127.0.0.1", () => {
+    console.log(`[SERVER] JudgeTracker API running on http://127.0.0.1:${PORT}`);
+  });
+}
 
 module.exports = app;
