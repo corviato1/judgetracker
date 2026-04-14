@@ -9,7 +9,7 @@ const SORT_OPTIONS = [
   { value: "party", label: "Party" },
 ];
 
-const JudgeIndex = ({ filterQuery, onViewHistory, judges: judgesProp }) => {
+const JudgeIndex = ({ filterQuery, judges: judgesProp }) => {
   const hasProp = judgesProp !== undefined;
   const [fetched, setFetched] = useState([]);
   const [loading, setLoading] = useState(!hasProp || judgesProp === null);
@@ -98,7 +98,6 @@ const JudgeIndex = ({ filterQuery, onViewHistory, judges: judgesProp }) => {
               key={judge.id}
               judge={judge}
               onSelectJudge={() => navigate(`/judge/${judge.id}`)}
-              onViewHistory={onViewHistory ? () => onViewHistory(judge) : undefined}
             />
           ))}
         </div>

@@ -13,9 +13,6 @@ const NavigationMenu = () => {
       <NavLink to="/search" className={navClassName}>
         Judge Search
       </NavLink>
-      <NavLink to="/judge-history" className={navClassName}>
-        Judge History
-      </NavLink>
       <NavLink to="/which-judge" className={navClassName}>
         Which Judge Are You?
       </NavLink>

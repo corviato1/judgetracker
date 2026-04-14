@@ -453,31 +453,6 @@ footer {
   background-color: var(--accent-dark-hover);
 }
 
-.judge-card-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  align-items: flex-end;
-  flex-shrink: 0;
-}
-
-.judge-card-button-secondary {
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--accent-dark);
-  background-color: transparent;
-  color: var(--accent-dark);
-  font-size: 0.8rem;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.judge-card-button-secondary:hover {
-  background-color: var(--accent-dark);
-  color: var(--header-text);
-}
-
 /* Search tabs */
 .search-tab-bar {
   display: flex;

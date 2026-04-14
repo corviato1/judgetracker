@@ -188,7 +188,6 @@ const RandomTab = ({ allJudges }) => {
 };
 
 const JudgeSearchPage = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("search");
   const [results, setResults] = useState(null);
   const [filterQuery, setFilterQuery] = useState("");
@@ -222,12 +221,6 @@ const JudgeSearchPage = () => {
 
   const handleReset = () => {
     setResults(null);
-  };
-
-  const handleViewHistory = (judge) => {
-    navigate(
-      `/judge-history?judgeId=${encodeURIComponent(judge.id)}&judgeName=${encodeURIComponent(judge.fullName || "")}`
-    );
   };
 
   const hasSearchResults = results !== null;
@@ -264,12 +257,10 @@ const JudgeSearchPage = () => {
           {hasSearchResults ? (
             <JudgeList
               judges={results}
-              onViewHistory={handleViewHistory}
             />
           ) : (
             <JudgeIndex
               filterQuery={filterQuery}
-              onViewHistory={handleViewHistory}
               judges={allJudges}
             />
           )}
@@ -295,7 +286,6 @@ const JudgeSearchPage = () => {
                   <JudgeCard
                     key={judge.id}
                     judge={judge}
-                    onViewHistory={() => handleViewHistory(judge)}
                   />
                 ))}
               </div>

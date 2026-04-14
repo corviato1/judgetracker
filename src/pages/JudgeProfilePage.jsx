@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getJudgeById, getLocalJudge, getOpinionsForJudge, getJudgeStats } from "../API/api";
+import { getJudgeById, getLocalJudge, getOpinionsForJudge, getJudgeStats, getJudgeHistory } from "../API/api";
 import JudgeComparison from "../components/JudgeComparison";
 import OpinionCard from "../components/OpinionCard";
 
@@ -36,6 +36,54 @@ function BioRow({ label, value }) {
   );
 }
 
+function HistoryEntry({ entry, showSnippet }) {
+  return (
+    <div className="history-entry">
+      <div className="history-entry-header">
+        <span className="history-case-name">{entry.caseName || "Untitled case"}</span>
+        {entry.dateFiled && (
+          <span className="history-date">{entry.dateFiled.slice(0, 10)}</span>
+        )}
+      </div>
+      {entry.court && (
+        <p className="history-court">{entry.court}</p>
+      )}
+      {showSnippet && entry.snippet && (
+        <p className="history-snippet">{entry.snippet}</p>
+      )}
+      {entry.citation && (
+        <p className="history-citation">{entry.citation}</p>
+      )}
+      <a
+        href={entry.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="history-link"
+      >
+        View opinion →
+      </a>
+    </div>
+  );
+}
+
+function HistorySection({ title, description, entries, showSnippet = true }) {
+  return (
+    <section className="history-section">
+      <h3 className="history-section-title">{title}</h3>
+      <p className="history-section-desc">{description}</p>
+      {entries.length === 0 ? (
+        <p className="history-empty">No entries found in this category for the opinions retrieved.</p>
+      ) : (
+        <div className="history-list">
+          {entries.map((entry) => (
+            <HistoryEntry key={entry.id} entry={entry} showSnippet={showSnippet} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 const JudgeProfilePage = () => {
   const { judgeId } = useParams();
   const navigate = useNavigate();
@@ -43,11 +91,14 @@ const JudgeProfilePage = () => {
   const [judge, setJudge] = useState(null);
   const [opinions, setOpinions] = useState([]);
   const [statsData, setStatsData] = useState(undefined);
+  const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [opinionsLoading, setOpinionsLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [error, setError] = useState(null);
   const [opinionsError, setOpinionsError] = useState(null);
+  const [historyError, setHistoryError] = useState(null);
   const [usedFallback, setUsedFallback] = useState(false);
   const [filterText, setFilterText] = useState("");
   const [expandedOpinionId, setExpandedOpinionId] = useState(null);
@@ -61,12 +112,15 @@ const JudgeProfilePage = () => {
     setLoading(true);
     setOpinionsLoading(true);
     setStatsLoading(true);
+    setHistoryLoading(true);
     setError(null);
     setOpinionsError(null);
+    setHistoryError(null);
     setUsedFallback(false);
     setJudge(null);
     setOpinions([]);
     setStatsData(undefined);
+    setHistory(null);
     setFilterText("");
     setExpandedOpinionId(null);
     setOpinionsPage(0);
@@ -124,9 +178,28 @@ const JudgeProfilePage = () => {
       }
     }
 
+    async function loadHistory() {
+      try {
+        const data = await getJudgeHistory(judgeId);
+        if (!cancelled) setHistory(data);
+      } catch (err) {
+        if (!cancelled) {
+          const status = err.status || 0;
+          if (status === 503) {
+            setHistoryError("Ruling history requires a CourtListener API token. Full data is available on judgetracker.info.");
+          } else {
+            setHistoryError(err.message || "Could not load ruling history.");
+          }
+        }
+      } finally {
+        if (!cancelled) setHistoryLoading(false);
+      }
+    }
+
     loadJudge();
     loadOpinions();
     loadStats();
+    loadHistory();
     return () => { cancelled = true; };
   }, [judgeId]);
 
@@ -282,6 +355,37 @@ const JudgeProfilePage = () => {
             <p className="profile-section-empty">Loading statistics...</p>
           ) : (
             <JudgeComparison statsData={statsData} />
+          )}
+        </AccordionSection>
+
+        <AccordionSection title="Ruling history">
+          {historyLoading ? (
+            <p className="profile-section-empty">Loading ruling history...</p>
+          ) : historyError ? (
+            <p className="profile-section-empty">{historyError}</p>
+          ) : !history ? (
+            <p className="profile-section-empty">No ruling history available.</p>
+          ) : (
+            <div className="history-sections">
+              <HistorySection
+                title="Reversals"
+                description="Decisions where a higher court overturned or vacated this judge's ruling."
+                entries={history.reversals}
+                showSnippet={true}
+              />
+              <HistorySection
+                title="Violent felony releases"
+                description="Bail or detention opinions involving cases with violent charges where the defendant was released."
+                entries={history.violentFelonyReleases}
+                showSnippet={true}
+              />
+              <HistorySection
+                title="Citations"
+                description="All opinions retrieved from CourtListener for this judge, with direct source links."
+                entries={history.citations}
+                showSnippet={true}
+              />
+            </div>
           )}
         </AccordionSection>
       </div>
