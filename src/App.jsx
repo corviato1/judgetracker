@@ -8,6 +8,7 @@ import NavigationMenu from "./components/NavigationMenu";
 import HomePage from "./pages/HomePage";
 import JudgeSearchPage from "./pages/JudgeSearchPage";
 import JudgeProfilePage from "./pages/JudgeProfilePage";
+import JudgeHistoryPage from "./pages/JudgeHistoryPage";
 import WhichJudgeGamePage from "./pages/WhichJudgeGamePage";
 import JudgeDuelPage from "./pages/JudgeDuelPage";
 import AdminPage from "./pages/AdminPage";
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/judge/:judgeId" element={<JudgeProfilePage />} />
         <Route path="/data-sources" element={<Navigate to="/" replace />} />
         <Route path="/about" element={<Navigate to="/" replace />} />
+        <Route path="/judge-history" element={<JudgeHistoryPage />} />
         <Route path="/which-judge" element={<WhichJudgeGamePage />} />
         <Route path="/judge-duel" element={<JudgeDuelPage />} />
         <Route path="/advertise" element={<AdvertisePage />} />

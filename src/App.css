@@ -1282,6 +1282,181 @@ footer {
 }
 
 /* ---------------------------------------------------------
+   Judge History Page
+--------------------------------------------------------- */
+
+.history-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.history-judge-btn {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-s);
+  border-radius: 0.6rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+
+.history-judge-btn:hover {
+  border-color: var(--color-accent, #7c83fd);
+  background: var(--bg-card-hover, rgba(124, 131, 253, 0.06));
+}
+
+.history-judge-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.history-judge-court {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.history-judge-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-s);
+}
+
+.history-judge-selected-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+}
+
+.history-judge-selected-court {
+  font-size: 0.85rem;
+  opacity: 0.65;
+  margin: 0;
+}
+
+.history-back-btn {
+  background: none;
+  border: 1px solid var(--border-s);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.history-back-btn:hover {
+  border-color: var(--color-accent, #7c83fd);
+}
+
+.history-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.history-section {
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-s);
+  border-radius: 0.85rem;
+}
+
+.history-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.history-section-desc {
+  font-size: 0.82rem;
+  opacity: 0.65;
+  margin: 0 0 1rem;
+}
+
+.history-empty {
+  font-size: 0.85rem;
+  opacity: 0.55;
+  font-style: italic;
+  margin: 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.history-entry {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-s);
+  border-radius: 0.6rem;
+  background: var(--bg-secondary, rgba(255,255,255,0.02));
+}
+
+.history-entry-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.history-case-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.history-date {
+  font-size: 0.78rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.history-court {
+  font-size: 0.8rem;
+  opacity: 0.65;
+  margin: 0 0 0.3rem;
+}
+
+.history-snippet {
+  font-size: 0.82rem;
+  opacity: 0.8;
+  margin: 0.3rem 0;
+  line-height: 1.5;
+}
+
+.history-citation {
+  font-size: 0.78rem;
+  opacity: 0.55;
+  margin: 0.2rem 0;
+  font-style: italic;
+}
+
+.history-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--color-accent, #7c83fd);
+  text-decoration: none;
+}
+
+.history-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
    Mobile Adjustments
 --------------------------------------------------------- */
 

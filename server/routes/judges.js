@@ -316,4 +316,105 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
   }
 });
 
+router.get("/:id/history", validateJudgeId, async (req, res) => {
+  const id = req.cleanId;
+  const cacheKey = `history:${id}`;
+
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return res.json({ ...cached, cached: true });
+  }
+
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  if (!token) {
+    return res.status(503).json({
+      error: "CourtListener API token not configured.",
+      reversals: [], violentFelonyReleases: [], citations: [],
+    });
+  }
+
+  try {
+    const history = await withCoalescing(cacheKey, async () => {
+      const url = `${CL_BASE}/search/?type=o&judge=${encodeURIComponent(id)}&format=json&order_by=dateFiled+desc`;
+      const response = await fetch(url, {
+        headers: { ...getAuthHeaders(), "User-Agent": "JudgeTracker/1.0" },
+      });
+
+      if (!response.ok) {
+        const upstreamErr = new Error("Upstream API error.");
+        upstreamErr.httpStatus = 502;
+        throw upstreamErr;
+      }
+
+      const data = await response.json();
+      const opinions = data.results || [];
+
+      const reversalRe = /\b(revers|overrul|vacat|overturned|remand)\b/i;
+      const violentRe = /\b(assault|murder|homicide|robbery|rape|kidnap|weapon|firearm|gun|battery|manslaughter|carjack|arson|trafficking|sex.offend|armed)\b/i;
+      const releaseRe = /\b(bail|bond|releas|detention|pretrial|custody)\b/i;
+
+      const reversals = [];
+      const violentFelonyReleases = [];
+      const citations = [];
+
+      for (const o of opinions) {
+        const caseName = o.caseName || o.case_name || "";
+        const snippet = o.snippet || "";
+        const dateFiled = o.dateFiled || o.date_filed || "";
+        const court = o.court || "";
+        const citation = (o.citation && o.citation[0]) || "";
+        const clUrl = o.absolute_url
+          ? `https://www.courtlistener.com${o.absolute_url}`
+          : `https://www.courtlistener.com/opinion/${o.id}/`;
+        const combined = `${caseName} ${snippet}`;
+
+        const entry = {
+          id: String(o.id),
+          caseName,
+          dateFiled,
+          court,
+          citation,
+          snippet: snippet.slice(0, 280),
+          url: clUrl,
+        };
+
+        if (reversalRe.test(combined)) reversals.push(entry);
+        if (violentRe.test(combined) && releaseRe.test(combined)) violentFelonyReleases.push(entry);
+
+        citations.push({
+          id: String(o.id),
+          caseName,
+          dateFiled,
+          court,
+          citation,
+          url: clUrl,
+        });
+      }
+
+      const result = {
+        judgeId: id,
+        reversals: reversals.slice(0, 20),
+        violentFelonyReleases: violentFelonyReleases.slice(0, 20),
+        citations: citations.slice(0, 30),
+      };
+
+      await setCache(cacheKey, result, TTL.opinionsHours);
+      return result;
+    });
+
+    return res.json({ ...history, cached: false });
+  } catch (err) {
+    if (err.httpStatus) {
+      return res.status(err.httpStatus).json({
+        error: err.message, reversals: [], violentFelonyReleases: [], citations: [],
+      });
+    }
+    console.error("[CL] History fetch error:", err.message);
+    return res.status(500).json({
+      error: "Internal error fetching judge history.",
+      reversals: [], violentFelonyReleases: [], citations: [],
+    });
+  }
+});
+
 module.exports = router;

@@ -1,4 +1,4 @@
-import { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchAllJudges } from "./courtListenerApi";
+import { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchAllJudges, fetchJudgeHistory } from "./courtListenerApi";
 
 export async function searchJudgesByName(query) {
   return await searchJudges(query);
@@ -23,4 +23,8 @@ export async function getJudgeStats(judgeId) {
     console.warn("[API] Stats unavailable:", err.message);
     return null;
   }
+}
+
+export async function getJudgeHistory(judgeId) {
+  return await fetchJudgeHistory(String(judgeId));
 }

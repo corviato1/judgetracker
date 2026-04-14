@@ -43,6 +43,15 @@ export async function fetchAllJudges() {
   return data.judges || [];
 }
 
+export async function fetchJudgeHistory(judgeId) {
+  const data = await apiFetch(`/api/judges/${judgeId}/history`);
+  return {
+    reversals: data.reversals || [],
+    violentFelonyReleases: data.violentFelonyReleases || [],
+    citations: data.citations || [],
+  };
+}
+
 export async function fetchDuelPair(filters = {}) {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([k, v]) => {
