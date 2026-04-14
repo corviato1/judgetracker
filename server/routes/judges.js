@@ -353,6 +353,11 @@ router.get("/:id/history", validateJudgeId, async (req, res) => {
       const violentRe = /\b(assault|murder|homicide|robbery|rape|kidnap|weapon|firearm|gun|battery|manslaughter|carjack|arson|trafficking|sex.offend|armed)\b/i;
       const releaseRe = /\b(bail|bond|releas|detention|pretrial|custody)\b/i;
 
+      const VIOLENT_NOS = new Set([
+        "110", "111", "112", "113", "115", "120", "130", "140", "160",
+        "490", "530", "535", "540",
+      ]);
+
       const reversals = [];
       const violentFelonyReleases = [];
       const citations = [];
@@ -363,10 +368,13 @@ router.get("/:id/history", validateJudgeId, async (req, res) => {
         const dateFiled = o.dateFiled || o.date_filed || "";
         const court = o.court || "";
         const citation = (o.citation && o.citation[0]) || "";
+        const precedentialStatus = o.precedentialStatus || o.precedential_status || "";
+        const natureOfSuit = String(o.nature_of_suit || o.suitNature || o.suit_nature || "");
         const clUrl = o.absolute_url
           ? `https://www.courtlistener.com${o.absolute_url}`
           : `https://www.courtlistener.com/opinion/${o.id}/`;
         const combined = `${caseName} ${snippet}`;
+        const trimSnippet = snippet.slice(0, 280);
 
         const entry = {
           id: String(o.id),
@@ -374,12 +382,24 @@ router.get("/:id/history", validateJudgeId, async (req, res) => {
           dateFiled,
           court,
           citation,
-          snippet: snippet.slice(0, 280),
+          snippet: trimSnippet,
           url: clUrl,
         };
 
-        if (reversalRe.test(combined)) reversals.push(entry);
-        if (violentRe.test(combined) && releaseRe.test(combined)) violentFelonyReleases.push(entry);
+        const isReversal =
+          precedentialStatus === "Overruled" ||
+          o.per_curiam === true ||
+          reversalRe.test(combined);
+
+        const isViolent =
+          VIOLENT_NOS.has(natureOfSuit.trim()) ||
+          violentRe.test(natureOfSuit) ||
+          violentRe.test(combined);
+
+        const isRelease = releaseRe.test(combined);
+
+        if (isReversal) reversals.push(entry);
+        if (isViolent && isRelease) violentFelonyReleases.push(entry);
 
         citations.push({
           id: String(o.id),
@@ -387,6 +407,7 @@ router.get("/:id/history", validateJudgeId, async (req, res) => {
           dateFiled,
           court,
           citation,
+          snippet: trimSnippet,
           url: clUrl,
         });
       }

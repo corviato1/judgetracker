@@ -170,7 +170,7 @@ const JudgeHistoryPage = () => {
                 title="Citations"
                 description="All opinions retrieved from CourtListener for this judge, with direct source links."
                 entries={history.citations}
-                showSnippet={false}
+                showSnippet={true}
               />
             </div>
           )}
