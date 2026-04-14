@@ -9,6 +9,7 @@ const TABS = [
   { id: "duel", label: "Judge Duel" },
   { id: "email", label: "Email Results" },
   { id: "ratelimits", label: "API & Rate Limits" },
+  { id: "cache", label: "Cache" },
   { id: "ads", label: "Ad Space" },
 ];
 
@@ -800,6 +801,86 @@ function AdsTab() {
   );
 }
 
+function CacheTab() {
+  const [data, setData] = useState(null);
+  const [err, setErr] = useState(null);
+
+  const load = () => {
+    fetch("/api/admin/cache-stats", { credentials: "include" })
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setErr("Failed to load cache stats."));
+  };
+
+  useEffect(() => { load(); }, []);
+
+  if (err) return <p className="adm-err">{err}</p>;
+  if (!data) return <p className="adm-loading">Loading…</p>;
+
+  const db = data.db || {};
+  const mem = data.memory || {};
+  const ttls = data.ttls || {};
+
+  const hitPct = mem.hits + mem.misses > 0
+    ? ((mem.hits / (mem.hits + mem.misses)) * 100).toFixed(1)
+    : "0.0";
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+        <h3 className="adm-section-title" style={{ margin: 0 }}>Cache Overview</h3>
+        <button className="adm-pdf-btn" onClick={load} style={{ padding: "0.3rem 0.75rem", fontSize: "0.8rem" }}>
+          Refresh
+        </button>
+      </div>
+
+      <h4 className="adm-section-title" style={{ fontSize: "0.85rem", opacity: 0.7, marginBottom: "0.4rem" }}>
+        Database cache (PostgreSQL)
+      </h4>
+      <div className="adm-stat-grid" style={{ marginBottom: "1.5rem" }}>
+        <StatCard label="Total rows" value={db.totalRows} />
+        <StatCard label="Active rows" value={db.activeRows} />
+        <StatCard label="Active — judge profiles" value={db.activeJudgeRows} />
+        <StatCard label="Active — search results" value={db.activeSearchRows} />
+        <StatCard label="Active — opinions" value={db.activeOpinionRows} />
+      </div>
+
+      <div className="adm-two-col" style={{ marginBottom: "1.5rem" }}>
+        <div>
+          <table className="adm-table">
+            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Oldest entry</td><td>{db.oldestEntry ? db.oldestEntry.slice(0, 16) : "—"}</td></tr>
+              <tr><td>Newest entry</td><td>{db.newestEntry ? db.newestEntry.slice(0, 16) : "—"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <table className="adm-table">
+            <thead><tr><th>Cache type</th><th>TTL</th></tr></thead>
+            <tbody>
+              <tr><td>Search results</td><td>{ttls.searchHours}h</td></tr>
+              <tr><td>Judge profiles</td><td>{ttls.judgeHours}h (7 days)</td></tr>
+              <tr><td>Opinions</td><td>{ttls.opinionsHours}h (7 days)</td></tr>
+              <tr><td>In-memory layer</td><td>{ttls.memMinutes} min</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h4 className="adm-section-title" style={{ fontSize: "0.85rem", opacity: 0.7, marginBottom: "0.4rem" }}>
+        In-memory cache (current process)
+      </h4>
+      <div className="adm-stat-grid">
+        <StatCard label="Entries in memory" value={`${mem.size} / ${mem.maxSize}`} />
+        <StatCard label="Hits (since start)" value={mem.hits} />
+        <StatCard label="Misses (since start)" value={mem.misses} />
+        <StatCard label="Hit rate" value={`${hitPct}%`} />
+      </div>
+    </div>
+  );
+}
+
 const TAB_COMPONENTS = {
   overview: OverviewTab,
   traffic: TrafficTab,
@@ -807,6 +888,7 @@ const TAB_COMPONENTS = {
   duel: DuelTab,
   email: EmailTab,
   ratelimits: RateLimitsTab,
+  cache: CacheTab,
   ads: AdsTab,
 };
 

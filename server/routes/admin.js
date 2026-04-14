@@ -5,6 +5,7 @@ const { ADMIN_PASSWORD, COOKIE_NAME, signAdminToken, requireAdmin } = require(".
 const { generateQuizResultPdf } = require("../pdfService");
 const rateLimit = require("express-rate-limit");
 const { normalizePerson } = require("../utils/normalize");
+const { getMemStats } = require("../cache");
 
 const CL_BASE = "https://www.courtlistener.com/api/rest/v4";
 const SEED_QUERIES = ["Smith", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Wilson", "Taylor", "Anderson"];
@@ -527,6 +528,44 @@ router.post("/seed-judges", requireAdmin, async (req, res) => {
 
   console.log(`[SEED] Seeded ${seededIds.size} unique judges. Errors: ${errors.length}`);
   return res.json({ seeded: seededIds.size, errors });
+});
+
+router.get("/cache-stats", requireAdmin, async (req, res) => {
+  try {
+    const dbResult = await pool.query(`
+      SELECT
+        COUNT(*) AS total_rows,
+        SUM(CASE WHEN expires_at > NOW() THEN 1 ELSE 0 END) AS active_rows,
+        SUM(CASE WHEN key LIKE 'judge:%' AND expires_at > NOW() THEN 1 ELSE 0 END) AS active_judge_rows,
+        SUM(CASE WHEN key LIKE 'search:%' AND expires_at > NOW() THEN 1 ELSE 0 END) AS active_search_rows,
+        SUM(CASE WHEN key LIKE 'opinions:%' AND expires_at > NOW() THEN 1 ELSE 0 END) AS active_opinion_rows,
+        MIN(created_at) AS oldest_entry,
+        MAX(created_at) AS newest_entry
+      FROM api_cache
+    `);
+    const row = dbResult.rows[0] || {};
+    res.json({
+      db: {
+        totalRows: parseInt(row.total_rows) || 0,
+        activeRows: parseInt(row.active_rows) || 0,
+        activeJudgeRows: parseInt(row.active_judge_rows) || 0,
+        activeSearchRows: parseInt(row.active_search_rows) || 0,
+        activeOpinionRows: parseInt(row.active_opinion_rows) || 0,
+        oldestEntry: row.oldest_entry || null,
+        newestEntry: row.newest_entry || null,
+      },
+      memory: getMemStats(),
+      ttls: {
+        searchHours: 24,
+        judgeHours: 168,
+        opinionsHours: 168,
+        memMinutes: 5,
+      },
+    });
+  } catch (err) {
+    console.error("[ADMIN cache-stats]", err.message);
+    res.status(500).json({ error: "Internal error." });
+  }
 });
 
 module.exports = router;
