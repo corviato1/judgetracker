@@ -97,30 +97,30 @@ const quizQuestions = [
     id: "q4",
     section: "interpreting-law",
     sectionLabel: "Interpreting the law",
-    title: "Overturning settled precedent",
+    title: "Digital privacy and law enforcement access",
     scenario:
-      "A 35-year-old Supreme Court ruling on property rights is now widely criticized as wrongly decided. The original majority relied heavily on policy reasoning; subsequent decisions have not built heavily on it, and the original dissenters argued it had no textual basis.",
+      "Law enforcement obtains six months of cell phone location data directly from a carrier without a warrant, arguing that records voluntarily shared with a third party lose Fourth Amendment protection. The suspect argues that long-term digital location tracking is categorically different from older third-party precedents.",
     answers: [
       {
         id: "q4a",
-        label: "Overturn it — it was wrong and remains wrong",
+        label: "The Fourth Amendment covers digital location data — warrant required",
         description:
-          "Stare decisis does not require courts to follow decisions that were incorrectly reasoned from the start. Correcting error is more important than false consistency.",
-        weights: { 4: 3, 2: 1 },
+          "The volume and intimacy of long-term location records means people retain a reasonable expectation of privacy in them, whatever the older third-party doctrine once said. Technology changes the constitutional analysis.",
+        weights: { 1: 3, 3: 1 },
       },
       {
         id: "q4b",
-        label: "Preserve it — stability outweighs re-examination",
+        label: "Third-party doctrine applies — no warrant needed",
         description:
-          "Even imperfect precedent provides the predictability the legal system depends on. Courts should not overturn long-settled law simply because a current majority would decide differently.",
-        weights: { 5: 3, 3: 1 },
+          "When people voluntarily share data with carriers, they assume the risk it will be disclosed. This constitutional rule has been settled for decades and should not be rewritten by courts.",
+        weights: { 2: 2, 4: 2 },
       },
       {
         id: "q4c",
-        label: "Narrow it sharply without formally overruling",
+        label: "Require a warrant only for extended surveillance — decide narrowly",
         description:
-          "Limit the precedent to its specific facts so it can cause no further harm, while leaving the formal question of overruling to a case that squarely requires it.",
-        weights: { 5: 2, 3: 2, 1: 1 },
+          "Short-term records may remain unprotected under existing doctrine, but sustained tracking over months crosses a constitutional threshold. Decide no more than that specific question.",
+        weights: { 5: 3, 3: 1 },
       },
     ],
   },
@@ -223,29 +223,29 @@ const quizQuestions = [
     id: "q8",
     section: "criminal-justice",
     sectionLabel: "Criminal justice",
-    title: "Habeas corpus and new evidence",
+    title: "Capital punishment and cruel punishment",
     scenario:
-      "A prisoner files a habeas petition arguing that new DNA evidence — technology that did not exist at the time of conviction — strongly suggests innocence. Federal procedural rules required such claims to be filed within one year of conviction, a deadline that passed years before the science was available.",
+      "A state uses a drug protocol for executions that some studies link to a risk of severe pain during the process. The prisoner challenging the method cannot identify a clearly available alternative. The state argues this is the most humane method it can access, and that the Constitution permits capital punishment.",
     answers: [
       {
         id: "q8a",
-        label: "Allow the petition — no deadline bars an innocence claim",
+        label: "Prohibit it — the risk of severe pain is enough",
         description:
-          "Procedural rules are tools for efficiency, not traps for the actually innocent. A credible claim of innocence based on genuinely new science should always reach the merits.",
+          "The Eighth Amendment bars methods that create a substantial risk of serious harm during execution. The state cannot insulate its protocol from review simply because the prisoner cannot name a better alternative.",
         weights: { 1: 3, 3: 1 },
       },
       {
         id: "q8b",
-        label: "Apply the deadline — Congress set the rules",
+        label: "Allow it — the Constitution permits capital punishment",
         description:
-          "Habeas review has congressionally defined limits that courts must enforce. Courts that ignore statutes they find inconvenient undermine the rule of law.",
-        weights: { 2: 3, 4: 1 },
+          "The text and history of the Eighth Amendment clearly contemplate capital punishment. States that follow established procedure and use the best method available satisfy the constitutional standard.",
+        weights: { 4: 3, 2: 2 },
       },
       {
         id: "q8c",
-        label: "Recognize a narrow equitable exception for unavailable science",
+        label: "Require specific comparative evidence of unnecessary pain",
         description:
-          "Equity tolls deadlines when compliance was objectively impossible. Create a narrow exception specifically for newly available forensic technology, decide only this case's facts.",
+          "The challenger must show both a substantial risk and a known, available alternative that meaningfully reduces it. Demand a more developed factual record before ruling either way.",
         weights: { 5: 3, 3: 1 },
       },
     ],
@@ -318,30 +318,30 @@ const quizQuestions = [
     id: "q11",
     section: "government-power",
     sectionLabel: "Government power",
-    title: "Standing — who can bring a lawsuit",
+    title: "Second Amendment and public carry",
     scenario:
-      "An environmental advocacy group sues a federal agency over a permit that will increase pollution in a river where some members fish and swim. No member has become ill, but the group argues that degraded water quality itself is an injury to their members' recreational and aesthetic interests.",
+      "A city prohibits carrying handguns in public parks, citing public safety concerns about crowded spaces. A gun rights group challenges the law, arguing the Second Amendment extends beyond the home and that historical tradition at the founding supports the right to carry in public for self-defense.",
     answers: [
       {
         id: "q11a",
-        label: "Recognize standing — recreational injury is enough",
+        label: "Strike the restriction — the Second Amendment covers public carry",
         description:
-          "Courts have long recognized that threatened harm to recreation and natural environments constitutes an injury for standing purposes. Requiring physical illness sets the bar far too high.",
-        weights: { 1: 3, 3: 1 },
-      },
-      {
-        id: "q11b",
-        label: "Dismiss — injury must be concrete and to specific individuals",
-        description:
-          "Article III requires a real, particularized injury to a named plaintiff, not a generalized grievance felt by the public. Standing rules prevent courts from becoming roving policy-makers.",
+          "Historical tradition at ratification supports carrying arms for self-defense in public. When the text and history are clear, modern policy preferences cannot override the constitutional guarantee.",
         weights: { 4: 3, 2: 2 },
       },
       {
-        id: "q11c",
-        label: "Allow standing only for members who regularly use the river",
+        id: "q11b",
+        label: "Uphold it — legislatures may regulate public spaces",
         description:
-          "Find standing narrowly for those members who can document specific, regular contact with the affected waterway, but dismiss broader associational theories that rest on speculation.",
-        weights: { 5: 3, 3: 1 },
+          "Even if the Second Amendment has some public application, legislatures retain authority to regulate the manner of carrying in sensitive locations like parks. Public safety is a legitimate interest.",
+        weights: { 1: 2, 3: 2 },
+      },
+      {
+        id: "q11c",
+        label: "Apply the historical tradition test narrowly to this specific location",
+        description:
+          "The constitutional question turns on whether historical analogues for restricting carry in park-like spaces existed at the founding. Assess that record carefully and decide only whether this park ban survives that test.",
+        weights: { 5: 3, 4: 1 },
       },
     ],
   },

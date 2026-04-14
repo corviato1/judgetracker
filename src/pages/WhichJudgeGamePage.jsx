@@ -15,7 +15,17 @@ const WhichJudgeGamePage = () => {
 
   const currentQuestion = quizQuestions[currentIndex];
   const total = quizQuestions.length;
-  const progressPct = total > 0 ? Math.round(((currentIndex) / total) * 100) : 0;
+  const progressPct = total > 0 ? Math.round(((currentIndex + 1) / total) * 100) : 0;
+
+  const sectionQuestions = currentQuestion
+    ? quizQuestions.filter((q) => q.section === currentQuestion.section)
+    : [];
+  const sectionIndexWithin = currentQuestion
+    ? sectionQuestions.findIndex((q) => q.id === currentQuestion.id)
+    : 0;
+  const sectionProgressLabel = currentQuestion
+    ? `${currentQuestion.sectionLabel} — Question ${sectionIndexWithin + 1} of ${sectionQuestions.length} in this section`
+    : "";
 
   const handleStart = () => {
     setStarted(true);
@@ -99,7 +109,7 @@ const WhichJudgeGamePage = () => {
           <div className="quiz-progress-wrapper" style={{ marginTop: "1.25rem", marginBottom: "0.25rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.35rem" }}>
               <span className="small-label" style={{ fontSize: "0.78rem", letterSpacing: "0.06em", color: "#a0aec0" }}>
-                {currentQuestion.sectionLabel}
+                {sectionProgressLabel}
               </span>
               <span style={{ fontSize: "0.8rem", color: "#718096" }}>
                 {currentIndex + 1} / {total}
