@@ -31,7 +31,16 @@ const JudgeSearchForm = ({ onResults, onQueryChange }) => {
     } catch (error) {
       console.error("Judge search failed:", error);
       onResults([]);
-      setSearchError(error.message || "Search failed. Please try again.");
+      const upstreamStatus = error.responseBody?.upstreamStatus || error.status;
+      let message;
+      if (upstreamStatus === 401 || upstreamStatus === 403) {
+        message = "Judge search is temporarily unavailable (authentication error).";
+      } else if (upstreamStatus === 429) {
+        message = "Too many requests — please wait a moment and try again.";
+      } else {
+        message = "Search failed. Please try again later.";
+      }
+      setSearchError(message);
     } finally {
       setIsSearching(false);
     }
