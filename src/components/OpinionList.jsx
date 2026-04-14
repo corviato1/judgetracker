@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import OpinionCard from "./OpinionCard";
 
 const OpinionList = ({ opinions }) => {
+  const [expandedId, setExpandedId] = useState(null);
+
   if (!opinions || opinions.length === 0) {
     return (
       <p style={{ marginTop: "1rem", fontSize: "0.9rem" }}>
@@ -15,7 +17,12 @@ const OpinionList = ({ opinions }) => {
       <h3 className="section-heading">Recent opinions</h3>
       <div className="opinion-list">
         {opinions.map((opinion) => (
-          <OpinionCard key={opinion.id} opinion={opinion} />
+          <OpinionCard
+            key={opinion.id}
+            opinion={opinion}
+            expandedId={expandedId}
+            onExpand={setExpandedId}
+          />
         ))}
       </div>
     </section>

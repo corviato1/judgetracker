@@ -108,7 +108,19 @@ function GroupSection({ title, judgeStats, groupAverages }) {
 }
 
 const JudgeComparison = ({ statsData }) => {
-  if (!statsData) {
+  if (statsData === null) {
+    return (
+      <section style={{ marginTop: "2rem" }}>
+        <p className="small-label">Comparative stats</p>
+        <h3 className="section-heading">How does this judge compare?</h3>
+        <p style={{ color: "#888", fontSize: "0.9rem" }}>
+          Comparative statistics are unavailable for this judge right now.
+        </p>
+      </section>
+    );
+  }
+
+  if (statsData === undefined) {
     return (
       <section style={{ marginTop: "2rem" }}>
         <p className="small-label">Comparative stats</p>
