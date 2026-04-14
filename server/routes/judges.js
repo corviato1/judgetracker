@@ -296,8 +296,36 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
   }
 
   const token = process.env.COURTLISTENER_API_TOKEN;
+
+  async function localOpinions() {
+    const result = await pool.query(
+      `SELECT courtlistener_id, case_name, court_name, date_filed, opinion_type, citation, summary
+       FROM opinions WHERE judge_id = $1 ORDER BY date_filed DESC NULLS LAST LIMIT 50`,
+      [id]
+    );
+    return result.rows.map((r) => ({
+      id: String(r.courtlistener_id || r.id || ""),
+      judgeId: id,
+      caseName: r.case_name || "",
+      courtName: r.court_name || "",
+      dateFiled: r.date_filed ? String(r.date_filed).slice(0, 10) : "",
+      opinionType: r.opinion_type || "",
+      citation: r.citation || "",
+      summary: r.summary || "",
+      disposition: "",
+      url: r.courtlistener_id ? `https://www.courtlistener.com/opinion/${r.courtlistener_id}/` : null,
+      source: "local",
+    }));
+  }
+
   if (!token) {
-    return res.status(503).json({ error: "CourtListener API token not configured.", opinions: [] });
+    try {
+      const local = await localOpinions();
+      return res.json({ opinions: local, cached: false, source: "local" });
+    } catch (dbErr) {
+      console.error("[DB] Local opinions error:", dbErr.message);
+      return res.status(503).json({ error: "CourtListener API token not configured.", opinions: [] });
+    }
   }
 
   try {
@@ -309,12 +337,12 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
 
       if (!response.ok) {
         const upstreamErr = new Error("Upstream API error.");
-        upstreamErr.httpStatus = 502;
+        upstreamErr.httpStatus = response.status >= 500 ? 502 : response.status;
         throw upstreamErr;
       }
 
       const data = await response.json();
-      const normalized = (data.results || []).slice(0, 20).map((o) => ({
+      const normalized = (data.results || []).slice(0, 50).map((o) => ({
         id: String(o.id),
         judgeId: id,
         caseName: o.caseName || o.case_name || "",
@@ -323,6 +351,10 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
         opinionType: o.type || "",
         citation: (o.citation && o.citation[0]) || "",
         summary: o.snippet || "",
+        disposition: o.disposition || "",
+        url: o.absolute_url
+          ? `https://www.courtlistener.com${o.absolute_url}`
+          : `https://www.courtlistener.com/opinion/${o.id}/`,
       }));
 
       await setCache(cacheKey, normalized, TTL.opinionsHours);
@@ -340,7 +372,13 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
 
     return res.json({ opinions, cached: false });
   } catch (err) {
-    if (err.httpStatus) {
+    if (err.httpStatus === 503 || err.httpStatus === 502) {
+      try {
+        const local = await localOpinions();
+        return res.json({ opinions: local, cached: false, source: "local" });
+      } catch (dbErr) {
+        console.error("[DB] Local opinions fallback error:", dbErr.message);
+      }
       return res.status(err.httpStatus).json({ error: err.message, opinions: [] });
     }
     console.error("[CL] Opinions fetch error:", err.message);

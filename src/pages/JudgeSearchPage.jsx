@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
 import JudgeList from "../components/JudgeList";
@@ -7,7 +6,6 @@ import JudgeList from "../components/JudgeList";
 const JudgeSearchPage = () => {
   const [results, setResults] = useState(null);
   const [filterQuery, setFilterQuery] = useState("");
-  const navigate = useNavigate();
 
   const handleResults = (judges) => {
     if (!judges || judges.length === 0) {
@@ -19,14 +17,6 @@ const JudgeSearchPage = () => {
 
   const handleReset = () => {
     setResults(null);
-  };
-
-  const handleSelectJudge = (judge) => {
-    try {
-      navigate(`/judge/${judge.id}`);
-    } catch (err) {
-      console.error("[JudgeSearchPage] Navigation error:", err);
-    }
   };
 
   const hasSearchResults = results !== null;
@@ -48,7 +38,7 @@ const JudgeSearchPage = () => {
               if (!q) handleReset();
             }}
           />
-          <JudgeList judges={results} onSelectJudge={handleSelectJudge} />
+          <JudgeList judges={results} />
         </>
       ) : (
         <>

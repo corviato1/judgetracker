@@ -1431,6 +1431,38 @@ footer {
   margin: 0;
 }
 
+.profile-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.profile-page-btn {
+  background: none;
+  border: 1px solid var(--border-s);
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.profile-page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent, #7c83fd);
+}
+
+.profile-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.profile-page-info {
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+
 .opinion-card {
   border: 1px solid var(--border-s);
   border-radius: 0.6rem;

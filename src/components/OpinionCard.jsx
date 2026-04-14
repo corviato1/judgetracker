@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 const OpinionCard = ({ opinion, expandedId, onExpand }) => {
   const isExpanded = expandedId === opinion.id;
@@ -30,6 +30,11 @@ const OpinionCard = ({ opinion, expandedId, onExpand }) => {
           {opinion.citation && (
             <p className="opinion-meta" style={{ marginTop: "0.5rem" }}>
               Citation: {opinion.citation}
+            </p>
+          )}
+          {opinion.disposition && (
+            <p className="opinion-meta" style={{ marginTop: "0.35rem" }}>
+              Disposition: {opinion.disposition}
             </p>
           )}
           {opinion.summary && (

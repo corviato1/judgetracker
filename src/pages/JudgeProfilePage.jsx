@@ -51,6 +51,8 @@ const JudgeProfilePage = () => {
   const [usedFallback, setUsedFallback] = useState(false);
   const [filterText, setFilterText] = useState("");
   const [expandedOpinionId, setExpandedOpinionId] = useState(null);
+  const [opinionsPage, setOpinionsPage] = useState(0);
+  const OPINIONS_PER_PAGE = 10;
 
   useEffect(() => {
     if (!judgeId) return;
@@ -67,6 +69,7 @@ const JudgeProfilePage = () => {
     setStatsData(undefined);
     setFilterText("");
     setExpandedOpinionId(null);
+    setOpinionsPage(0);
 
     async function loadJudge() {
       try {
@@ -133,6 +136,11 @@ const JudgeProfilePage = () => {
 
   const filteredOpinions = opinions.filter((op) =>
     !filterText || (op.caseName || "").toLowerCase().includes(filterText.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredOpinions.length / OPINIONS_PER_PAGE);
+  const pagedOpinions = filteredOpinions.slice(
+    opinionsPage * OPINIONS_PER_PAGE,
+    (opinionsPage + 1) * OPINIONS_PER_PAGE
   );
 
   if (loading) {
@@ -221,6 +229,7 @@ const JudgeProfilePage = () => {
                 onChange={(e) => {
                   setFilterText(e.target.value);
                   setExpandedOpinionId(null);
+                  setOpinionsPage(0);
                 }}
               />
               {filteredOpinions.length === 0 ? (
@@ -230,16 +239,39 @@ const JudgeProfilePage = () => {
                     : "No opinions found for this judge yet."}
                 </p>
               ) : (
-                <div className="opinion-list">
-                  {filteredOpinions.map((op) => (
-                    <OpinionCard
-                      key={op.id}
-                      opinion={op}
-                      expandedId={expandedOpinionId}
-                      onExpand={handleExpand}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="opinion-list">
+                    {pagedOpinions.map((op) => (
+                      <OpinionCard
+                        key={op.id}
+                        opinion={op}
+                        expandedId={expandedOpinionId}
+                        onExpand={handleExpand}
+                      />
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="profile-pagination">
+                      <button
+                        className="profile-page-btn"
+                        onClick={() => { setOpinionsPage((p) => p - 1); setExpandedOpinionId(null); }}
+                        disabled={opinionsPage === 0}
+                      >
+                        ← Prev
+                      </button>
+                      <span className="profile-page-info">
+                        Page {opinionsPage + 1} of {totalPages}
+                      </span>
+                      <button
+                        className="profile-page-btn"
+                        onClick={() => { setOpinionsPage((p) => p + 1); setExpandedOpinionId(null); }}
+                        disabled={opinionsPage >= totalPages - 1}
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
