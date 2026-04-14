@@ -1,5 +1,5 @@
 [build]
-  command   = "npm run build"
+  command   = "node server/scripts/migrate.js && npm run build"
   publish   = "build"
   functions = "netlify/functions"
 
