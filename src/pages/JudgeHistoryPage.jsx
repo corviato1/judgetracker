@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import { getJudgeHistory } from "../API/api";
 
@@ -51,18 +52,12 @@ function HistorySection({ title, description, entries, showSnippet = true }) {
 }
 
 const JudgeHistoryPage = () => {
+  const [searchParams] = useSearchParams();
   const [searchResults, setSearchResults] = useState(null);
   const [selectedJudge, setSelectedJudge] = useState(null);
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const handleResults = (judges) => {
-    setSearchResults(judges && judges.length > 0 ? judges : []);
-    setSelectedJudge(null);
-    setHistory(null);
-    setError(null);
-  };
 
   const handleSelectJudge = async (judge) => {
     setSelectedJudge(judge);
@@ -84,12 +79,27 @@ const JudgeHistoryPage = () => {
     }
   };
 
+  const handleResults = (judges) => {
+    setSearchResults(judges && judges.length > 0 ? judges : []);
+    setSelectedJudge(null);
+    setHistory(null);
+    setError(null);
+  };
+
   const handleReset = () => {
     setSearchResults(null);
     setSelectedJudge(null);
     setHistory(null);
     setError(null);
   };
+
+  useEffect(() => {
+    const preloadId = searchParams.get("judgeId");
+    const preloadName = searchParams.get("judgeName");
+    if (preloadId) {
+      handleSelectJudge({ id: preloadId, fullName: preloadName || "" });
+    }
+  }, []);
 
   return (
     <div>
@@ -100,7 +110,9 @@ const JudgeHistoryPage = () => {
         direct links to source opinions on CourtListener.
       </p>
 
-      <JudgeSearchForm onResults={handleResults} onQueryChange={(q) => { if (!q) handleReset(); }} />
+      {!selectedJudge && (
+        <JudgeSearchForm onResults={handleResults} onQueryChange={(q) => { if (!q) handleReset(); }} />
+      )}
 
       {searchResults !== null && !selectedJudge && (
         <div style={{ marginTop: "1.25rem" }}>

@@ -1,7 +1,7 @@
 import React from "react";
 import JudgeCard from "./JudgeCard";
 
-const JudgeList = ({ judges, onSelectJudge }) => {
+const JudgeList = ({ judges, onSelectJudge, onViewHistory }) => {
   if (!judges || judges.length === 0) {
     return (
       <p style={{ marginTop: "1.25rem", fontSize: "0.9rem" }}>
@@ -17,6 +17,7 @@ const JudgeList = ({ judges, onSelectJudge }) => {
           key={judge.id}
           judge={judge}
           onSelectJudge={onSelectJudge ? () => onSelectJudge(judge) : undefined}
+          onViewHistory={onViewHistory ? () => onViewHistory(judge) : undefined}
         />
       ))}
     </div>
