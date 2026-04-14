@@ -224,8 +224,7 @@ function RoundScreen({ round, totalRounds, score, duelData, onNext, loading }) {
     setRevealed(true);
   };
 
-  const statsPending = duelData && duelData.statsPending;
-  const correct = !statsPending && selected != null && duelData != null && selected === duelData.winnerId;
+  const correct = selected != null && duelData != null && selected === duelData.winnerId;
 
   return (
     <div className="duel-round-screen">
@@ -246,17 +245,6 @@ function RoundScreen({ round, totalRounds, score, duelData, onNext, loading }) {
 
       {loading ? (
         <div className="duel-loading">Loading next duel...</div>
-      ) : statsPending ? (
-        <div className="duel-pending-banner">
-          <div className="duel-pending-icon">⏳</div>
-          <h3 className="duel-pending-title">Statistics Pending</h3>
-          <p className="duel-pending-message">
-            {duelData.pendingReason || "Judge statistics have not been computed yet. Run the sync script to populate real data."}
-          </p>
-          <button className="duel-next-button" onClick={() => onNext(null)}>
-            {round < totalRounds ? "Skip Round →" : "See Results →"}
-          </button>
-        </div>
       ) : (
         <>
           <div className="duel-question-banner">
