@@ -4,30 +4,30 @@ const quizQuestions = [
     id: "q1",
     section: "interpreting-law",
     sectionLabel: "Interpreting the law",
-    title: "Statutory text versus legislative purpose",
+    title: "Stare decisis and when to overturn precedent",
     scenario:
-      "A federal environmental law requires companies to report any 'release' of hazardous chemicals. The statute defines 'release' in one place but is silent on whether the word covers purely accidental spills. A company argues the plain text applies only to intentional acts; the EPA says Congressional intent was to cover all discharges.",
+      "A 35-year-old Supreme Court ruling expanded a statutory right in a way critics argue has no basis in the statute's text. Subsequent courts have not built heavily on it, and the original dissenters said it had no textual grounding. A party now asks the court to formally overrule the decision.",
     answers: [
       {
         id: "q1a",
-        label: "Follow the plain text",
+        label: "Overturn it — wrong when decided, still wrong now",
         description:
-          "The word 'release' in its ordinary meaning covers accidental spills too. Stick to what the statute says — if Congress wanted an intent requirement, it would have written one.",
-        weights: { 2: 3, 4: 2 },
+          "Stare decisis does not require courts to perpetuate errors. Correcting a wrongly reasoned decision strengthens the law's integrity more than false consistency ever could.",
+        weights: { 2: 2, 4: 3 },
       },
       {
         id: "q1b",
-        label: "Look at legislative history and purpose",
+        label: "Preserve it — stability outweighs re-examination",
         description:
-          "The statute was meant to protect public health broadly. Reading it to exclude accidents would defeat its purpose — courts should interpret laws to fulfill their evident goals.",
-        weights: { 1: 2, 3: 2 },
+          "Even imperfect precedent creates predictability that the legal system depends on. Courts should not overturn long-settled law simply because a current majority would decide differently.",
+        weights: { 5: 3, 3: 1 },
       },
       {
         id: "q1c",
-        label: "Defer to the agency's reasonable reading",
+        label: "Narrow it without formally overruling",
         description:
-          "The EPA has expertise in this area, and its interpretation is at least plausible. In a close case, the agency charged with administering the law should get the benefit of the doubt.",
-        weights: { 3: 2, 5: 2 },
+          "Limit the precedent to its specific facts so it can cause no further harm, while leaving the formal question of overruling to a case that squarely demands it.",
+        weights: { 5: 2, 3: 2, 1: 1 },
       },
     ],
   },
@@ -35,30 +35,30 @@ const quizQuestions = [
     id: "q2",
     section: "interpreting-law",
     sectionLabel: "Interpreting the law",
-    title: "Unenumerated constitutional rights",
+    title: "State constitutional rights versus the federal baseline",
     scenario:
-      "A state restricts access to a medical procedure that has been practiced privately for decades. The plaintiff argues that the Constitution's protection of 'liberty' extends to personal medical decisions, even though no specific text names this right.",
+      "A state constitution uses broader language than the federal constitution on search and seizure. A defendant argues that the state charter should provide more protection than the federal baseline in a digital privacy case involving data from a smartphone.",
     answers: [
       {
         id: "q2a",
-        label: "Recognize the right as fundamental",
+        label: "Expand rights under state law",
         description:
-          "Liberty means more than what was listed in 1791. The Constitution's broadly worded guarantees protect personal autonomy in decisions this intimate, even without explicit text.",
-        weights: { 1: 3, 3: 1 },
+          "Interpret the state constitution as more protective in the digital context, even if the federal baseline is lower. States are free to give their residents stronger protections.",
+        weights: { 1: 2, 3: 2, 5: 1 },
       },
       {
         id: "q2b",
-        label: "No right without historical grounding",
+        label: "Track the federal standard",
         description:
-          "Courts cannot invent rights not rooted in the Constitution's text or deeply embedded in the nation's history. If the people want this protection, they should enact it through legislation.",
-        weights: { 4: 3, 2: 2 },
+          "Keep the state standard aligned with federal law absent a clear historical or textual basis to diverge. Uniform standards reduce confusion and promote predictability.",
+        weights: { 2: 2, 4: 2 },
       },
       {
         id: "q2c",
-        label: "Decide narrowly on the specific facts",
+        label: "Case-by-case divergence only where clearly justified",
         description:
-          "Rather than issuing a broad ruling on unenumerated rights, resolve only whether this particular restriction is so arbitrary that it fails even basic rational review.",
-        weights: { 5: 3, 3: 1 },
+          "Recognize that state rights can be broader, but limit expansions to situations with clear textual or historical grounding in the specific state charter.",
+        weights: { 3: 2, 5: 2 },
       },
     ],
   },
@@ -139,7 +139,7 @@ const quizQuestions = [
         label: "Stay close to the guideline sentence",
         description:
           "Guidelines exist for consistency and to reflect Congress's sentencing policy. Judges who routinely depart undermine uniform treatment and legislative intent.",
-        weights: { 2: 2, 4: 2 },
+        weights: { 2: 2, 4: 2, 5: 1 },
       },
       {
         id: "q5b",
@@ -161,30 +161,30 @@ const quizQuestions = [
     id: "q6",
     section: "criminal-justice",
     sectionLabel: "Criminal justice",
-    title: "Bail and pretrial detention",
+    title: "Habeas corpus and new evidence",
     scenario:
-      "A low-income defendant charged with a drug offense cannot afford the $5,000 cash bail set by the court. The prosecution argues bail is needed to ensure appearance at trial. The defendant has strong community ties, steady employment, and no prior failures to appear.",
+      "A prisoner files a habeas petition arguing that new DNA evidence — technology that did not exist at the time of trial — strongly suggests innocence. Federal procedural rules required such claims to be filed within one year of conviction, a deadline that passed before the science was available.",
     answers: [
       {
         id: "q6a",
-        label: "Reduce or eliminate the cash requirement",
+        label: "Allow the petition — no deadline bars a credible innocence claim",
         description:
-          "Detaining someone only because they are poor — when a wealthier person with the same risk profile would go free — violates equal protection and due process.",
+          "Procedural rules are tools for efficiency, not traps for the actually innocent. A credible claim of innocence supported by genuinely new science should always reach the merits.",
         weights: { 1: 3, 3: 1 },
       },
       {
         id: "q6b",
-        label: "Uphold the bail as set",
+        label: "Apply the deadline — Congress set those limits",
         description:
-          "The court applied the applicable legal standard. Bail determinations belong to trial courts who can assess flight risk firsthand, and reviewing courts should not second-guess them.",
-        weights: { 2: 2, 4: 1, 5: 1 },
+          "Habeas review has statutory limits that courts must enforce. Courts that ignore statutes they find inconvenient undermine the rule of law and separation of powers.",
+        weights: { 2: 3, 4: 1 },
       },
       {
         id: "q6c",
-        label: "Remand for an individualized bail hearing",
+        label: "Recognize a narrow equitable exception for unavailable science",
         description:
-          "Require the trial court to hold a hearing that addresses this defendant's actual risk profile before ordering continued detention, rather than relying on a standard bail schedule.",
-        weights: { 5: 2, 3: 2 },
+          "Equity tolls deadlines when compliance was objectively impossible. Create a limited exception for newly available forensic technology, deciding only this case's specific facts.",
+        weights: { 5: 3, 3: 1 },
       },
     ],
   },
