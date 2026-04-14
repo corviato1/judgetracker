@@ -12,6 +12,7 @@ import DataSourcesPage from "./pages/DataSourcesPage";
 import WhichJudgeGamePage from "./pages/WhichJudgeGamePage";
 import JudgeDuelPage from "./pages/JudgeDuelPage";
 import AdminPage from "./pages/AdminPage";
+import AdvertisePage from "./pages/AdvertisePage";
 
 const AppShell = ({ children }) => (
   <div className="app-root">
@@ -40,6 +41,7 @@ const App = () => {
         <Route path="/about" element={<Navigate to="/" replace />} />
         <Route path="/which-judge" element={<WhichJudgeGamePage />} />
         <Route path="/judge-duel" element={<JudgeDuelPage />} />
+        <Route path="/advertise" element={<AdvertisePage />} />
 
         <Route path="/judges" element={<Navigate to="/search" replace />} />
         <Route path="/duel" element={<Navigate to="/judge-duel" replace />} />

@@ -157,6 +157,18 @@ const migrations = [
 
   `CREATE INDEX IF NOT EXISTS idx_ad_impressions_placement ON ad_impressions(placement_id)`,
   `CREATE INDEX IF NOT EXISTS idx_ad_impressions_created ON ad_impressions(created_at)`,
+
+  `CREATE TABLE IF NOT EXISTS ad_inquiries (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    company VARCHAR(255),
+    email VARCHAR(254) NOT NULL,
+    placement_interest VARCHAR(100),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+  )`,
+
+  `CREATE INDEX IF NOT EXISTS idx_ad_inquiries_created ON ad_inquiries(created_at)`,
 ];
 
 const SEED_JUDGES = [

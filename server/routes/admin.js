@@ -438,6 +438,44 @@ router.get("/ads/impressions", requireAdmin, async (req, res) => {
   }
 });
 
+router.post("/ads/inquiries", async (req, res) => {
+  try {
+    const { name, company, email, placement_interest, message } = req.body || {};
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email are required." });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email address." });
+    }
+    await pool.query(
+      `INSERT INTO ad_inquiries (name, company, email, placement_interest, message)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [name.slice(0, 255), (company || "").slice(0, 255), email.slice(0, 254), (placement_interest || "").slice(0, 100), (message || "").slice(0, 2000)]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[AD INQUIRY]", err.message);
+    res.status(500).json({ error: "Internal error." });
+  }
+});
+
+router.get("/ads/inquiries", requireAdmin, async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const offset = (page - 1) * 50;
+    const rows = await pool.query(
+      `SELECT id, name, company, email, placement_interest, message, created_at
+       FROM ad_inquiries ORDER BY created_at DESC LIMIT 50 OFFSET $1`,
+      [offset]
+    );
+    res.json({ inquiries: rows.rows });
+  } catch (err) {
+    console.error("[ADMIN ads inquiries]", err.message);
+    res.status(500).json({ error: "Internal error." });
+  }
+});
+
 router.post("/seed-judges", requireAdmin, async (req, res) => {
   const token = process.env.COURTLISTENER_API_TOKEN;
   if (!token) {

@@ -643,6 +643,8 @@ function RateLimitsTab() {
 function AdsTab() {
   const [placements, setPlacements] = useState(null);
   const [impressions, setImpressions] = useState(null);
+  const [inquiries, setInquiries] = useState(null);
+  const [inquiryPage, setInquiryPage] = useState(1);
   const [err, setErr] = useState(null);
   const [form, setForm] = useState({ name: "", slug: "", dimensions: "", notes: "", active: true });
   const [saving, setSaving] = useState(false);
@@ -660,7 +662,14 @@ function AdsTab() {
       .then((d) => setImpressions(d.impressions))
       .catch(() => {});
 
-  useEffect(() => { loadPlacements(); loadImpressions(); }, []);
+  const loadInquiries = (page) =>
+    fetch(`/api/admin/ads/inquiries?page=${page}`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => setInquiries(d.inquiries))
+      .catch(() => {});
+
+  useEffect(() => { loadPlacements(); loadImpressions(); loadInquiries(1); }, []);
+  useEffect(() => { loadInquiries(inquiryPage); }, [inquiryPage]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -757,6 +766,35 @@ function AdsTab() {
             {!impressions.length && <tr><td colSpan="3" className="adm-empty">No impressions yet</td></tr>}
           </tbody>
         </table>
+      )}
+
+      <h3 className="adm-section-title" style={{ marginTop: "2rem" }}>Ad Placement Inquiries</h3>
+      {!inquiries ? <p className="adm-loading">Loading…</p> : (
+        <>
+          <table className="adm-table adm-table-full">
+            <thead>
+              <tr><th>Date</th><th>Name</th><th>Company</th><th>Email</th><th>Placement</th><th>Message</th></tr>
+            </thead>
+            <tbody>
+              {inquiries.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.created_at?.slice(0, 10)}</td>
+                  <td>{r.name}</td>
+                  <td>{r.company || "—"}</td>
+                  <td>{r.email}</td>
+                  <td>{r.placement_interest || "—"}</td>
+                  <td className="adm-truncate" title={r.message || ""}>{r.message || "—"}</td>
+                </tr>
+              ))}
+              {!inquiries.length && <tr><td colSpan="6" className="adm-empty">No inquiries yet</td></tr>}
+            </tbody>
+          </table>
+          <div className="adm-pagination">
+            <button disabled={inquiryPage <= 1} onClick={() => setInquiryPage((p) => p - 1)} className="adm-page-btn">← Prev</button>
+            <span>Page {inquiryPage}</span>
+            <button disabled={inquiries.length < 50} onClick={() => setInquiryPage((p) => p + 1)} className="adm-page-btn">Next →</button>
+          </div>
+        </>
       )}
     </div>
   );

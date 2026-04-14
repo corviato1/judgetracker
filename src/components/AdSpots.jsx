@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import templateAdBanner from "../media/ads/template-ad-banner.png";
 
 const AdSpots = () => {
@@ -10,6 +11,7 @@ const AdSpots = () => {
       description:
         "High visibility placement for law firms, research tools, or legal technology platforms that want to reach litigators and policy teams.",
       size: "Full width · desktop and mobile",
+      url: null,
     },
     {
       id: "ad2",
@@ -18,6 +20,7 @@ const AdSpots = () => {
       description:
         "Context-aware placements that show when users view certain courts, jurisdictions, or issue areas, with strict separation from search results.",
       size: "In-feed placement · judge profile pages",
+      url: null,
     },
     {
       id: "ad3",
@@ -26,6 +29,7 @@ const AdSpots = () => {
       description:
         "Slots for co-branded analytics, visualization tools, or law firm knowledge platforms that integrate directly into JudgeTracker workflows.",
       size: "Module slot · analytics sidebar",
+      url: null,
     },
   ];
 
@@ -47,11 +51,33 @@ const AdSpots = () => {
             <p className="ad-meta">{slot.size}</p>
             {slot.id === "ad1" ? (
               <div className="ad-placeholder ad-placeholder--image">
-                <img
-                  src={templateAdBanner}
-                  alt="Your Ad Here — JudgeTracker.info"
-                  className="ad-template-image"
-                />
+                {slot.url ? (
+                  <a
+                    href={slot.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ad-image-link"
+                    aria-label="Visit advertiser"
+                  >
+                    <img
+                      src={templateAdBanner}
+                      alt="Sponsored — JudgeTracker.info"
+                      className="ad-template-image"
+                    />
+                  </a>
+                ) : (
+                  <Link
+                    to="/advertise"
+                    className="ad-image-link"
+                    aria-label="Inquire about this ad placement"
+                  >
+                    <img
+                      src={templateAdBanner}
+                      alt="Your Ad Here — click to inquire about this placement"
+                      className="ad-template-image"
+                    />
+                  </Link>
+                )}
               </div>
             ) : (
               <div className="ad-placeholder">
