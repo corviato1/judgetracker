@@ -131,16 +131,30 @@ function startCacheCleanup() {
     try {
       const expired = await pool.query("DELETE FROM api_cache WHERE expires_at < NOW()");
       if (expired.rowCount > 0) {
-        console.log(`[CACHE] Deleted ${expired.rowCount} expired rows`);
+        console.log(`[CACHE] Deleted ${expired.rowCount} expired cache rows`);
       }
       await enforceDbCap();
+
+      const oldEvents = await pool.query(
+        "DELETE FROM events WHERE created_at < NOW() - INTERVAL '90 days'"
+      );
+      if (oldEvents.rowCount > 0) {
+        console.log(`[RETENTION] Deleted ${oldEvents.rowCount} events older than 90 days`);
+      }
+
+      const oldImpressions = await pool.query(
+        "DELETE FROM ad_impressions WHERE created_at < NOW() - INTERVAL '90 days'"
+      );
+      if (oldImpressions.rowCount > 0) {
+        console.log(`[RETENTION] Deleted ${oldImpressions.rowCount} ad_impressions older than 90 days`);
+      }
     } catch (err) {
       console.error("[CACHE] Scheduled cleanup error:", err.message);
     }
   };
 
   setInterval(run, 10 * 60 * 1000);
-  console.log("[CACHE] Scheduled cleanup started (every 10 min, 200 MB cap)");
+  console.log("[CACHE] Scheduled cleanup started (every 10 min, 200 MB cap, 90-day retention)");
 }
 
 async function withCoalescing(key, fetchFn) {
