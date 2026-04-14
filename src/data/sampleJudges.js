@@ -84,7 +84,7 @@ const sampleJudges = [
       "Prioritizes the long-term legitimacy and stability of the judicial institution above any particular legal theory. Prefers narrow, consensus-building rulings over sweeping decisions. Treats established precedent as a strong reason to rule cautiously, believing courts should not move faster than democratic consensus — and that losing public trust is itself a constitutional harm.",
     realJudge: {
       name: "John G. Roberts Jr.",
-      court: "U.S. Supreme Court (Chief Justice)",
+      court: "U.S. Supreme Court (Chief)",
       appointer: "Appointed by President G.W. Bush, 2005",
       note: "Chief Justice Roberts consistently seeks narrow rulings that command broad consensus, regularly casting the deciding vote to avoid sweeping decisions — prioritizing the Court's institutional standing over any single legal theory.",
     },

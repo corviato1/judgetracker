@@ -138,7 +138,7 @@ const QuizResult = ({ result, onRestart }) => {
               color: "#c4b5fd",
             }}
           >
-            {topMatch.judge.fullName}
+            Judicial philosophy: {topMatch.judge.fullName}
           </span>
           {realJudge.court && (
             <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
