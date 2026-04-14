@@ -270,6 +270,7 @@ const JudgeSearchPage = () => {
             <JudgeIndex
               filterQuery={filterQuery}
               onViewHistory={handleViewHistory}
+              judges={allJudges}
             />
           )}
         </>

@@ -9,24 +9,29 @@ const SORT_OPTIONS = [
   { value: "party", label: "Party" },
 ];
 
-const JudgeIndex = ({ filterQuery, onViewHistory }) => {
-  const [allJudges, setAllJudges] = useState([]);
-  const [loading, setLoading] = useState(true);
+const JudgeIndex = ({ filterQuery, onViewHistory, judges: judgesProp }) => {
+  const hasProp = judgesProp !== undefined;
+  const [fetched, setFetched] = useState([]);
+  const [loading, setLoading] = useState(!hasProp || judgesProp === null);
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState("name");
 
   useEffect(() => {
+    if (hasProp) return;
     let cancelled = false;
     setLoading(true);
     listAllJudges().then((judges) => {
       if (cancelled) return;
-      setAllJudges(Array.isArray(judges) ? judges : []);
+      setFetched(Array.isArray(judges) ? judges : []);
       setLoading(false);
     }).catch(() => {
       if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [hasProp]);
+
+  const allJudges = hasProp ? (judgesProp || []) : fetched;
+  const isLoading = hasProp ? judgesProp === null : loading;
 
   const filtered = useMemo(() => {
     const q = (filterQuery || "").trim().toLowerCase();
@@ -54,7 +59,7 @@ const JudgeIndex = ({ filterQuery, onViewHistory }) => {
     });
   }, [allJudges, filterQuery, sortBy]);
 
-  if (loading) {
+  if (isLoading) {
     return <p className="judge-index-loading">Loading judges…</p>;
   }
 
