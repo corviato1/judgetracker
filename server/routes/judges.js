@@ -61,7 +61,7 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
 
   try {
     const results = await withCoalescing(cacheKey, async () => {
-      const url = `${CL_BASE}/people/?full_name=${encodeURIComponent(q)}&format=json`;
+      const url = `${CL_BASE}/search/?type=p&q=${encodeURIComponent(q)}&format=json`;
       const response = await fetch(url, {
         headers: { ...getAuthHeaders(), "User-Agent": "JudgeTracker/1.0" },
       });
