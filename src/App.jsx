@@ -8,7 +8,6 @@ import NavigationMenu from "./components/NavigationMenu";
 import HomePage from "./pages/HomePage";
 import JudgeSearchPage from "./pages/JudgeSearchPage";
 import JudgeProfilePage from "./pages/JudgeProfilePage";
-import DataSourcesPage from "./pages/DataSourcesPage";
 import WhichJudgeGamePage from "./pages/WhichJudgeGamePage";
 import JudgeDuelPage from "./pages/JudgeDuelPage";
 import AdminPage from "./pages/AdminPage";
