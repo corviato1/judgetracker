@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
@@ -75,62 +75,8 @@ function matchesFilters(judge, filters) {
   return true;
 }
 
-const ScotusTab = ({ onViewHistory }) => {
-  const [judges, setJudges] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    listAllJudges().then((all) => {
-      if (cancelled) return;
-      const scotus = (Array.isArray(all) ? all : []).filter(
-        (j) =>
-          (j.courtName || "").toLowerCase().includes("supreme court of the united states") ||
-          (j.courtName || "").toLowerCase().includes("u.s. supreme court") ||
-          (j.courtName || "").toLowerCase().includes("united states supreme court")
-      );
-      setJudges(scotus);
-      setLoading(false);
-    }).catch(() => {
-      if (!cancelled) setLoading(false);
-    });
-    return () => { cancelled = true; };
-  }, []);
-
-  if (loading) {
-    return <p className="judge-index-loading">Loading Supreme Court justices…</p>;
-  }
-
-  if (judges.length === 0) {
-    return (
-      <p className="judge-index-empty" style={{ marginTop: "1.5rem" }}>
-        No Supreme Court justices found in the local index yet. Use the Search tab to find and
-        cache them first.
-      </p>
-    );
-  }
-
-  return (
-    <div style={{ marginTop: "1.5rem" }}>
-      <p className="section-subheading" style={{ marginBottom: "1rem" }}>
-        Current justices of the United States Supreme Court.
-      </p>
-      <div className="judge-index-grid">
-        {judges.map((judge) => (
-          <JudgeCard
-            key={judge.id}
-            judge={judge}
-            onViewHistory={onViewHistory ? () => onViewHistory(judge) : undefined}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const RandomTab = () => {
+const RandomTab = ({ allJudges }) => {
   const navigate = useNavigate();
-  const [allJudges, setAllJudges] = useState(null);
   const [filters, setFilters] = useState({
     state: "any",
     courtLevel: "any",
@@ -149,14 +95,8 @@ const RandomTab = () => {
     setPicking(true);
     setNoMatch(false);
     try {
-      let judges = allJudges;
-      if (!judges) {
-        judges = await listAllJudges();
-        setAllJudges(judges);
-      }
-      const pool = (Array.isArray(judges) ? judges : []).filter((j) =>
-        matchesFilters(j, filters)
-      );
+      const judges = allJudges || [];
+      const pool = judges.filter((j) => matchesFilters(j, filters));
       if (pool.length === 0) {
         setNoMatch(true);
         return;
@@ -232,9 +172,9 @@ const RandomTab = () => {
         <button
           className="duel-start-button"
           onClick={handlePick}
-          disabled={picking}
+          disabled={picking || !allJudges}
         >
-          {picking ? "Picking…" : "Pick Random Judge"}
+          {picking ? "Picking…" : !allJudges ? "Loading…" : "Pick Random Judge"}
         </button>
 
         {noMatch && (
@@ -252,6 +192,25 @@ const JudgeSearchPage = () => {
   const [activeTab, setActiveTab] = useState("search");
   const [results, setResults] = useState(null);
   const [filterQuery, setFilterQuery] = useState("");
+
+  const [allJudges, setAllJudges] = useState(null);
+  const fetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    listAllJudges().then((judges) => {
+      setAllJudges(Array.isArray(judges) ? judges : []);
+    }).catch(() => {
+      setAllJudges([]);
+    });
+  }, []);
+
+  const scotusJudges = allJudges
+    ? allJudges.filter((j) =>
+        (j.courtName || "").toLowerCase().includes("supreme court")
+      )
+    : null;
 
   const handleResults = (judges) => {
     if (!judges || judges.length === 0) {
@@ -295,44 +254,57 @@ const JudgeSearchPage = () => {
 
       {activeTab === "search" && (
         <>
+          <JudgeSearchForm
+            onResults={handleResults}
+            onQueryChange={(q) => {
+              setFilterQuery(q);
+              if (!q) handleReset();
+            }}
+          />
           {hasSearchResults ? (
-            <>
-              <JudgeSearchForm
-                onResults={handleResults}
-                onQueryChange={(q) => {
-                  setFilterQuery(q);
-                  if (!q) handleReset();
-                }}
-              />
-              <JudgeList
-                judges={results}
-                onViewHistory={handleViewHistory}
-              />
-            </>
+            <JudgeList
+              judges={results}
+              onViewHistory={handleViewHistory}
+            />
           ) : (
-            <>
-              <JudgeIndex
-                filterQuery={filterQuery}
-                onViewHistory={handleViewHistory}
-              />
-              <JudgeSearchForm
-                onResults={handleResults}
-                onQueryChange={(q) => {
-                  setFilterQuery(q);
-                  if (!q) handleReset();
-                }}
-              />
-            </>
+            <JudgeIndex
+              filterQuery={filterQuery}
+              onViewHistory={handleViewHistory}
+            />
           )}
         </>
       )}
 
       {activeTab === "scotus" && (
-        <ScotusTab onViewHistory={handleViewHistory} />
+        <div style={{ marginTop: "1.5rem" }}>
+          {scotusJudges === null ? (
+            <p className="judge-index-loading">Loading Supreme Court justices…</p>
+          ) : scotusJudges.length === 0 ? (
+            <p className="judge-index-empty">
+              No Supreme Court justices found in the local index yet. Use the Search tab to find
+              and cache them first.
+            </p>
+          ) : (
+            <>
+              <p className="section-subheading" style={{ marginBottom: "1rem" }}>
+                Current justices of the United States Supreme Court.
+              </p>
+              <div className="judge-index-grid">
+                {scotusJudges.map((judge) => (
+                  <JudgeCard
+                    key={judge.id}
+                    judge={judge}
+                    onViewHistory={() => handleViewHistory(judge)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       )}
 
       {activeTab === "random" && (
-        <RandomTab />
+        <RandomTab allJudges={allJudges} />
       )}
     </div>
   );
