@@ -153,6 +153,7 @@ function startCacheCleanup() {
     }
   };
 
+  run();
   setInterval(run, 10 * 60 * 1000);
   console.log("[CACHE] Scheduled cleanup started (every 10 min, 200 MB cap, 90-day retention)");
 }
