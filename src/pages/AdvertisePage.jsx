@@ -1,19 +1,10 @@
 import React, { useState } from "react";
 
-const PLACEMENTS = [
-  { value: "", label: "Which placement interests you?" },
-  { value: "premium-banner", label: "Premium banner — full width" },
-  { value: "contextual", label: "Contextual placement — judge profiles" },
-  { value: "analytics-partner", label: "Analytics partner slot — sidebar" },
-  { value: "other", label: "Other / not sure yet" },
-];
-
 const AdvertisePage = () => {
   const [form, setForm] = useState({
     name: "",
     company: "",
     email: "",
-    placement_interest: "",
     message: "",
   });
   const [status, setStatus] = useState(null);
@@ -34,7 +25,7 @@ const AdvertisePage = () => {
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setStatus({ ok: true });
-        setForm({ name: "", company: "", email: "", placement_interest: "", message: "" });
+        setForm({ name: "", company: "", email: "", message: "" });
       } else {
         setStatus({ ok: false, message: data.error || "Something went wrong. Please try again." });
       }
@@ -114,15 +105,6 @@ const AdvertisePage = () => {
                 onChange={set("email")}
                 required
               />
-              <select
-                className="advertise-input advertise-select"
-                value={form.placement_interest}
-                onChange={set("placement_interest")}
-              >
-                {PLACEMENTS.map((p) => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
-                ))}
-              </select>
               <textarea
                 className="advertise-input advertise-textarea"
                 placeholder="Tell us about your goals or campaign (optional)"
