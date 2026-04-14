@@ -444,7 +444,7 @@ router.post("/seed-judges", requireAdmin, async (req, res) => {
     return res.status(503).json({ error: "COURTLISTENER_API_TOKEN is not configured on this server." });
   }
 
-  let seeded = 0;
+  const seededIds = new Set();
   const errors = [];
 
   for (const q of SEED_QUERIES) {
@@ -461,29 +461,34 @@ router.post("/seed-judges", requireAdmin, async (req, res) => {
       const data = await response.json();
       const judges = (data.results || []).slice(0, 20).map(normalizePerson);
       for (const judge of judges) {
-        if (!judge.fullName) continue;
-        await pool.query(
-          `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-           ON CONFLICT (courtlistener_id) DO UPDATE SET
-             name = EXCLUDED.name,
-             court = EXCLUDED.court,
-             state = EXCLUDED.state,
-             gender = EXCLUDED.gender,
-             party_of_appointment = EXCLUDED.party_of_appointment,
-             service_start = EXCLUDED.service_start,
-             last_synced = NOW()`,
-          [judge.id, judge.fullName, judge.courtName, judge.state, judge.gender, judge.partyOfAppointment, judge.serviceStartYear]
-        ).catch(() => {});
-        seeded++;
+        if (!judge.fullName || !judge.id) continue;
+        if (seededIds.has(judge.id)) continue;
+        try {
+          await pool.query(
+            `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+             ON CONFLICT (courtlistener_id) DO UPDATE SET
+               name = EXCLUDED.name,
+               court = EXCLUDED.court,
+               state = EXCLUDED.state,
+               gender = EXCLUDED.gender,
+               party_of_appointment = EXCLUDED.party_of_appointment,
+               service_start = EXCLUDED.service_start,
+               last_synced = NOW()`,
+            [judge.id, judge.fullName, judge.courtName, judge.state, judge.gender, judge.partyOfAppointment, judge.serviceStartYear]
+          );
+          seededIds.add(judge.id);
+        } catch (dbErr) {
+          errors.push(`DB insert ${judge.id}: ${dbErr.message}`);
+        }
       }
     } catch (e) {
       errors.push(`${q}: ${e.message}`);
     }
   }
 
-  console.log(`[SEED] Seeded ${seeded} judges. Errors: ${errors.length}`);
-  return res.json({ seeded, errors });
+  console.log(`[SEED] Seeded ${seededIds.size} unique judges. Errors: ${errors.length}`);
+  return res.json({ seeded: seededIds.size, errors });
 });
 
 module.exports = router;

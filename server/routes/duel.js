@@ -88,7 +88,9 @@ async function getBulkJudgeStats(judgeIds) {
 }
 
 function buildSyntheticStats(judge) {
-  const synth = {};
+  const synth = {
+    opinions_per_year: 80,
+  };
   if (judge.serviceStartYear && judge.serviceStartYear > 1900) {
     synth.years_on_bench = CURRENT_YEAR - judge.serviceStartYear;
   }
