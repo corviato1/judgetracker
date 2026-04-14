@@ -74,6 +74,59 @@ function AdminLogin({ onLogin }) {
   );
 }
 
+function SeedPanel() {
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSeed = async () => {
+    setLoading(true);
+    setStatus(null);
+    try {
+      const res = await fetch("/api/admin/seed-judges", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setStatus({ ok: true, message: `Seeded ${data.seeded} judges into the database.${data.errors?.length ? ` (${data.errors.length} query errors)` : ""}` });
+      } else {
+        setStatus({ ok: false, message: data.error || "Seed failed." });
+      }
+    } catch {
+      setStatus({ ok: false, message: "Network error." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ marginTop: "2rem", padding: "1rem", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}>
+      <h3 className="adm-section-title" style={{ marginBottom: "0.5rem" }}>Database Tools</h3>
+      <p style={{ fontSize: "0.85rem", color: "#a0aec0", marginBottom: "0.75rem" }}>
+        Populate the judges database from CourtListener using common surname queries.
+        Run this once to enable Judge Duel. Requires COURTLISTENER_API_TOKEN to be set.
+      </p>
+      <button
+        className="adm-login-btn"
+        onClick={handleSeed}
+        disabled={loading}
+        style={{ width: "auto", padding: "0.5rem 1.25rem" }}
+      >
+        {loading ? "Seeding judges… (may take ~30s)" : "Seed judges from CourtListener"}
+      </button>
+      {status && (
+        <p style={{
+          marginTop: "0.6rem",
+          fontSize: "0.85rem",
+          color: status.ok ? "#68d391" : "#fc8181",
+        }}>
+          {status.message}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function OverviewTab() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
@@ -126,6 +179,8 @@ function OverviewTab() {
           </table>
         </div>
       </div>
+
+      <SeedPanel />
     </div>
   );
 }

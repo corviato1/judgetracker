@@ -4,6 +4,10 @@ const pool = require("../db");
 const { ADMIN_PASSWORD, COOKIE_NAME, signAdminToken, requireAdmin } = require("../middleware/adminAuth");
 const { generateQuizResultPdf } = require("../pdfService");
 const rateLimit = require("express-rate-limit");
+const { normalizePerson } = require("../utils/normalize");
+
+const CL_BASE = "https://www.courtlistener.com/api/rest/v4";
+const SEED_QUERIES = ["Smith", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Wilson", "Taylor", "Anderson"];
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -432,6 +436,54 @@ router.get("/ads/impressions", requireAdmin, async (req, res) => {
     console.error("[ADMIN ads impressions]", err.message);
     res.status(500).json({ error: "Internal error." });
   }
+});
+
+router.post("/seed-judges", requireAdmin, async (req, res) => {
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  if (!token) {
+    return res.status(503).json({ error: "COURTLISTENER_API_TOKEN is not configured on this server." });
+  }
+
+  let seeded = 0;
+  const errors = [];
+
+  for (const q of SEED_QUERIES) {
+    try {
+      const url = `${CL_BASE}/people/?full_name=${encodeURIComponent(q)}&format=json`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Token ${token}`, "User-Agent": "JudgeTracker/1.0" },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) {
+        errors.push(`${q}: HTTP ${response.status}`);
+        continue;
+      }
+      const data = await response.json();
+      const judges = (data.results || []).slice(0, 20).map(normalizePerson);
+      for (const judge of judges) {
+        if (!judge.fullName) continue;
+        await pool.query(
+          `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+           ON CONFLICT (courtlistener_id) DO UPDATE SET
+             name = EXCLUDED.name,
+             court = EXCLUDED.court,
+             state = EXCLUDED.state,
+             gender = EXCLUDED.gender,
+             party_of_appointment = EXCLUDED.party_of_appointment,
+             service_start = EXCLUDED.service_start,
+             last_synced = NOW()`,
+          [judge.id, judge.fullName, judge.courtName, judge.state, judge.gender, judge.partyOfAppointment, judge.serviceStartYear]
+        ).catch(() => {});
+        seeded++;
+      }
+    } catch (e) {
+      errors.push(`${q}: ${e.message}`);
+    }
+  }
+
+  console.log(`[SEED] Seeded ${seeded} judges. Errors: ${errors.length}`);
+  return res.json({ seeded, errors });
 });
 
 module.exports = router;

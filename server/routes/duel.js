@@ -87,6 +87,14 @@ async function getBulkJudgeStats(judgeIds) {
   return map;
 }
 
+function buildSyntheticStats(judge) {
+  const synth = {};
+  if (judge.serviceStartYear && judge.serviceStartYear > 1900) {
+    synth.years_on_bench = CURRENT_YEAR - judge.serviceStartYear;
+  }
+  return synth;
+}
+
 function resolveStatValue(dbStats, statKey, scale) {
   if (dbStats[statKey] !== undefined) {
     return Math.round(dbStats[statKey] * scale * 10) / 10;
@@ -149,7 +157,13 @@ router.get("/pair", async (req, res) => {
     const maxCandidates = Math.min(shuffled.length, 20);
     const candidatePool = shuffled.slice(0, maxCandidates);
 
-    const allStats = await getBulkJudgeStats(candidatePool.map((j) => j.id));
+    const dbStats = await getBulkJudgeStats(candidatePool.map((j) => j.id));
+
+    const allStats = {};
+    for (const judge of candidatePool) {
+      const synth = buildSyntheticStats(judge);
+      allStats[judge.id] = { ...synth, ...(dbStats[judge.id] || {}) };
+    }
 
     let judgeA = null;
     let judgeB = null;

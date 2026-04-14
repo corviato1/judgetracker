@@ -100,6 +100,12 @@ const QuizResult = ({ result, onRestart }) => {
         Court: {topMatch.judge.courtName} · {topMatch.judge.jurisdiction}
       </p>
 
+      {topMatch.judge.description && (
+        <p className="card-description" style={{ marginTop: "0.6rem", fontStyle: "italic", color: "#a0aec0" }}>
+          {topMatch.judge.description}
+        </p>
+      )}
+
       {isTie && (
         <p
           className="card-description"

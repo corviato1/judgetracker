@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../db");
 const { searchLimiter } = require("../middleware/rateLimiter");
 const { validateSearchQuery, validateJudgeId } = require("../middleware/validation");
+const { normalizePerson } = require("../utils/normalize");
 
 const CL_BASE = "https://www.courtlistener.com/api/rest/v4";
 const CACHE_TTL_HOURS = 24;
@@ -39,27 +40,6 @@ async function setCache(key, value) {
   } catch (err) {
     console.error("[CACHE] Write error:", err.message);
   }
-}
-
-function normalizePerson(person) {
-  const position = (person.positions || [])[0] || {};
-  return {
-    id: String(person.id),
-    fullName: [person.name_first, person.name_middle, person.name_last]
-      .filter(Boolean)
-      .join(" "),
-    courtName: position.court_short || position.court || "",
-    jurisdiction: position.position_type_display || position.position_type || "",
-    appointer: position.appointing_president || "",
-    partyOfAppointment: position.political_affiliation_display || position.political_affiliation || "",
-    serviceStartYear: position.date_start
-      ? new Date(position.date_start).getFullYear()
-      : null,
-    gender: person.gender_display || person.gender || "",
-    state: position.court_short || "",
-    sampleCaseCount: null,
-    source: "courtlistener",
-  };
 }
 
 router.get("/", async (req, res) => {
@@ -100,15 +80,8 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
     return res.json({ results: cached, cached: true });
   }
 
-  const token = process.env.COURTLISTENER_API_TOKEN;
-  if (!token) {
-    return res
-      .status(503)
-      .json({ error: "CourtListener API token not configured. Set COURTLISTENER_API_TOKEN to enable judge search.", results: [] });
-  }
-
   try {
-    const url = `${CL_BASE}/people/?full_name=${encodeURIComponent(q)}&format=json&type=judge`;
+    const url = `${CL_BASE}/people/?full_name=${encodeURIComponent(q)}&format=json`;
     const response = await fetch(url, {
       headers: { ...getAuthHeaders(), "User-Agent": "JudgeTracker/1.0" },
     });
@@ -118,7 +91,7 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
       console.error(`[CL] Search failed ${response.status}: ${errText.slice(0, 500)}`);
       let userMessage = "Search is temporarily unavailable. Please try again later.";
       if (response.status === 401 || response.status === 403) {
-        userMessage = "Judge search is temporarily unavailable (authentication error).";
+        userMessage = "Judge search requires a valid API token. Set COURTLISTENER_API_TOKEN to enable search.";
       } else if (response.status === 429) {
         userMessage = "Too many requests — please wait a moment and try again.";
       }
