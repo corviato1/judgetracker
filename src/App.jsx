@@ -40,6 +40,21 @@ const App = () => {
         <Route path="/about" element={<Navigate to="/" replace />} />
         <Route path="/which-judge" element={<WhichJudgeGamePage />} />
         <Route path="/judge-duel" element={<JudgeDuelPage />} />
+
+        <Route path="/judges" element={<Navigate to="/search" replace />} />
+        <Route path="/duel" element={<Navigate to="/judge-duel" replace />} />
+        <Route path="/quiz" element={<Navigate to="/which-judge" replace />} />
+        <Route path="/data" element={<Navigate to="/data-sources" replace />} />
+
+        <Route path="*" element={
+          <div style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+            <h2 style={{ marginBottom: "0.75rem" }}>Page not found</h2>
+            <p style={{ marginBottom: "1.5rem", opacity: 0.7 }}>That URL doesn't exist.</p>
+            <a href="/" style={{ color: "var(--color-accent, #7c83fd)", textDecoration: "underline" }}>
+              Back to the homepage
+            </a>
+          </div>
+        } />
       </Routes>
     </AppShell>
   );

@@ -67,6 +67,8 @@ router.get("/", async (req, res) => {
     const result = await pool.query(
       `SELECT courtlistener_id, name, court, state, gender, party_of_appointment, service_start
        FROM judges
+       WHERE court IS NOT NULL AND court != ''
+         AND state IS NOT NULL AND state != ''
        ORDER BY name ASC`
     );
     const judges = result.rows.map((row) => ({
@@ -113,8 +115,14 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`[CL] Search failed ${response.status}: ${errText}`);
-      return res.status(502).json({ error: "Upstream API error.", results: [] });
+      console.error(`[CL] Search failed ${response.status}: ${errText.slice(0, 500)}`);
+      let userMessage = "Search is temporarily unavailable. Please try again later.";
+      if (response.status === 401 || response.status === 403) {
+        userMessage = "Judge search is temporarily unavailable (authentication error).";
+      } else if (response.status === 429) {
+        userMessage = "Too many requests — please wait a moment and try again.";
+      }
+      return res.status(502).json({ error: userMessage, upstreamStatus: response.status, results: [] });
     }
 
     const data = await response.json();

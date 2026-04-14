@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { listAllJudges } from "../API/api";
 import JudgeCard from "./JudgeCard";
-import sampleJudges from "../data/sampleJudges";
 
 const SORT_OPTIONS = [
   { value: "name", label: "Name (A–Z)" },
@@ -13,17 +12,18 @@ const SORT_OPTIONS = [
 const JudgeIndex = ({ filterQuery }) => {
   const [allJudges, setAllJudges] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState("name");
   const navigate = useNavigate();
+  const [sortBy, setSortBy] = useState("name");
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     listAllJudges().then((judges) => {
       if (cancelled) return;
-      const data = judges && judges.length > 0 ? judges : sampleJudges;
-      setAllJudges(data);
+      setAllJudges(Array.isArray(judges) ? judges : []);
       setLoading(false);
+    }).catch(() => {
+      if (!cancelled) setLoading(false);
     });
     return () => { cancelled = true; };
   }, []);
@@ -81,7 +81,11 @@ const JudgeIndex = ({ filterQuery }) => {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="judge-index-empty">No judges match your filter.</p>
+        <p className="judge-index-empty">
+          {allJudges.length === 0
+            ? "No judges indexed yet. Use the search bar above to find and add judges."
+            : "No judges match your filter."}
+        </p>
       ) : (
         <div className="judge-index-grid">
           {filtered.map((judge) => (

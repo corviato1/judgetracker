@@ -9,7 +9,10 @@ async function apiFetch(path, options = {}) {
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || `API error ${response.status}`);
+    const err = new Error(body.error || `API error ${response.status}`);
+    err.status = response.status;
+    err.responseBody = body;
+    throw err;
   }
 
   return response.json();

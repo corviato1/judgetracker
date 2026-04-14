@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchDuelPair } from "../API/courtListenerApi";
 
 const TOTAL_ROUNDS = 5;
@@ -354,16 +355,24 @@ const JudgeDuelPage = () => {
   const [duelData, setDuelData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [tooFewJudges, setTooFewJudges] = useState(false);
+  const navigate = useNavigate();
 
   const loadDuel = useCallback(async (activeFilters) => {
     setLoading(true);
     setError(null);
+    setTooFewJudges(false);
     try {
       const data = await fetchDuelPair(activeFilters);
       setDuelData(data);
     } catch (err) {
-      setError("Could not load duel data. Please try again.");
       console.error(err);
+      if (err.responseBody && err.responseBody.tooFewMatches) {
+        setTooFewJudges(true);
+        setError("Not enough judges in the database to start a duel.");
+      } else {
+        setError("Could not load duel data. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -420,14 +429,28 @@ const JudgeDuelPage = () => {
           {error && (
             <div className="duel-error">
               <span>{error}</span>
-              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                <button className="duel-next-button" onClick={() => loadDuel(filters)}>
-                  Retry
-                </button>
-                <button className="duel-secondary-button" onClick={handleChangeFilters}>
-                  Change Filters
-                </button>
-              </div>
+              {tooFewJudges ? (
+                <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
+                  <p style={{ width: "100%", fontSize: "0.9rem", opacity: 0.8, margin: 0 }}>
+                    Use Judge Search to find judges — each search automatically adds them to the database.
+                  </p>
+                  <button className="duel-start-button" onClick={() => navigate("/search")}>
+                    Go to Judge Search
+                  </button>
+                  <button className="duel-secondary-button" onClick={handleChangeFilters}>
+                    Change Filters
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
+                  <button className="duel-next-button" onClick={() => loadDuel(filters)}>
+                    Retry
+                  </button>
+                  <button className="duel-secondary-button" onClick={handleChangeFilters}>
+                    Change Filters
+                  </button>
+                </div>
+              )}
             </div>
           )}
           {!error && (
