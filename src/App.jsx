@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -50,9 +50,9 @@ const App = () => {
           <div style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
             <h2 style={{ marginBottom: "0.75rem" }}>Page not found</h2>
             <p style={{ marginBottom: "1.5rem", opacity: 0.7 }}>That URL doesn't exist.</p>
-            <a href="/" style={{ color: "var(--color-accent, #7c83fd)", textDecoration: "underline" }}>
+            <Link to="/" style={{ color: "var(--color-accent, #7c83fd)", textDecoration: "underline" }}>
               Back to the homepage
-            </a>
+            </Link>
           </div>
         } />
       </Routes>
