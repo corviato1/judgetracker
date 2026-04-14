@@ -8,6 +8,7 @@ const memCache = new Map();
 let memHits = 0;
 let memMisses = 0;
 const pendingRequests = new Map();
+let evictionRunning = false;
 
 function memGet(key) {
   const entry = memCache.get(key);
@@ -49,6 +50,8 @@ function getMemStats() {
 }
 
 async function enforceDbCap() {
+  if (evictionRunning) return;
+  evictionRunning = true;
   try {
     const sizeRes = await pool.query(
       "SELECT COALESCE(SUM(length(value)), 0) AS total_bytes FROM api_cache WHERE expires_at > NOW()"
@@ -75,6 +78,8 @@ async function enforceDbCap() {
     console.log(`[CACHE] Eviction complete — DB now ~${(totalBytes / 1024 / 1024).toFixed(1)} MB`);
   } catch (err) {
     console.error("[CACHE] enforceDbCap error:", err.message);
+  } finally {
+    evictionRunning = false;
   }
 }
 
