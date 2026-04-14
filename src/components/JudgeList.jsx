@@ -16,7 +16,7 @@ const JudgeList = ({ judges, onSelectJudge }) => {
         <JudgeCard
           key={judge.id}
           judge={judge}
-          onSelectJudge={() => onSelectJudge(judge)}
+          onSelectJudge={onSelectJudge ? () => onSelectJudge(judge) : undefined}
         />
       ))}
     </div>
