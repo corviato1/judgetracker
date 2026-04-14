@@ -28,6 +28,11 @@ export async function fetchJudgeById(id) {
   return data.judge;
 }
 
+export async function fetchLocalJudge(id) {
+  const data = await apiFetch(`/api/judges/${id}/local`);
+  return data.judge;
+}
+
 export async function fetchJudgeOpinions(judgeId) {
   const data = await apiFetch(`/api/judges/${judgeId}/opinions`);
   return data.opinions || [];

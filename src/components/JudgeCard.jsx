@@ -5,11 +5,8 @@ const JudgeCard = ({ judge, onSelectJudge }) => {
   const navigate = useNavigate();
 
   const handleViewProfile = () => {
-    if (onSelectJudge) {
-      onSelectJudge();
-    } else {
-      navigate(`/judge/${judge.id}`);
-    }
+    if (onSelectJudge) onSelectJudge(judge);
+    navigate(`/judge/${judge.id}`);
   };
 
   return (

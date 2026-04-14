@@ -254,6 +254,38 @@ router.get("/:id/stats", validateJudgeId, async (req, res) => {
   }
 });
 
+router.get("/:id/local", validateJudgeId, async (req, res) => {
+  const id = req.cleanId;
+  try {
+    const result = await pool.query(
+      `SELECT courtlistener_id, name, court, state, gender, party_of_appointment, service_start
+       FROM judges WHERE courtlistener_id = $1`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Judge not found in local database." });
+    }
+    const row = result.rows[0];
+    const judge = {
+      id: String(row.courtlistener_id),
+      fullName: row.name || "",
+      courtName: row.court || "",
+      jurisdiction: row.state || "",
+      appointer: "",
+      partyOfAppointment: row.party_of_appointment || "",
+      serviceStartYear: row.service_start ? Number(row.service_start) : null,
+      gender: row.gender || "",
+      state: row.state || "",
+      sampleCaseCount: null,
+      source: "local",
+    };
+    return res.json({ judge });
+  } catch (err) {
+    console.error("[DB] Local judge fetch error:", err.message);
+    return res.status(500).json({ error: "Internal error fetching local judge data." });
+  }
+});
+
 router.get("/:id/opinions", validateJudgeId, async (req, res) => {
   const id = req.cleanId;
   const cacheKey = `opinions:${id}`;

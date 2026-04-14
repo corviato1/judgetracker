@@ -463,19 +463,6 @@ footer {
   margin-top: 1rem;
 }
 
-.opinion-card {
-  background-color: var(--bg-card);
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-s);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.opinion-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
 .opinion-meta {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -1279,6 +1266,225 @@ footer {
   text-align: center;
   padding: 1rem 0;
   color: var(--text-primary);
+}
+
+/* ---------------------------------------------------------
+   Judge Profile Page (accordion)
+--------------------------------------------------------- */
+
+.profile-page {
+  max-width: 860px;
+}
+
+.profile-back-btn {
+  background: none;
+  border: 1px solid var(--border-s);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  display: inline-block;
+}
+
+.profile-back-btn:hover {
+  border-color: var(--color-accent, #7c83fd);
+}
+
+.profile-fallback-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-s);
+  border-left: 4px solid var(--color-accent, #7c83fd);
+  border-radius: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.84rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-primary);
+}
+
+.profile-header {
+  margin-bottom: 1.75rem;
+}
+
+.profile-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem;
+}
+
+.profile-court {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.profile-accordions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.profile-accordion {
+  border: 1px solid var(--border-s);
+  border-radius: 0.8rem;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.profile-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.9rem 1.15rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  gap: 0.75rem;
+}
+
+.profile-accordion-header:hover {
+  background: var(--bg-card-hover, rgba(124, 131, 253, 0.05));
+}
+
+.profile-accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.profile-accordion-badge {
+  background: var(--color-accent, #7c83fd);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  line-height: 1.4;
+}
+
+.profile-accordion-chevron {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.profile-accordion-body {
+  padding: 0 1.15rem 1.15rem;
+}
+
+.profile-bio-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-bio-row {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border-s);
+  padding-bottom: 0.4rem;
+}
+
+.profile-bio-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.profile-bio-label {
+  width: 160px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.profile-bio-value {
+  font-weight: 500;
+}
+
+.profile-filter-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-s);
+  border-radius: 0.5rem;
+  background: var(--bg-secondary, transparent);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+  outline: none;
+}
+
+.profile-filter-input:focus {
+  border-color: var(--color-accent, #7c83fd);
+}
+
+.profile-section-empty {
+  font-size: 0.85rem;
+  opacity: 0.55;
+  font-style: italic;
+  margin: 0;
+}
+
+.opinion-card {
+  border: 1px solid var(--border-s);
+  border-radius: 0.6rem;
+  background: var(--bg-secondary, rgba(255,255,255,0.02));
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.opinion-card:hover,
+.opinion-card--expanded {
+  border-color: var(--color-accent, #7c83fd);
+}
+
+.opinion-card-header {
+  padding: 0.75rem 1rem;
+}
+
+.opinion-card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.opinion-chevron {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.opinion-title {
+  margin: 0 0 0.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.opinion-card-body {
+  padding: 0 1rem 0.9rem;
+  border-top: 1px solid var(--border-s);
+  margin-top: 0;
+}
+
+.opinion-cl-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--color-accent, #7c83fd);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.opinion-cl-link:hover {
+  text-decoration: underline;
 }
 
 /* ---------------------------------------------------------

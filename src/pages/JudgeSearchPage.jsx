@@ -3,38 +3,30 @@ import { useNavigate } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
 import JudgeList from "../components/JudgeList";
-import JudgeDetail from "../components/JudgeDetail";
-import OpinionList from "../components/OpinionList";
-import { getOpinionsForJudge } from "../API/api";
 
 const JudgeSearchPage = () => {
   const [results, setResults] = useState(null);
-  const [selectedJudge, setSelectedJudge] = useState(null);
-  const [opinions, setOpinions] = useState([]);
   const [filterQuery, setFilterQuery] = useState("");
   const navigate = useNavigate();
 
   const handleResults = (judges) => {
     if (!judges || judges.length === 0) {
-      handleReset();
+      setResults(null);
       return;
     }
     setResults(judges);
-    setSelectedJudge(null);
-    setOpinions([]);
   };
 
   const handleReset = () => {
     setResults(null);
-    setSelectedJudge(null);
-    setOpinions([]);
   };
 
-  const handleSelectJudge = async (judge) => {
-    setSelectedJudge(judge);
-    const judgeOpinions = await getOpinionsForJudge(judge.id);
-    setOpinions(judgeOpinions);
-    navigate(`/search`);
+  const handleSelectJudge = (judge) => {
+    try {
+      navigate(`/judge/${judge.id}`);
+    } catch (err) {
+      console.error("[JudgeSearchPage] Navigation error:", err);
+    }
   };
 
   const hasSearchResults = results !== null;
@@ -57,8 +49,6 @@ const JudgeSearchPage = () => {
             }}
           />
           <JudgeList judges={results} onSelectJudge={handleSelectJudge} />
-          <JudgeDetail judge={selectedJudge} />
-          <OpinionList opinions={opinions} />
         </>
       ) : (
         <>
