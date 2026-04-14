@@ -80,6 +80,14 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
     return res.json({ results: cached, cached: true });
   }
 
+  const token = process.env.COURTLISTENER_API_TOKEN;
+  if (!token) {
+    return res.status(503).json({
+      error: "Judge search requires API configuration. Search is fully available on the live site.",
+      results: [],
+    });
+  }
+
   try {
     const url = `${CL_BASE}/people/?full_name=${encodeURIComponent(q)}&format=json`;
     const response = await fetch(url, {

@@ -159,6 +159,38 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_ad_impressions_created ON ad_impressions(created_at)`,
 ];
 
+const SEED_JUDGES = [
+  { id: "local-scotus-thomas",   name: "Clarence Thomas",           court: "Supreme Court of the United States", state: "DC", service_start: 1991, party: "Republican",  gender: "M" },
+  { id: "local-scotus-roberts",  name: "John G. Roberts Jr.",       court: "Supreme Court of the United States", state: "DC", service_start: 2005, party: "Republican",  gender: "M" },
+  { id: "local-scotus-alito",    name: "Samuel A. Alito Jr.",       court: "Supreme Court of the United States", state: "DC", service_start: 2006, party: "Republican",  gender: "M" },
+  { id: "local-scotus-soto",     name: "Sonia Sotomayor",           court: "Supreme Court of the United States", state: "DC", service_start: 2009, party: "Democratic",  gender: "F" },
+  { id: "local-scotus-kagan",    name: "Elena Kagan",               court: "Supreme Court of the United States", state: "DC", service_start: 2010, party: "Democratic",  gender: "F" },
+  { id: "local-scotus-gorsuch",  name: "Neil Gorsuch",              court: "Supreme Court of the United States", state: "DC", service_start: 2017, party: "Republican",  gender: "M" },
+  { id: "local-scotus-kav",      name: "Brett Kavanaugh",           court: "Supreme Court of the United States", state: "DC", service_start: 2018, party: "Republican",  gender: "M" },
+  { id: "local-scotus-barrett",  name: "Amy Coney Barrett",         court: "Supreme Court of the United States", state: "DC", service_start: 2020, party: "Republican",  gender: "F" },
+  { id: "local-scotus-jackson",  name: "Ketanji Brown Jackson",     court: "Supreme Court of the United States", state: "DC", service_start: 2022, party: "Democratic",  gender: "F" },
+  { id: "local-5th-jones",       name: "Edith Jones",               court: "U.S. Court of Appeals, 5th Cir.",   state: "TX", service_start: 1985, party: "Republican",  gender: "F" },
+  { id: "local-dc-henderson",    name: "Karen LeCraft Henderson",   court: "U.S. Court of Appeals, D.C. Cir.",  state: "DC", service_start: 1990, party: "Republican",  gender: "F" },
+  { id: "local-2nd-calabresi",   name: "Guido Calabresi",           court: "U.S. Court of Appeals, 2nd Cir.",   state: "CT", service_start: 1994, party: "Democratic",  gender: "M" },
+  { id: "local-7th-wood",        name: "Diane Wood",                court: "U.S. Court of Appeals, 7th Cir.",   state: "IL", service_start: 1995, party: "Democratic",  gender: "F" },
+  { id: "local-9th-graber",      name: "Susan Graber",              court: "U.S. Court of Appeals, 9th Cir.",   state: "OR", service_start: 1998, party: "Democratic",  gender: "F" },
+  { id: "local-4th-wilkinson",   name: "J. Harvie Wilkinson III",   court: "U.S. Court of Appeals, 4th Cir.",   state: "VA", service_start: 1984, party: "Republican",  gender: "M" },
+];
+
+async function runSeed(client) {
+  let seeded = 0;
+  for (const j of SEED_JUDGES) {
+    const result = await client.query(
+      `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+       ON CONFLICT (courtlistener_id) DO NOTHING`,
+      [j.id, j.name, j.court, j.state, j.gender, j.party, j.service_start]
+    );
+    if (result.rowCount > 0) seeded++;
+  }
+  if (seeded > 0) console.log(`[MIGRATE] Seeded ${seeded} initial judges.`);
+}
+
 async function migrate() {
   if (!process.env.DATABASE_URL) {
     console.warn("[MIGRATE] DATABASE_URL not set — skipping migrations.");
@@ -173,6 +205,7 @@ async function migrate() {
       console.log(`[MIGRATE] OK: ${label}...`);
     }
     console.log("[MIGRATE] All migrations complete.");
+    await runSeed(client);
   } catch (err) {
     console.error("[MIGRATE] Migration failed:", err.message);
     process.exit(1);

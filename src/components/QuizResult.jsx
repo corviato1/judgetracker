@@ -92,7 +92,7 @@ const QuizResult = ({ result, onRestart }) => {
 
   return (
     <section className="card" style={{ marginTop: "1rem" }}>
-      <p className="small-label">Your match</p>
+      <p className="small-label">Your judicial philosophy</p>
       <h3 className="card-title">
         You are most like: {topMatch.judge.fullName}
       </h3>
@@ -117,10 +117,9 @@ const QuizResult = ({ result, onRestart }) => {
       )}
 
       <p className="card-description" style={{ marginTop: "0.75rem" }}>
-        Based on your quiz choices, you lean toward outcomes that align with{" "}
-        <strong>{topMatch.judge.fullName}</strong>. Use their profile to
-        explore real rulings and see how their judicial record compares to
-        your instincts.
+        Based on your answers, your judicial instincts align with this philosophy.
+        These patterns are drawn from real judicial reasoning styles — use the quiz
+        as a starting point to explore what kinds of cases and outcomes matter to you.
       </p>
 
       <h4

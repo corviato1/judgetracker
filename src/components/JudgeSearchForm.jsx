@@ -37,6 +37,8 @@ const JudgeSearchForm = ({ onResults, onQueryChange }) => {
         message = "Judge search is temporarily unavailable (authentication error).";
       } else if (upstreamStatus === 429) {
         message = "Too many requests — please wait a moment and try again.";
+      } else if (error.status === 503) {
+        message = "Search is not available here — it works on the live site at judgetracker.info.";
       } else {
         message = "Search failed. Please try again later.";
       }
