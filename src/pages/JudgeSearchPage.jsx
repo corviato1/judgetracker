@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
 import JudgeList from "../components/JudgeList";
@@ -6,9 +7,9 @@ import JudgeCard from "../components/JudgeCard";
 import { listAllJudges } from "../API/api";
 
 const TABS = [
+  { id: "random", label: "Random Judge" },
   { id: "search", label: "Search" },
   { id: "scotus", label: "Supreme Court" },
-  { id: "random", label: "Random Judge" },
 ];
 
 const STATE_OPTIONS = [
@@ -74,45 +75,73 @@ function matchesFilters(judge, filters) {
   return true;
 }
 
+function BioRow({ label, value }) {
+  if (!value && value !== 0) return null;
+  return (
+    <div className="profile-bio-row">
+      <span className="profile-bio-label">{label}</span>
+      <span className="profile-bio-value">{value}</span>
+    </div>
+  );
+}
+
 const RandomTab = ({ allJudges }) => {
-  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     state: "any",
     courtLevel: "any",
     gender: "any",
     party: "any",
   });
-  const [picking, setPicking] = useState(false);
+  const [picked, setPicked] = useState(null);
   const [noMatch, setNoMatch] = useState(false);
+  const autoPickedRef = useRef(false);
+
+  const pickRandom = useCallback((judges, currentFilters) => {
+    const pool = (judges || []).filter((j) => matchesFilters(j, currentFilters));
+    if (pool.length === 0) {
+      setNoMatch(true);
+      setPicked(null);
+      return;
+    }
+    setNoMatch(false);
+    const choice = pool[Math.floor(Math.random() * pool.length)];
+    setPicked(choice);
+  }, []);
+
+  useEffect(() => {
+    if (allJudges && allJudges.length > 0 && !autoPickedRef.current) {
+      autoPickedRef.current = true;
+      pickRandom(allJudges, filters);
+    }
+  }, [allJudges, filters, pickRandom]);
 
   const setFilter = (key, value) => {
     setFilters((f) => ({ ...f, [key]: value }));
     setNoMatch(false);
   };
 
-  const handlePick = useCallback(async () => {
-    setPicking(true);
-    setNoMatch(false);
-    try {
-      const judges = allJudges || [];
-      const pool = judges.filter((j) => matchesFilters(j, filters));
-      if (pool.length === 0) {
-        setNoMatch(true);
-        return;
-      }
-      const picked = pool[Math.floor(Math.random() * pool.length)];
-      navigate(`/judge/${picked.id}`);
-    } finally {
-      setPicking(false);
-    }
-  }, [allJudges, filters, navigate]);
+  const handlePick = () => {
+    pickRandom(allJudges, filters);
+  };
+
+  const yearsOnBench = picked && picked.serviceStartYear
+    ? new Date().getFullYear() - picked.serviceStartYear
+    : null;
+
+  const partyColor = picked
+    ? (picked.partyOfAppointment || "").toLowerCase().includes("democrat")
+      ? "#4a90d9"
+      : (picked.partyOfAppointment || "").toLowerCase().includes("republican")
+      ? "#d9534a"
+      : "var(--text-muted)"
+    : "var(--text-muted)";
 
   return (
     <div style={{ marginTop: "1.5rem" }}>
       <div className="duel-filter-card" style={{ maxWidth: "720px" }}>
         <h3 className="duel-filter-heading">Optional filters</h3>
         <p className="duel-filter-hint">
-          All filters are optional — leave everything on "any" to get a completely random judge.
+          Leave everything on "any" for a completely random judge.
         </p>
         <div className="duel-filter-grid">
           <label className="duel-filter-label">
@@ -169,11 +198,12 @@ const RandomTab = ({ allJudges }) => {
         </div>
 
         <button
-          className="duel-start-button"
+          className="duel-secondary-button"
           onClick={handlePick}
-          disabled={picking || !allJudges}
+          disabled={!allJudges}
+          style={{ marginTop: "0.5rem" }}
         >
-          {picking ? "Picking…" : !allJudges ? "Loading…" : "Pick Random Judge"}
+          {!allJudges ? "Loading…" : picked ? "Pick another →" : "Pick Random Judge"}
         </button>
 
         {noMatch && (
@@ -182,12 +212,78 @@ const RandomTab = ({ allJudges }) => {
           </p>
         )}
       </div>
+
+      {!allJudges && (
+        <p className="judge-index-loading" style={{ marginTop: "1.5rem" }}>
+          Loading judges…
+        </p>
+      )}
+
+      {picked && (
+        <div className="duel-filter-card" style={{ marginTop: "1.5rem", maxWidth: "720px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem" }}>
+            <div>
+              <h2 className="profile-name" style={{ margin: 0 }}>{picked.fullName}</h2>
+              {picked.courtName && (
+                <p style={{ margin: "0.25rem 0 0", fontSize: "0.9rem", opacity: 0.75 }}>
+                  {picked.courtName}
+                </p>
+              )}
+            </div>
+            {picked.partyOfAppointment && (
+              <span style={{
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                padding: "0.2rem 0.6rem",
+                borderRadius: "999px",
+                background: partyColor,
+                color: "#fff",
+                whiteSpace: "nowrap",
+                alignSelf: "flex-start",
+              }}>
+                {picked.partyOfAppointment}
+              </span>
+            )}
+          </div>
+
+          <div className="profile-bio-grid">
+            <BioRow label="Court" value={picked.courtName} />
+            <BioRow label="Appointing President" value={picked.appointer} />
+            <BioRow label="Party of Appointment" value={picked.partyOfAppointment} />
+            <BioRow label="Service Started" value={picked.serviceStartYear} />
+            <BioRow
+              label="Years on Bench"
+              value={yearsOnBench !== null ? `${yearsOnBench} years` : null}
+            />
+            <BioRow
+              label="Gender"
+              value={
+                picked.gender === "M" || picked.gender === "Male"
+                  ? "Male"
+                  : picked.gender === "F" || picked.gender === "Female"
+                  ? "Female"
+                  : picked.gender || null
+              }
+            />
+          </div>
+
+          <div style={{ marginTop: "1.25rem" }}>
+            <Link
+              to={`/judge/${picked.id}`}
+              className="duel-start-button"
+              style={{ display: "inline-block", textDecoration: "none" }}
+            >
+              View full profile →
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const JudgeSearchPage = () => {
-  const [activeTab, setActiveTab] = useState("search");
+  const [activeTab, setActiveTab] = useState("random");
   const [results, setResults] = useState(null);
   const [filterQuery, setFilterQuery] = useState("");
 
@@ -228,8 +324,7 @@ const JudgeSearchPage = () => {
     <div>
       <h2 className="section-heading">Judge Search</h2>
       <p className="section-subheading">
-        Search federal and state judges, browse current Supreme Court justices, or discover a
-        judge at random.
+        Discover a random judge, search by name, or browse the Supreme Court.
       </p>
 
       <div className="search-tab-bar">
@@ -243,6 +338,10 @@ const JudgeSearchPage = () => {
           </button>
         ))}
       </div>
+
+      {activeTab === "random" && (
+        <RandomTab allJudges={allJudges} />
+      )}
 
       {activeTab === "search" && (
         <>
@@ -291,10 +390,6 @@ const JudgeSearchPage = () => {
             </>
           )}
         </div>
-      )}
-
-      {activeTab === "random" && (
-        <RandomTab allJudges={allJudges} />
       )}
     </div>
   );
