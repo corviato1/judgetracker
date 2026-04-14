@@ -14,6 +14,8 @@ const WhichJudgeGamePage = () => {
   const [result, setResult] = useState(null);
 
   const currentQuestion = quizQuestions[currentIndex];
+  const total = quizQuestions.length;
+  const progressPct = total > 0 ? Math.round(((currentIndex) / total) * 100) : 0;
 
   const handleStart = () => {
     setStarted(true);
@@ -84,19 +86,45 @@ const WhichJudgeGamePage = () => {
     <div>
       <h2 className="section-heading">Which judge are you?</h2>
       <p className="section-subheading">
-        Answer a handful of case-style questions and see which judicial
-        profile your instincts most resemble. This is a playful quiz, not a
-        scientific measurement — but it maps your preferences to distinct
-        judicial philosophies drawn from real case patterns.
+        Answer 15 case-style questions and see which judicial philosophy your
+        instincts most resemble. Questions are drawn from real patterns in
+        judicial opinions and rulings history — the result maps your reasoning
+        style to one of five distinct approaches to the law.
       </p>
 
       {!started && !result && <QuizIntro onStart={handleStart} />}
 
       {started && !result && currentQuestion && (
         <>
-          <div className="quiz-progress">
-            Question {currentIndex + 1} of {quizQuestions.length}
+          <div className="quiz-progress-wrapper" style={{ marginTop: "1.25rem", marginBottom: "0.25rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.35rem" }}>
+              <span className="small-label" style={{ fontSize: "0.78rem", letterSpacing: "0.06em", color: "#a0aec0" }}>
+                {currentQuestion.sectionLabel}
+              </span>
+              <span style={{ fontSize: "0.8rem", color: "#718096" }}>
+                {currentIndex + 1} / {total}
+              </span>
+            </div>
+            <div
+              style={{
+                height: "5px",
+                borderRadius: "3px",
+                background: "rgba(255,255,255,0.08)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${progressPct}%`,
+                  background: "linear-gradient(90deg, #667eea, #764ba2)",
+                  borderRadius: "3px",
+                  transition: "width 0.3s ease",
+                }}
+              />
+            </div>
           </div>
+
           <QuizQuestionCard
             question={currentQuestion}
             onAnswer={(answerId) =>
