@@ -32,10 +32,7 @@ defaults, migration conventions, and rulebook maintenance) are documented in
 `.agents/rules.md`. That file is the authoritative source and is designed to be
 copied into any new Replit project.
 
-**Hard Rule #9 (summary):** Never use synthetic or hardcoded fallback data in production.
-If DB stats are missing for a record, fetch them from the authoritative API (e.g.
-CourtListener) and store them before use. A "not enough data" response is always
-preferable to fabricated numbers. Applies to all stat-based features.
+**Hard Rule #9:** Never use synthetic/fake data. If DB stats are missing, pull and store from the authoritative API.
 
 ## MANDATORY Rules
 

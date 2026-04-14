@@ -103,13 +103,13 @@ Every project ships with these defaults from day one:
 
 ## Hard Rule #9 — Real Data Only (No Synthetic / Fake Stats)
 
-- The live production app must **NEVER** use synthetic, hardcoded, or fabricated data
-  as a fallback for missing DB records
-- If real stats (e.g. `judge_stats`) do not exist for a record, they must be fetched
+- The live production app must NEVER use synthetic, hardcoded, or fabricated data
+  as a fallback for missing DB records.
+- If real stats (e.g. judge_stats) do not exist for a record, they must be fetched
   from the authoritative source (e.g. CourtListener API) and stored in the database
-  before being used
-- Hardcoded fallback values (e.g. `opinions_per_year: 80` for every judge) are
-  forbidden in production code paths
-- A "stats pending" or "not enough data" response is always preferable to fabricated numbers
+  before being used.
+- Hardcoded fallback values (e.g. opinions_per_year: 80 for every judge) are
+  forbidden in production code paths.
+- A "stats pending" or "not enough data" response is always preferable to fabricated numbers.
 - This rule applies to all features: Judge Duel, Judge Profile stats, quiz scoring,
-  and any future stat-based feature
+  and any future stat-based feature.
