@@ -111,8 +111,8 @@ const QuizResult = ({ result, onRestart }) => {
           className="card-description"
           style={{ marginTop: "0.5rem", color: "#ffddaa" }}
         >
-          It is a close call — at least two judges scored the same for your
-          answers. The match shown is the first by alphabetical order.
+          It is a close call — at least two philosophy types scored the same
+          for your answers. The match shown is the first in configured order.
         </p>
       )}
 
