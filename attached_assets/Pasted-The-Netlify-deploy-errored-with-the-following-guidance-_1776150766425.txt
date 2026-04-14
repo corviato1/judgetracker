@@ -1,0 +1,84 @@
+The Netlify deploy errored, with the following guidance provided:
+
+**Diagnosis**
+
+- The build command runs `node server/scripts/migrate.js` before `npm run build`. The migration script attempts to open a PostgreSQL connection on `localhost:5432`, but Netlify’s build environment does not host your database, so all connection attempts are refused ([lines 58-90](#L58-L90)). This causes the script to throw `AggregateError [ECONNREFUSED]`, and the build exits with a non-zero status.
+
+**Solution**
+
+1. Point the migration script to a PostgreSQL instance reachable from Netlify (for example, a managed database). Set the appropriate connection string (e.g., `DATABASE_URL`) in Netlify’s build environment variables so the script connects to that remote host.
+2. If you only intend to run migrations locally (for development) and not during Netlify builds, update `netlify.toml` to skip the migration step during builds—for example, change the build command to just `npm run build`, or guard `server/scripts/migrate.js` so it exits early when the database environment variable is missing.
+
+The relevant error logs are:
+
+Line 52: [36m[1m❯ Loading extensions[22m[39m
+Line 53:    - neon
+Line 54: [96m[1m​[22m[39m
+Line 55: [96m[1mbuild.command from netlify.toml                               [22m[39m
+Line 56: [96m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 57: ​
+Line 58: [36m$ node server/scripts/migrate.js && npm run build[39m
+Line 59: ◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Line 60: [MIGRATE] Starting database migrations...
+Line 61: /opt/build/repo/node_modules/pg-pool/index.js:45
+Line 62:     Error.captureStackTrace(err)
+Line 63:           ^
+Line 64: AggregateError [ECONNREFUSED]:
+Line 65:     at [90m/opt/build/repo/[39mnode_modules/[4mpg-pool[24m/index.js:45:11
+Line 66: [90m    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+Line 67:     at async migrate [90m(/opt/build/repo/[39mserver/scripts/migrate.js:164:18[90m)[39m {
+Line 68:   code: [32m'ECONNREFUSED'[39m,
+Line 69:   [errors]: [
+Line 70:     Error: connect ECONNREFUSED ::1:5432
+Line 71:     [90m    at createConnectionError (node:net:1678:14)[39m
+Line 72:     [90m    at afterConnectMultiple (node:net:1708:16)[39m {
+Line 73:       errno: [33m-111[39m,
+Line 74:       code: [32m'ECONNREFUSED'[39m,
+Line 75:       syscall: [32m'connect'[39m,
+Line 76:       address: [32m'::1'[39m,
+Line 77:       port: [33m5432[39m
+Line 78:     },
+Line 79:     Error: connect ECONNREFUSED 127.0.0.1:5432
+Line 80:     [90m    at createConnectionError (node:net:1678:14)[39m
+Line 81:     [90m    at afterConnectMultiple (node:net:1708:16)[39m {
+Line 82:       errno: [33m-111[39m,
+Line 83:       code: [32m'ECONNREFUSED'[39m,
+Line 84:       syscall: [32m'connect'[39m,
+Line 85:       address: [32m'127.0.0.1'[39m,
+Line 86:       port: [33m5432[39m
+Line 87:     }
+Line 88:   ]
+Line 89: }
+Line 90: Node.js v22.22.2
+Line 91: Failed during stage 'building site': Build script returned non-zero exit code: 2
+Line 92: [91m[1m​[22m[39m
+Line 93: [91m[1m"build.command" failed                                        [22m[39m
+Line 94: [91m[1m────────────────────────────────────────────────────────────────[22m[39m
+Line 95: ​
+Line 96:   [31m[1mError message[22m[39m
+Line 97:   Command failed with exit code 1: node server/scripts/migrate.js && npm run build
+Line 98: ​
+Line 99:   [31m[1mError location[22m[39m
+Line 100:   In build.command from netlify.toml:
+Line 101:   node server/scripts/migrate.js && npm run build
+Line 102: ​
+Line 103:   [31m[1mResolved config[22m[39m
+Line 104:   build:
+Line 105:     command: node server/scripts/migrate.js && npm run build
+Line 106:     commandOrigin: config
+Line 107:     environment:
+Line 108:       - REACT_APP_ADMIN_PASSWORD
+Line 109:       - REACT_APP_WORKFLOW_PASSWORD
+Line 110:     publish: /opt/build/repo/build
+Line 111:     publishOrigin: config
+Line 112:   functionsDirectory: /opt/build/repo/netlify/functions
+Line 113:   redirects:
+Line 114:     - from: /api/*
+      status: 200
+      to: /.netlify/functions/api/:splat
+    - from: /*
+      status: 200
+      to: /index.
+Line 115: Build failed due to a user error: Build script returned non-zero exit code: 2
+Line 116: Failing build: Failed to build site
+Line 117: Finished processing build request in 10.85s
