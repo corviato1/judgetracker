@@ -5,6 +5,15 @@ import StatBar from "./StatBar";
 const HeroSection = () => {
   const navigate = useNavigate();
 
+  const scrollToDataCoverage = () => {
+    const el = document.getElementById("data-coverage");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/#data-coverage");
+    }
+  };
+
   return (
     <section className="hero-container">
       <div>
@@ -32,7 +41,7 @@ const HeroSection = () => {
           </button>
           <button
             className="hero-button-secondary"
-            onClick={() => navigate("/data-sources")}
+            onClick={scrollToDataCoverage}
           >
             Data &amp; coverage
           </button>

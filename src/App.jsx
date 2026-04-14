@@ -37,7 +37,7 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<JudgeSearchPage />} />
         <Route path="/judge/:judgeId" element={<JudgeProfilePage />} />
-        <Route path="/data-sources" element={<DataSourcesPage />} />
+        <Route path="/data-sources" element={<Navigate to="/" replace />} />
         <Route path="/about" element={<Navigate to="/" replace />} />
         <Route path="/which-judge" element={<WhichJudgeGamePage />} />
         <Route path="/judge-duel" element={<JudgeDuelPage />} />

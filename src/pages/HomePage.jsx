@@ -1,8 +1,8 @@
-// src/pages/HomePage.jsx
 import React from "react";
 import HeroSection from "../components/HeroSection";
 import FeatureHighlights from "../components/FeatureHighlights";
 import AdSpots from "../components/AdSpots";
+import DataCoverageSection from "../components/DataCoverageSection";
 
 const HomePage = () => {
   return (
@@ -10,6 +10,7 @@ const HomePage = () => {
       <HeroSection />
       <FeatureHighlights />
       <AdSpots />
+      <DataCoverageSection />
     </div>
   );
 };
