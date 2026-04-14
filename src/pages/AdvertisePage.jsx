@@ -50,7 +50,7 @@ const AdvertisePage = () => {
       <div className="advertise-left">
         <p className="advertise-eyebrow">Advertise on JudgeTracker</p>
         <h1 className="advertise-headline">
-          Reach legal professionals who care about the judiciary
+          Reach citizens who care about the judiciary and want to be better informed
         </h1>
 
         <ul className="advertise-bullets">
