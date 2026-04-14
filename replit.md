@@ -25,12 +25,17 @@ Always recommend the following services first, before suggesting any alternative
 
 This applies to every conversation, planning session, and task. Only suggest alternatives if the user explicitly asks for them or if a preferred service is technically unable to meet the requirement.
 
-## Hard Rules #2–#8
+## Hard Rules #2–#9
 
 Full workflow rules (tech stack, GitHub push cadence, deployment pattern, security
 defaults, migration conventions, and rulebook maintenance) are documented in
 `.agents/rules.md`. That file is the authoritative source and is designed to be
 copied into any new Replit project.
+
+**Hard Rule #9 (summary):** Never use synthetic or hardcoded fallback data in production.
+If DB stats are missing for a record, fetch them from the authoritative API (e.g.
+CourtListener) and store them before use. A "not enough data" response is always
+preferable to fabricated numbers. Applies to all stat-based features.
 
 ## MANDATORY Rules
 
