@@ -160,6 +160,10 @@ const migrations = [
 ];
 
 async function migrate() {
+  if (!process.env.DATABASE_URL) {
+    console.warn("[MIGRATE] DATABASE_URL not set — skipping migrations.");
+    process.exit(0);
+  }
   console.log("[MIGRATE] Starting database migrations...");
   const client = await pool.connect();
   try {
