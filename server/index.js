@@ -10,6 +10,7 @@ const duelRouter = require("./routes/duel");
 const adminRouter = require("./routes/admin");
 const trackRouter = require("./routes/track");
 const quizRouter = require("./routes/quiz");
+const { startCacheCleanup } = require("./cache");
 
 const PORT = process.env.BACKEND_PORT || 3001;
 const app = express();
@@ -102,6 +103,7 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
   app.listen(PORT, "127.0.0.1", () => {
     console.log(`[SERVER] JudgeTracker API running on http://127.0.0.1:${PORT}`);
+    startCacheCleanup();
   });
 }
 

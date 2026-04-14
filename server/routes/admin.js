@@ -539,11 +539,13 @@ router.get("/cache-stats", requireAdmin, async (req, res) => {
         SUM(CASE WHEN key LIKE 'judge:%' AND expires_at > NOW() THEN 1 ELSE 0 END) AS active_judge_rows,
         SUM(CASE WHEN key LIKE 'search:%' AND expires_at > NOW() THEN 1 ELSE 0 END) AS active_search_rows,
         SUM(CASE WHEN key LIKE 'opinions:%' AND expires_at > NOW() THEN 1 ELSE 0 END) AS active_opinion_rows,
+        COALESCE(SUM(CASE WHEN expires_at > NOW() THEN length(value) ELSE 0 END), 0) AS active_bytes,
         MIN(created_at) AS oldest_entry,
         MAX(created_at) AS newest_entry
       FROM api_cache
     `);
     const row = dbResult.rows[0] || {};
+    const memStats = getMemStats();
     res.json({
       db: {
         totalRows: parseInt(row.total_rows) || 0,
@@ -551,10 +553,12 @@ router.get("/cache-stats", requireAdmin, async (req, res) => {
         activeJudgeRows: parseInt(row.active_judge_rows) || 0,
         activeSearchRows: parseInt(row.active_search_rows) || 0,
         activeOpinionRows: parseInt(row.active_opinion_rows) || 0,
+        activeBytes: parseInt(row.active_bytes) || 0,
+        capBytes: memStats.dbCapBytes,
         oldestEntry: row.oldest_entry || null,
         newestEntry: row.newest_entry || null,
       },
-      memory: getMemStats(),
+      memory: memStats,
       ttls: TTL,
     });
   } catch (err) {

@@ -2,6 +2,7 @@ const pool = require("./db");
 
 const MEM_MAX_SIZE = 200;
 const MEM_TTL_MS = 5 * 60 * 1000;
+const DB_CAP_BYTES = 200 * 1024 * 1024;
 
 const memCache = new Map();
 let memHits = 0;
@@ -43,7 +44,38 @@ function getMemStats() {
     hitRate: memHits + memMisses > 0
       ? Number((memHits / (memHits + memMisses)).toFixed(4))
       : 0,
+    dbCapBytes: DB_CAP_BYTES,
   };
+}
+
+async function enforceDbCap() {
+  try {
+    const sizeRes = await pool.query(
+      "SELECT COALESCE(SUM(length(value)), 0) AS total_bytes FROM api_cache WHERE expires_at > NOW()"
+    );
+    let totalBytes = parseInt(sizeRes.rows[0].total_bytes) || 0;
+    if (totalBytes <= DB_CAP_BYTES) return;
+
+    console.log(`[CACHE] DB size ${(totalBytes / 1024 / 1024).toFixed(1)} MB exceeds 200 MB cap — evicting LFU rows`);
+    while (totalBytes > DB_CAP_BYTES) {
+      const deleted = await pool.query(`
+        DELETE FROM api_cache
+        WHERE key IN (
+          SELECT key FROM api_cache
+          WHERE expires_at > NOW()
+          ORDER BY hit_count ASC, last_accessed ASC
+          LIMIT 50
+        )
+        RETURNING length(value) AS bytes
+      `);
+      if (deleted.rowCount === 0) break;
+      const freed = deleted.rows.reduce((sum, r) => sum + (parseInt(r.bytes) || 0), 0);
+      totalBytes -= freed;
+    }
+    console.log(`[CACHE] Eviction complete — DB now ~${(totalBytes / 1024 / 1024).toFixed(1)} MB`);
+  } catch (err) {
+    console.error("[CACHE] enforceDbCap error:", err.message);
+  }
 }
 
 async function getCached(key) {
@@ -58,6 +90,10 @@ async function getCached(key) {
     if (result.rows.length > 0) {
       const value = JSON.parse(result.rows[0].value);
       memSet(key, value);
+      pool.query(
+        "UPDATE api_cache SET hit_count = hit_count + 1, last_accessed = NOW() WHERE key = $1",
+        [key]
+      ).catch((err) => console.error("[CACHE] hit_count update error:", err.message));
       return value;
     }
   } catch (err) {
@@ -71,15 +107,35 @@ async function setCache(key, value, ttlHours = 24) {
   try {
     const serialized = JSON.stringify(value);
     await pool.query(
-      `INSERT INTO api_cache (key, value, expires_at)
-       VALUES ($1, $2, NOW() + ($3 || ' hours')::interval)
+      `INSERT INTO api_cache (key, value, expires_at, hit_count, last_accessed)
+       VALUES ($1, $2, NOW() + ($3 || ' hours')::interval, 0, NOW())
        ON CONFLICT (key) DO UPDATE
-         SET value = EXCLUDED.value, expires_at = EXCLUDED.expires_at`,
+         SET value = EXCLUDED.value,
+             expires_at = EXCLUDED.expires_at,
+             last_accessed = NOW()`,
       [key, serialized, String(ttlHours)]
     );
+    enforceDbCap().catch((err) => console.error("[CACHE] Post-write eviction error:", err.message));
   } catch (err) {
     console.error("[CACHE] Write error:", err.message);
   }
+}
+
+function startCacheCleanup() {
+  const run = async () => {
+    try {
+      const expired = await pool.query("DELETE FROM api_cache WHERE expires_at < NOW()");
+      if (expired.rowCount > 0) {
+        console.log(`[CACHE] Deleted ${expired.rowCount} expired rows`);
+      }
+      await enforceDbCap();
+    } catch (err) {
+      console.error("[CACHE] Scheduled cleanup error:", err.message);
+    }
+  };
+
+  setInterval(run, 10 * 60 * 1000);
+  console.log("[CACHE] Scheduled cleanup started (every 10 min, 200 MB cap)");
 }
 
 async function withCoalescing(key, fetchFn) {
@@ -98,4 +154,4 @@ const TTL = {
   memMinutes: MEM_TTL_MS / 60000,
 };
 
-module.exports = { getCached, setCache, withCoalescing, getMemStats, TTL };
+module.exports = { getCached, setCache, withCoalescing, getMemStats, startCacheCleanup, TTL };

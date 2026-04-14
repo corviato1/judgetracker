@@ -169,6 +169,10 @@ const migrations = [
   )`,
 
   `CREATE INDEX IF NOT EXISTS idx_ad_inquiries_created ON ad_inquiries(created_at)`,
+
+  `ALTER TABLE api_cache ADD COLUMN IF NOT EXISTS hit_count INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE api_cache ADD COLUMN IF NOT EXISTS last_accessed TIMESTAMP NOT NULL DEFAULT NOW()`,
+  `CREATE INDEX IF NOT EXISTS idx_api_cache_eviction ON api_cache (hit_count ASC, last_accessed ASC)`,
 ];
 
 const SEED_JUDGES = [

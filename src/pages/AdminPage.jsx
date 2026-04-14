@@ -847,6 +847,18 @@ function CacheTab() {
         <StatCard label="Active — judge profiles" value={db.activeJudgeRows} />
         <StatCard label="Active — search results" value={db.activeSearchRows} />
         <StatCard label="Active — opinions" value={db.activeOpinionRows} />
+        <StatCard
+          label="DB storage used"
+          value={db.activeBytes != null ? `${(db.activeBytes / 1024 / 1024).toFixed(2)} MB` : "—"}
+        />
+        <StatCard
+          label="DB cap"
+          value={db.capBytes != null ? `${(db.capBytes / 1024 / 1024).toFixed(0)} MB` : "—"}
+        />
+        <StatCard
+          label="DB usage"
+          value={db.activeBytes != null && db.capBytes ? `${((db.activeBytes / db.capBytes) * 100).toFixed(1)}%` : "—"}
+        />
       </div>
 
       <div className="adm-two-col" style={{ marginBottom: "1.5rem" }}>
