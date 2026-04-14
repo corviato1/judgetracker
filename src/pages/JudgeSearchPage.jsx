@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
 import JudgeList from "../components/JudgeList";
