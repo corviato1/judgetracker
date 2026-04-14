@@ -91,4 +91,11 @@ async function withCoalescing(key, fetchFn) {
   return promise;
 }
 
-module.exports = { getCached, setCache, withCoalescing, getMemStats };
+const TTL = {
+  searchHours: 24,
+  judgeHours: 24 * 7,
+  opinionsHours: 24 * 7,
+  memMinutes: MEM_TTL_MS / 60000,
+};
+
+module.exports = { getCached, setCache, withCoalescing, getMemStats, TTL };

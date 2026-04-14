@@ -4,13 +4,9 @@ const pool = require("../db");
 const { searchLimiter } = require("../middleware/rateLimiter");
 const { validateSearchQuery, validateJudgeId } = require("../middleware/validation");
 const { normalizePerson } = require("../utils/normalize");
-const { getCached, setCache, withCoalescing } = require("../cache");
+const { getCached, setCache, withCoalescing, TTL } = require("../cache");
 
 const CL_BASE = "https://www.courtlistener.com/api/rest/v4";
-
-const SEARCH_TTL_HOURS = 24;
-const JUDGE_TTL_HOURS = 24 * 7;
-const OPINIONS_TTL_HOURS = 24 * 7;
 
 function getAuthHeaders() {
   const token = process.env.COURTLISTENER_API_TOKEN;
@@ -86,7 +82,7 @@ router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
 
       const data = await response.json();
       const normalized = (data.results || []).slice(0, 20).map(normalizePerson);
-      await setCache(cacheKey, normalized, SEARCH_TTL_HOURS);
+      await setCache(cacheKey, normalized, TTL.searchHours);
 
       for (const judge of normalized) {
         await pool.query(
@@ -138,7 +134,7 @@ router.get("/:id", validateJudgeId, async (req, res) => {
 
       const data = await response.json();
       const normalized = normalizePerson(data);
-      await setCache(cacheKey, normalized, JUDGE_TTL_HOURS);
+      await setCache(cacheKey, normalized, TTL.judgeHours);
 
       await pool.query(
         `INSERT INTO judges (courtlistener_id, name, court, state, gender, party_of_appointment, service_start, last_synced)
@@ -297,7 +293,7 @@ router.get("/:id/opinions", validateJudgeId, async (req, res) => {
         summary: o.snippet || "",
       }));
 
-      await setCache(cacheKey, normalized, OPINIONS_TTL_HOURS);
+      await setCache(cacheKey, normalized, TTL.opinionsHours);
 
       for (const o of normalized) {
         await pool.query(

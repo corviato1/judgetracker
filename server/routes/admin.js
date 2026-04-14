@@ -5,7 +5,7 @@ const { ADMIN_PASSWORD, COOKIE_NAME, signAdminToken, requireAdmin } = require(".
 const { generateQuizResultPdf } = require("../pdfService");
 const rateLimit = require("express-rate-limit");
 const { normalizePerson } = require("../utils/normalize");
-const { getMemStats } = require("../cache");
+const { getMemStats, TTL } = require("../cache");
 
 const CL_BASE = "https://www.courtlistener.com/api/rest/v4";
 const SEED_QUERIES = ["Smith", "Jones", "Johnson", "Williams", "Brown", "Davis", "Miller", "Wilson", "Taylor", "Anderson"];
@@ -555,12 +555,7 @@ router.get("/cache-stats", requireAdmin, async (req, res) => {
         newestEntry: row.newest_entry || null,
       },
       memory: getMemStats(),
-      ttls: {
-        searchHours: 24,
-        judgeHours: 168,
-        opinionsHours: 168,
-        memMinutes: 5,
-      },
+      ttls: TTL,
     });
   } catch (err) {
     console.error("[ADMIN cache-stats]", err.message);

@@ -806,10 +806,14 @@ function CacheTab() {
   const [err, setErr] = useState(null);
 
   const load = () => {
+    setErr(null);
     fetch("/api/admin/cache-stats", { credentials: "include" })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Server returned ${r.status}`);
+        return r.json();
+      })
       .then(setData)
-      .catch(() => setErr("Failed to load cache stats."));
+      .catch((e) => setErr(e.message || "Failed to load cache stats."));
   };
 
   useEffect(() => { load(); }, []);
