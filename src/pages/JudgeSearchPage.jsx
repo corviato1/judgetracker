@@ -96,7 +96,7 @@ const RandomTab = ({ allJudges }) => {
   const [noMatch, setNoMatch] = useState(false);
   const autoPickedRef = useRef(false);
 
-  const pickRandom = useCallback((judges, currentFilters) => {
+  const pickRandom = useCallback((judges, currentFilters, currentPicked) => {
     const pool = (judges || []).filter((j) => matchesFilters(j, currentFilters));
     if (pool.length === 0) {
       setNoMatch(true);
@@ -104,14 +104,17 @@ const RandomTab = ({ allJudges }) => {
       return;
     }
     setNoMatch(false);
-    const choice = pool[Math.floor(Math.random() * pool.length)];
+    const eligible = pool.length > 1 && currentPicked
+      ? pool.filter((j) => j.id !== currentPicked.id)
+      : pool;
+    const choice = eligible[Math.floor(Math.random() * eligible.length)];
     setPicked(choice);
   }, []);
 
   useEffect(() => {
     if (allJudges && allJudges.length > 0 && !autoPickedRef.current) {
       autoPickedRef.current = true;
-      pickRandom(allJudges, filters);
+      pickRandom(allJudges, filters, null);
     }
   }, [allJudges, filters, pickRandom]);
 
@@ -121,7 +124,7 @@ const RandomTab = ({ allJudges }) => {
   };
 
   const handlePick = () => {
-    pickRandom(allJudges, filters);
+    pickRandom(allJudges, filters, picked);
   };
 
   const yearsOnBench = picked && picked.serviceStartYear
