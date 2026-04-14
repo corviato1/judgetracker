@@ -11,6 +11,7 @@ const QuizResult = ({ result, onRestart }) => {
   if (!result || !result.topMatch) return null;
 
   const { topMatch, breakdown, isTie } = result;
+  const realJudge = topMatch.judge.realJudge || {};
 
   function buildResultData() {
     const matchExplanation = breakdown
@@ -20,16 +21,16 @@ const QuizResult = ({ result, onRestart }) => {
 
     return {
       judgeId: String(topMatch.judge.id),
-      judgeFullName: topMatch.judge.fullName,
-      courtName: topMatch.judge.courtName || "",
+      judgeFullName: realJudge.name || topMatch.judge.fullName,
+      courtName: realJudge.court || topMatch.judge.courtName || "",
       jurisdiction: topMatch.judge.jurisdiction || "",
       matchScore: topMatch.score,
-      resultLabel: `Most like ${topMatch.judge.fullName}`,
+      resultLabel: `Most like ${realJudge.name || topMatch.judge.fullName}`,
       matchExplanation,
       keyStats: {
-        Court: topMatch.judge.courtName || "—",
-        Jurisdiction: topMatch.judge.jurisdiction || "—",
-        "Appointing President": topMatch.judge.appointer || "—",
+        Court: realJudge.court || topMatch.judge.courtName || "—",
+        "Judicial Philosophy": topMatch.judge.fullName,
+        "Appointing President": realJudge.appointer || topMatch.judge.appointer || "—",
         Party: topMatch.judge.partyOfAppointment || "—",
       },
     };
@@ -92,31 +93,104 @@ const QuizResult = ({ result, onRestart }) => {
 
   return (
     <section className="card" style={{ marginTop: "1rem" }}>
-      <p className="small-label">Your judicial philosophy</p>
-      <h3 className="card-title">
-        You are most like: {topMatch.judge.fullName}
-      </h3>
-      <p className="card-description">
-        Court: {topMatch.judge.courtName} · {topMatch.judge.jurisdiction}
+      <p className="small-label" style={{ marginBottom: "0.5rem" }}>
+        Your judicial philosophy match
       </p>
 
-      {topMatch.judge.description && (
-        <p className="card-description" style={{ marginTop: "0.6rem", fontStyle: "italic", color: "#a0aec0" }}>
-          {topMatch.judge.description}
+      <div
+        style={{
+          background: "linear-gradient(135deg, rgba(102,126,234,0.15) 0%, rgba(118,75,162,0.15) 100%)",
+          border: "1px solid rgba(102,126,234,0.3)",
+          borderRadius: "12px",
+          padding: "1.5rem 1.75rem",
+          marginBottom: "1.25rem",
+        }}
+      >
+        <p style={{ fontSize: "0.8rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "#a0aec0", marginBottom: "0.4rem" }}>
+          You are most like
         </p>
-      )}
+        <h2
+          style={{
+            fontSize: "2rem",
+            fontWeight: "800",
+            lineHeight: 1.15,
+            margin: "0 0 0.5rem 0",
+            background: "linear-gradient(90deg, #a78bfa, #818cf8)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
+        >
+          {realJudge.name || topMatch.judge.fullName}
+        </h2>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center", marginBottom: "0.75rem" }}>
+          <span
+            style={{
+              fontSize: "0.78rem",
+              fontWeight: "600",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              padding: "0.2rem 0.65rem",
+              borderRadius: "999px",
+              background: "rgba(167,139,250,0.18)",
+              border: "1px solid rgba(167,139,250,0.35)",
+              color: "#c4b5fd",
+            }}
+          >
+            {topMatch.judge.fullName}
+          </span>
+          {realJudge.court && (
+            <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+              {realJudge.court}
+            </span>
+          )}
+        </div>
+
+        {realJudge.appointer && (
+          <p style={{ fontSize: "0.82rem", color: "#718096", marginBottom: "0.75rem" }}>
+            {realJudge.appointer}
+          </p>
+        )}
+
+        {realJudge.note && (
+          <p style={{ fontSize: "0.92rem", color: "#cbd5e0", lineHeight: 1.6, margin: 0 }}>
+            {realJudge.note}
+          </p>
+        )}
+      </div>
 
       {isTie && (
-        <p
-          className="card-description"
-          style={{ marginTop: "0.5rem", color: "#ffddaa" }}
-        >
+        <p className="card-description" style={{ color: "#ffddaa", marginBottom: "0.75rem" }}>
           It is a close call — at least two philosophy types scored the same
           for your answers. The match shown is the first in configured order.
         </p>
       )}
 
-      <p className="card-description" style={{ marginTop: "0.75rem" }}>
+      <div
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.07)",
+          paddingTop: "1rem",
+          marginBottom: "1rem",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "0.75rem",
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+            color: "#718096",
+            marginBottom: "0.4rem",
+          }}
+        >
+          About this philosophy
+        </p>
+        <p className="card-description" style={{ color: "#a0aec0", fontStyle: "italic" }}>
+          {topMatch.judge.description}
+        </p>
+      </div>
+
+      <p className="card-description" style={{ color: "#718096", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
         Based on your answers, your judicial instincts align with this philosophy.
         These patterns are drawn from real judicial reasoning styles — use the quiz
         as a starting point to explore what kinds of cases and outcomes matter to you.
@@ -124,7 +198,6 @@ const QuizResult = ({ result, onRestart }) => {
 
       <h4
         style={{
-          marginTop: "1.25rem",
           marginBottom: "0.5rem",
           fontSize: "0.95rem",
         }}
@@ -134,7 +207,11 @@ const QuizResult = ({ result, onRestart }) => {
       <div className="quiz-breakdown">
         {breakdown.map(({ judge, score }) => (
           <div key={judge.id} className="quiz-breakdown-row">
-            <div className="quiz-breakdown-name">{judge.fullName}</div>
+            <div className="quiz-breakdown-name">
+              {judge.realJudge?.name
+                ? <><strong>{judge.realJudge.name}</strong> <span style={{ color: "#718096", fontSize: "0.82rem" }}>({judge.fullName})</span></>
+                : judge.fullName}
+            </div>
             <div className="quiz-breakdown-score">{score}</div>
           </div>
         ))}
