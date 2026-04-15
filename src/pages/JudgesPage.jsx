@@ -194,7 +194,7 @@ const JudgesPage = () => {
   }, []);
 
   const scotusJudges = allJudges
-    ? [...allJudges.filter((j) => (j.courtName || "").toLowerCase().includes("supreme court"))]
+    ? [...allJudges.filter(isScotus)]
         .sort((a, b) => (a.serviceStartYear || 9999) - (b.serviceStartYear || 9999))
     : null;
 

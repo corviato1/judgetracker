@@ -495,6 +495,13 @@ footer {
   to   { transform: rotate(360deg); }
 }
 
+@keyframes done-flash {
+  0%   { transform: scale(1);    opacity: 1; }
+  30%  { transform: scale(1.12); opacity: 1; }
+  70%  { transform: scale(0.97); opacity: 0.9; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
 .random-pick-btn {
   display: inline-flex;
   align-items: center;
@@ -523,6 +530,7 @@ footer {
 
 .random-pick-btn--done {
   background-color: #22c55e;
+  animation: done-flash 0.35s ease-out forwards;
 }
 
 .random-pick-icon--spin {
