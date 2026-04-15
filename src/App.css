@@ -487,6 +487,50 @@ footer {
 }
 
 /* ---------------------------------------------------------
+   Random Judge pick button
+--------------------------------------------------------- */
+
+@keyframes spin-refresh {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.random-pick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.4rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  min-width: 10rem;
+  justify-content: center;
+}
+
+.random-pick-btn:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.random-pick-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.random-pick-btn--done {
+  background-color: #22c55e;
+}
+
+.random-pick-icon--spin {
+  display: inline-block;
+  animation: spin-refresh 0.42s linear infinite;
+}
+
+/* ---------------------------------------------------------
    Opinion Cards
 --------------------------------------------------------- */
 

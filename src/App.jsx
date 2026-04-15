@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import NavigationMenu from "./components/NavigationMenu";
 
 import HomePage from "./pages/HomePage";
-import JudgeSearchPage from "./pages/JudgeSearchPage";
+import JudgesPage from "./pages/JudgesPage";
 import JudgeProfilePage from "./pages/JudgeProfilePage";
 import JudgeHistoryPage from "./pages/JudgeHistoryPage";
 import WhichJudgeGamePage from "./pages/WhichJudgeGamePage";
@@ -35,7 +35,7 @@ const App = () => {
     <AppShell>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/search" element={<JudgeSearchPage />} />
+        <Route path="/judges" element={<JudgesPage />} />
         <Route path="/judge/:judgeId" element={<JudgeProfilePage />} />
         <Route path="/data-sources" element={<Navigate to="/" replace />} />
         <Route path="/about" element={<Navigate to="/" replace />} />
@@ -44,7 +44,7 @@ const App = () => {
         <Route path="/judge-duel" element={<JudgeDuelPage />} />
         <Route path="/advertise" element={<AdvertisePage />} />
 
-        <Route path="/judges" element={<Navigate to="/search" replace />} />
+        <Route path="/search" element={<Navigate to="/judges" replace />} />
         <Route path="/duel" element={<Navigate to="/judge-duel" replace />} />
         <Route path="/quiz" element={<Navigate to="/which-judge" replace />} />
         <Route path="/data" element={<Navigate to="/data-sources" replace />} />
