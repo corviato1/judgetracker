@@ -12,9 +12,14 @@ function deriveLocalHistory(opinions) {
   const reversals = [];
   const violentFelonyReleases = [];
   const citations = [];
+  const yearCounts = {};
+
   for (const op of opinions) {
     const combined = `${op.caseName || ""} ${op.summary || ""}`;
     const clUrl = op.url || (op.id ? `https://www.courtlistener.com/opinion/${op.id}/` : null);
+    const year = op.dateFiled ? String(op.dateFiled).slice(0, 4) : "Unknown";
+    yearCounts[year] = (yearCounts[year] || 0) + 1;
+
     const entry = {
       id: String(op.id),
       caseName: op.caseName || "Untitled case",
@@ -28,10 +33,23 @@ function deriveLocalHistory(opinions) {
     if (VIOLENT_RE.test(combined) && RELEASE_RE.test(combined)) violentFelonyReleases.push(entry);
     citations.push(entry);
   }
+
+  const opinionsByYear = Object.entries(yearCounts)
+    .sort(([a], [b]) => {
+      const numA = parseInt(a, 10);
+      const numB = parseInt(b, 10);
+      if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
+      if (isNaN(numA)) return 1;
+      if (isNaN(numB)) return -1;
+      return numB - numA;
+    })
+    .map(([year, count]) => ({ year, count }));
+
   return {
     reversals: reversals.slice(0, 20),
     violentFelonyReleases: violentFelonyReleases.slice(0, 20),
     citations: citations.slice(0, 30),
+    opinionsByYear,
     derived: true,
   };
 }
@@ -257,6 +275,14 @@ const JudgeProfilePage = () => {
     setExpandedOpinionId(id);
   }, []);
 
+  const filteredOpinions = opinions.filter((op) =>
+    !filterText || (op.caseName || "").toLowerCase().includes(filterText.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredOpinions.length / OPINIONS_PER_PAGE);
+  const pagedOpinions = filteredOpinions.slice(
+    opinionsPage * OPINIONS_PER_PAGE,
+    (opinionsPage + 1) * OPINIONS_PER_PAGE
+  );
 
   if (loading) {
     return (
@@ -297,11 +323,7 @@ const JudgeProfilePage = () => {
       ? deriveLocalHistory(opinions)
       : null;
 
-  const opinionYearGroups = groupOpinionsByYear(
-    opinions.filter((op) =>
-      !filterText || (op.caseName || "").toLowerCase().includes(filterText.toLowerCase())
-    )
-  );
+  const opinionYearGroups = groupOpinionsByYear(pagedOpinions);
 
   return (
     <div className="profile-page">
@@ -358,35 +380,59 @@ const JudgeProfilePage = () => {
                 onChange={(e) => {
                   setFilterText(e.target.value);
                   setExpandedOpinionId(null);
+                  setOpinionsPage(0);
                 }}
               />
-              {opinionYearGroups.length === 0 ? (
+              {filteredOpinions.length === 0 ? (
                 <p className="profile-section-empty">
                   {filterText
                     ? `No opinions match "${filterText}"`
                     : "No opinions found for this judge yet."}
                 </p>
               ) : (
-                <div className="profile-opinions-by-year">
-                  {opinionYearGroups.map(({ year, opinions: yearOps }) => (
-                    <div key={year} className="profile-year-group">
-                      <div className="profile-year-heading">
-                        <span className="profile-year-label">{year}</span>
-                        <span className="profile-year-count">{yearOps.length} opinion{yearOps.length !== 1 ? "s" : ""}</span>
+                <>
+                  <div className="profile-opinions-by-year">
+                    {opinionYearGroups.map(({ year, opinions: yearOps }) => (
+                      <div key={year} className="profile-year-group">
+                        <div className="profile-year-heading">
+                          <span className="profile-year-label">{year}</span>
+                          <span className="profile-year-count">{yearOps.length} opinion{yearOps.length !== 1 ? "s" : ""}</span>
+                        </div>
+                        <div className="opinion-list">
+                          {yearOps.map((op) => (
+                            <OpinionCard
+                              key={op.id}
+                              opinion={op}
+                              expandedId={expandedOpinionId}
+                              onExpand={handleExpand}
+                            />
+                          ))}
+                        </div>
                       </div>
-                      <div className="opinion-list">
-                        {yearOps.map((op) => (
-                          <OpinionCard
-                            key={op.id}
-                            opinion={op}
-                            expandedId={expandedOpinionId}
-                            onExpand={handleExpand}
-                          />
-                        ))}
-                      </div>
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="profile-pagination">
+                      <button
+                        className="profile-page-btn"
+                        onClick={() => { setOpinionsPage((p) => p - 1); setExpandedOpinionId(null); }}
+                        disabled={opinionsPage === 0}
+                      >
+                        ← Prev
+                      </button>
+                      <span className="profile-page-info">
+                        Page {opinionsPage + 1} of {totalPages}
+                      </span>
+                      <button
+                        className="profile-page-btn"
+                        onClick={() => { setOpinionsPage((p) => p + 1); setExpandedOpinionId(null); }}
+                        disabled={opinionsPage >= totalPages - 1}
+                      >
+                        Next →
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </>
           )}
@@ -430,6 +476,26 @@ const JudgeProfilePage = () => {
                 Derived from {opinions.length} locally-cached opinion{opinions.length !== 1 ? "s" : ""}.
                 Full analysis available on <strong>judgetracker.info</strong>.
               </p>
+              {localHistory.opinionsByYear.length > 0 && (
+                <section className="history-section">
+                  <h3 className="history-section-title">Opinions by year</h3>
+                  <p className="history-section-desc">Total opinions filed per calendar year from local data.</p>
+                  <div className="profile-year-count-table">
+                    {localHistory.opinionsByYear.map(({ year, count }) => (
+                      <div key={year} className="profile-year-count-row">
+                        <span className="profile-year-count-year">{year}</span>
+                        <span className="profile-year-count-bar-wrap">
+                          <span
+                            className="profile-year-count-bar"
+                            style={{ width: `${Math.round((count / localHistory.opinionsByYear[0].count) * 100)}%` }}
+                          />
+                        </span>
+                        <span className="profile-year-count-num">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
               <HistorySection
                 title="Reversals"
                 description="Opinions where reversal-related keywords appear in the case name or summary."
