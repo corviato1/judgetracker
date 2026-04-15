@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
 import JudgeList from "../components/JudgeList";
-import JudgeCard from "../components/JudgeCard";
 import { listAllJudges } from "../API/api";
 
 const TABS = [
@@ -192,11 +191,6 @@ const JudgesPage = () => {
       setAllJudges([]);
     });
   }, []);
-
-  const scotusJudges = allJudges
-    ? [...allJudges.filter(isScotus)]
-        .sort((a, b) => (a.serviceStartYear || 9999) - (b.serviceStartYear || 9999))
-    : null;
 
   const nonScotusJudges = allJudges
     ? allJudges.filter((j) => !isScotus(j))

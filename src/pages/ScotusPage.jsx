@@ -20,7 +20,14 @@ function groupByYear(opinions) {
     if (!groups[year]) groups[year] = [];
     groups[year].push(op);
   }
-  const sortedYears = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+  const sortedYears = Object.keys(groups).sort((a, b) => {
+    const numA = parseInt(a, 10);
+    const numB = parseInt(b, 10);
+    if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
+    if (isNaN(numA)) return 1;
+    if (isNaN(numB)) return -1;
+    return numB - numA;
+  });
   return sortedYears.map((year) => ({ year, opinions: groups[year] }));
 }
 
