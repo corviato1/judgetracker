@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { getSessionId } from "../analytics/tracker";
+import judgeList from "../data/JudgeGameJudgeList";
 
 const QuizResult = ({ result, onRestart }) => {
   const [emailFormOpen, setEmailFormOpen] = useState(false);
@@ -7,31 +9,38 @@ const QuizResult = ({ result, onRestart }) => {
   const [emailStatus, setEmailStatus] = useState(null);
   const [emailLoading, setEmailLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [showAllJudges, setShowAllJudges] = useState(false);
 
-  if (!result || !result.topMatch) return null;
+  if (!result || !result.winningPhilosophy) return null;
 
-  const { topMatch, breakdown, isTie } = result;
-  const realJudge = topMatch.judge.realJudge || {};
+  const { winningPhilosophy, matchedJudges, breakdown, isTie } = result;
+
+  const activeJudges = matchedJudges.filter((j) => j.active);
+  const retiredJudges = matchedJudges.filter((j) => !j.active);
+
+  const INITIAL_RETIRED_COUNT = 4;
+  const visibleRetired = showAllJudges ? retiredJudges : retiredJudges.slice(0, INITIAL_RETIRED_COUNT);
 
   function buildResultData() {
     const matchExplanation = breakdown
       .filter((b) => b.score > 0)
       .slice(0, 3)
-      .map((b) => `Your answers aligned with ${b.judge.fullName} (score: ${b.score})`);
+      .map((b) => `Your answers aligned with ${b.philosophy.label} (score: ${b.score})`);
+
+    const topJudge = matchedJudges[0] || {};
 
     return {
-      judgeId: String(topMatch.judge.id),
-      judgeFullName: realJudge.name || topMatch.judge.fullName,
-      courtName: realJudge.court || topMatch.judge.courtName || "",
-      jurisdiction: topMatch.judge.jurisdiction || "",
-      matchScore: topMatch.score,
-      resultLabel: `Most like ${realJudge.name || topMatch.judge.fullName}`,
+      judgeId: String(winningPhilosophy.id),
+      judgeFullName: winningPhilosophy.label,
+      courtName: "U.S. Supreme Court",
+      jurisdiction: "Federal supreme court",
+      matchScore: result.winningScore || 0,
+      resultLabel: `Judicial philosophy: ${winningPhilosophy.label}`,
       matchExplanation,
       keyStats: {
-        Court: realJudge.court || topMatch.judge.courtName || "—",
-        "Judicial Philosophy": topMatch.judge.fullName,
-        "Appointing President": realJudge.appointer || topMatch.judge.appointer || "—",
-        Party: topMatch.judge.partyOfAppointment || "—",
+        "Judicial Philosophy": winningPhilosophy.label,
+        "Matching Justices": String(matchedJudges.length),
+        "Active Matches": String(activeJudges.length),
       },
     };
   }
@@ -91,6 +100,87 @@ const QuizResult = ({ result, onRestart }) => {
     }
   };
 
+  const partyColor = (party) => {
+    const p = (party || "").toLowerCase();
+    if (p.includes("democrat")) return { bg: "rgba(74,144,217,0.15)", border: "rgba(74,144,217,0.35)", text: "#90c4f8" };
+    if (p.includes("republican")) return { bg: "rgba(217,83,74,0.15)", border: "rgba(217,83,74,0.35)", text: "#f8a090" };
+    return { bg: "rgba(160,174,192,0.15)", border: "rgba(160,174,192,0.3)", text: "#a0aec0" };
+  };
+
+  const JudgeRow = ({ judge }) => {
+    const pc = partyColor(judge.partyOfAppointment);
+    const years = judge.serviceEnd
+      ? `${judge.serviceStart}–${judge.serviceEnd}`
+      : `${judge.serviceStart}–present`;
+
+    return (
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0.6rem 0.75rem",
+        borderRadius: "8px",
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        gap: "0.75rem",
+        flexWrap: "wrap",
+      }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <span style={{ fontWeight: 600, fontSize: "0.9rem", color: "#e2e8f0" }}>
+              {judge.fullName}
+            </span>
+            {judge.active && (
+              <span style={{
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                padding: "0.1rem 0.45rem",
+                borderRadius: "999px",
+                background: "rgba(72,187,120,0.15)",
+                border: "1px solid rgba(72,187,120,0.3)",
+                color: "#68d391",
+              }}>
+                Active
+              </span>
+            )}
+          </div>
+          <div style={{ fontSize: "0.78rem", color: "#718096", marginTop: "0.2rem" }}>
+            {years} · {judge.appointer}
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
+          <span style={{
+            fontSize: "0.7rem",
+            fontWeight: 600,
+            padding: "0.15rem 0.5rem",
+            borderRadius: "999px",
+            background: pc.bg,
+            border: `1px solid ${pc.border}`,
+            color: pc.text,
+            whiteSpace: "nowrap",
+          }}>
+            {judge.partyOfAppointment}
+          </span>
+          {judge.clId && (
+            <Link
+              to={`/judge/${judge.clId}`}
+              style={{
+                fontSize: "0.78rem",
+                color: "#818cf8",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              View profile →
+            </Link>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section className="card" style={{ marginTop: "1rem" }}>
       <p className="small-label" style={{ marginBottom: "0.5rem" }}>
@@ -107,110 +197,100 @@ const QuizResult = ({ result, onRestart }) => {
         }}
       >
         <p style={{ fontSize: "0.8rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "#a0aec0", marginBottom: "0.4rem" }}>
-          You are most like
+          Your judicial philosophy
         </p>
         <h2
           style={{
             fontSize: "2rem",
             fontWeight: "800",
             lineHeight: 1.15,
-            margin: "0 0 0.5rem 0",
+            margin: "0 0 0.75rem 0",
             background: "linear-gradient(90deg, #a78bfa, #818cf8)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}
         >
-          {realJudge.name || topMatch.judge.fullName}
+          {winningPhilosophy.label}
         </h2>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center", marginBottom: "0.75rem" }}>
-          <span
-            style={{
-              fontSize: "0.78rem",
-              fontWeight: "600",
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-              padding: "0.2rem 0.65rem",
-              borderRadius: "999px",
-              background: "rgba(167,139,250,0.18)",
-              border: "1px solid rgba(167,139,250,0.35)",
-              color: "#c4b5fd",
-            }}
-          >
-            Judicial philosophy: {topMatch.judge.fullName}
-          </span>
-          {realJudge.court && (
-            <span style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
-              {realJudge.court}
-            </span>
-          )}
-        </div>
-
-        {realJudge.appointer && (
-          <p style={{ fontSize: "0.82rem", color: "#718096", marginBottom: "0.75rem" }}>
-            {realJudge.appointer}
-          </p>
-        )}
-
-        {realJudge.note && (
-          <p style={{ fontSize: "0.92rem", color: "#cbd5e0", lineHeight: 1.6, margin: 0 }}>
-            {realJudge.note}
-          </p>
-        )}
+        <p style={{ fontSize: "0.92rem", color: "#cbd5e0", lineHeight: 1.6, margin: 0 }}>
+          {winningPhilosophy.description}
+        </p>
       </div>
 
       {isTie && (
         <p className="card-description" style={{ color: "#ffddaa", marginBottom: "0.75rem" }}>
-          It is a close call — at least two philosophy types scored the same
-          for your answers. The match shown is the first in configured order.
+          It is a close call — at least two philosophy types scored the same for your answers. The match shown is the first in configured order.
         </p>
       )}
 
-      <div
-        style={{
-          borderTop: "1px solid rgba(255,255,255,0.07)",
-          paddingTop: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <p
-          style={{
-            fontSize: "0.75rem",
-            letterSpacing: "0.07em",
-            textTransform: "uppercase",
-            color: "#718096",
-            marginBottom: "0.4rem",
-          }}
-        >
-          About this philosophy
-        </p>
-        <p className="card-description" style={{ color: "#a0aec0", fontStyle: "italic" }}>
-          {topMatch.judge.description}
-        </p>
-      </div>
-
-      <p className="card-description" style={{ color: "#718096", fontSize: "0.85rem", marginBottom: "1.25rem" }}>
-        Based on your answers, your judicial instincts align with this philosophy.
-        These patterns are drawn from real judicial reasoning styles — use the quiz
-        as a starting point to explore what kinds of cases and outcomes matter to you.
+      <p className="card-description" style={{ color: "#718096", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
+        Based on your answers, your judicial instincts align with this philosophy. These patterns are drawn from real judicial reasoning styles — use the quiz as a starting point to explore what kinds of cases and outcomes matter to you.
       </p>
 
-      <h4
-        style={{
-          marginBottom: "0.5rem",
-          fontSize: "0.95rem",
-        }}
-      >
+      {matchedJudges.length > 0 && (
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h4 style={{ marginBottom: "0.75rem", fontSize: "0.95rem" }}>
+            Supreme Court justices who share this philosophy
+            <span style={{ fontSize: "0.78rem", fontWeight: 400, color: "#718096", marginLeft: "0.5rem" }}>
+              ({matchedJudges.length} total)
+            </span>
+          </h4>
+
+          {activeJudges.length > 0 && (
+            <div style={{ marginBottom: "0.75rem" }}>
+              <p style={{ fontSize: "0.72rem", letterSpacing: "0.07em", textTransform: "uppercase", color: "#718096", marginBottom: "0.4rem" }}>
+                Currently serving
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                {activeJudges.map((j) => <JudgeRow key={j.id} judge={j} />)}
+              </div>
+            </div>
+          )}
+
+          {retiredJudges.length > 0 && (
+            <div>
+              <p style={{ fontSize: "0.72rem", letterSpacing: "0.07em", textTransform: "uppercase", color: "#718096", marginBottom: "0.4rem" }}>
+                Notable predecessors
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                {visibleRetired.map((j) => <JudgeRow key={j.id} judge={j} />)}
+              </div>
+              {retiredJudges.length > INITIAL_RETIRED_COUNT && (
+                <button
+                  onClick={() => setShowAllJudges((v) => !v)}
+                  style={{
+                    marginTop: "0.6rem",
+                    background: "none",
+                    border: "none",
+                    color: "#818cf8",
+                    fontSize: "0.82rem",
+                    cursor: "pointer",
+                    padding: "0.2rem 0",
+                  }}
+                >
+                  {showAllJudges
+                    ? "Show fewer"
+                    : `Show ${retiredJudges.length - INITIAL_RETIRED_COUNT} more →`}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      <h4 style={{ marginBottom: "0.5rem", fontSize: "0.95rem" }}>
         Score breakdown
       </h4>
       <div className="quiz-breakdown">
-        {breakdown.map(({ judge, score }) => (
-          <div key={judge.id} className="quiz-breakdown-row">
+        {breakdown.map(({ philosophy, score }) => (
+          <div key={philosophy.id} className="quiz-breakdown-row">
             <div className="quiz-breakdown-name">
-              {judge.realJudge?.name
-                ? <><strong>{judge.realJudge.name}</strong> <span style={{ color: "#718096", fontSize: "0.82rem" }}>({judge.fullName})</span></>
-                : judge.fullName}
+              <strong>{philosophy.label}</strong>
+              <span style={{ color: "#718096", fontSize: "0.8rem", marginLeft: "0.4rem" }}>
+                ({judgeList.filter((j) => j.philosophyId === philosophy.id).length} justices)
+              </span>
             </div>
             <div className="quiz-breakdown-score">{score}</div>
           </div>

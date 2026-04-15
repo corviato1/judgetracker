@@ -5,7 +5,7 @@ import QuizQuestionCard from "../components/QuizQuestionCard";
 import QuizResult from "../components/QuizResult";
 
 import quizQuestions from "../data/quizQuestions";
-import sampleJudges from "../data/sampleJudges";
+import judgeList, { philosophies } from "../data/JudgeGameJudgeList";
 
 const WhichJudgeGamePage = () => {
   const [started, setStarted] = useState(false);
@@ -58,7 +58,7 @@ const WhichJudgeGamePage = () => {
   };
 
   const computeResult = (allAnswers) => {
-    const scoreByJudgeId = {};
+    const scoreByPhilosophyId = {};
 
     allAnswers.forEach((entry) => {
       const question = quizQuestions.find((q) => q.id === entry.questionId);
@@ -67,27 +67,33 @@ const WhichJudgeGamePage = () => {
       const answer = question.answers.find((a) => a.id === entry.answerId);
       if (!answer || !answer.weights) return;
 
-      Object.entries(answer.weights).forEach(([judgeIdString, weight]) => {
-        const judgeId = Number(judgeIdString);
-        if (!scoreByJudgeId[judgeId]) scoreByJudgeId[judgeId] = 0;
-        scoreByJudgeId[judgeId] += weight;
+      Object.entries(answer.weights).forEach(([philIdString, weight]) => {
+        const philId = Number(philIdString);
+        if (!scoreByPhilosophyId[philId]) scoreByPhilosophyId[philId] = 0;
+        scoreByPhilosophyId[philId] += weight;
       });
     });
 
-    const scoredJudges = sampleJudges
-      .map((judge) => ({
-        judge,
-        score: scoreByJudgeId[judge.id] || 0,
+    const scoredPhilosophies = philosophies
+      .map((phil) => ({
+        philosophy: phil,
+        score: scoreByPhilosophyId[phil.id] || 0,
       }))
       .sort((a, b) => b.score - a.score);
 
-    const top = scoredJudges[0] || null;
+    const top = scoredPhilosophies[0] || null;
     const isTie =
-      scoredJudges.length > 1 && top && scoredJudges[1].score === top.score;
+      scoredPhilosophies.length > 1 && top && scoredPhilosophies[1].score === top.score;
+
+    const matchedJudges = top
+      ? judgeList.filter((j) => j.philosophyId === top.philosophy.id)
+      : [];
 
     return {
-      topMatch: top,
-      breakdown: scoredJudges,
+      winningPhilosophy: top ? top.philosophy : null,
+      winningScore: top ? top.score : 0,
+      matchedJudges,
+      breakdown: scoredPhilosophies,
       isTie,
     };
   };
