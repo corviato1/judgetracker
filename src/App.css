@@ -1548,6 +1548,57 @@ footer {
   opacity: 0.7;
 }
 
+.profile-bench-since {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent, #7c83fd);
+  margin: 0.25rem 0 0;
+  letter-spacing: 0.01em;
+}
+
+.profile-opinions-by-year {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+}
+
+.profile-year-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-year-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border-s);
+}
+
+.profile-year-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-year-count {
+  font-size: 0.78rem;
+  opacity: 0.55;
+}
+
+.profile-history-derived-note {
+  font-size: 0.84rem;
+  font-style: italic;
+  opacity: 0.75;
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.75rem;
+  border-left: 3px solid var(--color-accent, #7c83fd);
+  border-radius: 0 0.4rem 0.4rem 0;
+  background: var(--bg-secondary, rgba(255,255,255,0.03));
+}
+
 .opinion-card {
   border: 1px solid var(--border-s);
   border-radius: 0.6rem;

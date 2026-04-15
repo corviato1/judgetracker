@@ -4,6 +4,56 @@ import { getJudgeById, getLocalJudge, getOpinionsForJudge, getJudgeStats, getJud
 import JudgeComparison from "../components/JudgeComparison";
 import OpinionCard from "../components/OpinionCard";
 
+const REVERSAL_RE = /\b(revers|overrul|vacat|overturned|remand)\b/i;
+const VIOLENT_RE = /\b(assault|murder|homicide|robbery|rape|kidnap|weapon|firearm|gun|battery|manslaughter|carjack|arson|trafficking|sex.offend|armed)\b/i;
+const RELEASE_RE = /\b(bail|bond|releas|detention|pretrial|custody)\b/i;
+
+function deriveLocalHistory(opinions) {
+  const reversals = [];
+  const violentFelonyReleases = [];
+  const citations = [];
+  for (const op of opinions) {
+    const combined = `${op.caseName || ""} ${op.summary || ""}`;
+    const clUrl = op.url || (op.id ? `https://www.courtlistener.com/opinion/${op.id}/` : null);
+    const entry = {
+      id: String(op.id),
+      caseName: op.caseName || "Untitled case",
+      dateFiled: op.dateFiled || "",
+      court: op.courtName || "",
+      citation: op.citation || "",
+      snippet: (op.summary || "").slice(0, 280),
+      url: clUrl,
+    };
+    if (REVERSAL_RE.test(combined)) reversals.push(entry);
+    if (VIOLENT_RE.test(combined) && RELEASE_RE.test(combined)) violentFelonyReleases.push(entry);
+    citations.push(entry);
+  }
+  return {
+    reversals: reversals.slice(0, 20),
+    violentFelonyReleases: violentFelonyReleases.slice(0, 20),
+    citations: citations.slice(0, 30),
+    derived: true,
+  };
+}
+
+function groupOpinionsByYear(opinions) {
+  const groups = {};
+  for (const op of opinions) {
+    const year = op.dateFiled ? String(op.dateFiled).slice(0, 4) : "Unknown";
+    if (!groups[year]) groups[year] = [];
+    groups[year].push(op);
+  }
+  const sortedYears = Object.keys(groups).sort((a, b) => {
+    const numA = parseInt(a, 10);
+    const numB = parseInt(b, 10);
+    if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
+    if (isNaN(numA)) return 1;
+    if (isNaN(numB)) return -1;
+    return numB - numA;
+  });
+  return sortedYears.map((year) => ({ year, opinions: groups[year] }));
+}
+
 function AccordionSection({ title, defaultOpen = false, children, badge }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -207,14 +257,6 @@ const JudgeProfilePage = () => {
     setExpandedOpinionId(id);
   }, []);
 
-  const filteredOpinions = opinions.filter((op) =>
-    !filterText || (op.caseName || "").toLowerCase().includes(filterText.toLowerCase())
-  );
-  const totalPages = Math.ceil(filteredOpinions.length / OPINIONS_PER_PAGE);
-  const pagedOpinions = filteredOpinions.slice(
-    opinionsPage * OPINIONS_PER_PAGE,
-    (opinionsPage + 1) * OPINIONS_PER_PAGE
-  );
 
   if (loading) {
     return (
@@ -250,6 +292,17 @@ const JudgeProfilePage = () => {
     ? `${judge.serviceStartYear} – present (${new Date().getFullYear() - judge.serviceStartYear} years)`
     : null;
 
+  const localHistory =
+    historyError && !opinionsLoading && opinions.length > 0
+      ? deriveLocalHistory(opinions)
+      : null;
+
+  const opinionYearGroups = groupOpinionsByYear(
+    opinions.filter((op) =>
+      !filterText || (op.caseName || "").toLowerCase().includes(filterText.toLowerCase())
+    )
+  );
+
   return (
     <div className="profile-page">
       <button className="profile-back-btn" onClick={() => navigate(-1)}>← Back to search</button>
@@ -267,6 +320,9 @@ const JudgeProfilePage = () => {
           <p className="profile-court">
             {[judge.courtName, judge.jurisdiction].filter(Boolean).join(" · ")}
           </p>
+          {judge.serviceStartYear && (
+            <p className="profile-bench-since">On the bench since {judge.serviceStartYear}</p>
+          )}
         </div>
       </div>
 
@@ -302,49 +358,35 @@ const JudgeProfilePage = () => {
                 onChange={(e) => {
                   setFilterText(e.target.value);
                   setExpandedOpinionId(null);
-                  setOpinionsPage(0);
                 }}
               />
-              {filteredOpinions.length === 0 ? (
+              {opinionYearGroups.length === 0 ? (
                 <p className="profile-section-empty">
                   {filterText
                     ? `No opinions match "${filterText}"`
                     : "No opinions found for this judge yet."}
                 </p>
               ) : (
-                <>
-                  <div className="opinion-list">
-                    {pagedOpinions.map((op) => (
-                      <OpinionCard
-                        key={op.id}
-                        opinion={op}
-                        expandedId={expandedOpinionId}
-                        onExpand={handleExpand}
-                      />
-                    ))}
-                  </div>
-                  {totalPages > 1 && (
-                    <div className="profile-pagination">
-                      <button
-                        className="profile-page-btn"
-                        onClick={() => { setOpinionsPage((p) => p - 1); setExpandedOpinionId(null); }}
-                        disabled={opinionsPage === 0}
-                      >
-                        ← Prev
-                      </button>
-                      <span className="profile-page-info">
-                        Page {opinionsPage + 1} of {totalPages}
-                      </span>
-                      <button
-                        className="profile-page-btn"
-                        onClick={() => { setOpinionsPage((p) => p + 1); setExpandedOpinionId(null); }}
-                        disabled={opinionsPage >= totalPages - 1}
-                      >
-                        Next →
-                      </button>
+                <div className="profile-opinions-by-year">
+                  {opinionYearGroups.map(({ year, opinions: yearOps }) => (
+                    <div key={year} className="profile-year-group">
+                      <div className="profile-year-heading">
+                        <span className="profile-year-label">{year}</span>
+                        <span className="profile-year-count">{yearOps.length} opinion{yearOps.length !== 1 ? "s" : ""}</span>
+                      </div>
+                      <div className="opinion-list">
+                        {yearOps.map((op) => (
+                          <OpinionCard
+                            key={op.id}
+                            opinion={op}
+                            expandedId={expandedOpinionId}
+                            onExpand={handleExpand}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  )}
-                </>
+                  ))}
+                </div>
               )}
             </>
           )}
@@ -359,13 +401,9 @@ const JudgeProfilePage = () => {
         </AccordionSection>
 
         <AccordionSection title="Ruling history">
-          {historyLoading ? (
+          {historyLoading || (historyError && opinionsLoading) ? (
             <p className="profile-section-empty">Loading ruling history...</p>
-          ) : historyError ? (
-            <p className="profile-section-empty">{historyError}</p>
-          ) : !history ? (
-            <p className="profile-section-empty">No ruling history available.</p>
-          ) : (
+          ) : history ? (
             <div className="history-sections">
               <HistorySection
                 title="Reversals"
@@ -386,7 +424,38 @@ const JudgeProfilePage = () => {
                 showSnippet={true}
               />
             </div>
-          )}
+          ) : localHistory ? (
+            <div className="history-sections">
+              <p className="profile-history-derived-note">
+                Derived from {opinions.length} locally-cached opinion{opinions.length !== 1 ? "s" : ""}.
+                Full analysis available on <strong>judgetracker.info</strong>.
+              </p>
+              <HistorySection
+                title="Reversals"
+                description="Opinions where reversal-related keywords appear in the case name or summary."
+                entries={localHistory.reversals}
+                showSnippet={true}
+              />
+              <HistorySection
+                title="Violent felony releases"
+                description="Opinions involving violent-charge keywords alongside bail or release language."
+                entries={localHistory.violentFelonyReleases}
+                showSnippet={true}
+              />
+              <HistorySection
+                title="Citations"
+                description="All locally-cached opinions for this judge, with CourtListener links."
+                entries={localHistory.citations}
+                showSnippet={true}
+              />
+            </div>
+          ) : historyError ? (
+            <p className="profile-section-empty">
+              History data not yet indexed for this judge. Check back after their opinions are loaded.
+            </p>
+          ) : !history ? (
+            <p className="profile-section-empty">No ruling history available.</p>
+          ) : null}
         </AccordionSection>
       </div>
     </div>
