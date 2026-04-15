@@ -4,30 +4,35 @@ export const philosophies = [
     label: "The Civil Libertarian",
     description:
       "Prioritizes individual rights and broad constitutional protections. Tends to rule against government overreach and in favor of civil liberties, free speech, and equal protection claims. Often reads constitutional guarantees expansively to protect minorities and the vulnerable from majoritarian pressure.",
+    realJudge: { name: "Sonia Sotomayor", clId: 2766 },
   },
   {
     id: 2,
     label: "The Textualist",
     description:
       "Interprets statutes and the Constitution based on their plain text and original meaning at the time of enactment. Defers to the legislature on policy questions and resists expansion of rights beyond what the text clearly supports. Skeptical of legislative history as a source of statutory meaning.",
+    realJudge: { name: "Neil M. Gorsuch", clId: 121664 },
   },
   {
     id: 3,
     label: "The Pragmatist",
     description:
       "Applies a case-by-case balancing test, weighing practical outcomes and real-world fairness over rigid doctrinal categories. Willing to borrow from different interpretive methods when the situation calls for it, rather than committing to a single theory.",
+    realJudge: { name: "Stephen G. Breyer", clId: 1087 },
   },
   {
     id: 4,
     label: "The Originalist",
     description:
       "Interprets the Constitution according to its original public meaning at the time of ratification. Deeply skeptical of judge-made rights expansions not grounded in history or constitutional text. Believes that structural limits on government power are as important as individual rights, and that democratic change should happen through legislatures, not courts.",
+    realJudge: { name: "Clarence Thomas", clId: 1080 },
   },
   {
     id: 5,
     label: "The Institutionalist",
     description:
       "Prioritizes the long-term legitimacy and stability of the judicial institution above any particular legal theory. Prefers narrow, consensus-building rulings over sweeping decisions. Treats established precedent as a strong reason to rule cautiously, believing courts should not move faster than democratic consensus.",
+    realJudge: { name: "John G. Roberts Jr.", clId: 56796 },
   },
 ];
 

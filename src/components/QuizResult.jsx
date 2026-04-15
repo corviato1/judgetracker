@@ -390,6 +390,23 @@ const QuizResult = ({ result, onRestart }) => {
         </p>
       )}
 
+      {winningPhilosophy.realJudge?.clId && (
+        <div style={{ marginTop: "0.75rem" }}>
+          <Link
+            to={`/judge/${winningPhilosophy.realJudge.clId}`}
+            style={{
+              display: "inline-block",
+              fontSize: "0.88rem",
+              color: "#818cf8",
+              textDecoration: "none",
+              padding: "0.4rem 0",
+            }}
+          >
+            View {winningPhilosophy.realJudge.name}'s full profile →
+          </Link>
+        </div>
+      )}
+
       <button
         className="hero-button-secondary"
         style={{ marginTop: "1rem" }}
