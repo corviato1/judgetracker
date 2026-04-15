@@ -27,8 +27,6 @@ const QuizResult = ({ result, onRestart }) => {
       .slice(0, 3)
       .map((b) => `Your answers aligned with ${b.philosophy.label} (score: ${b.score})`);
 
-    const topJudge = matchedJudges[0] || {};
-
     return {
       judgeId: String(winningPhilosophy.id),
       judgeFullName: winningPhilosophy.label,
