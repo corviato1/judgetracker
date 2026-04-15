@@ -260,26 +260,18 @@ const JudgesPage = () => {
       )}
 
       {activeTab === "scotus" && (
-        <div style={{ marginTop: "1.5rem" }}>
-          {scotusJudges === null ? (
-            <p className="judge-index-loading">Loading Supreme Court justices…</p>
-          ) : scotusJudges.length === 0 ? (
-            <p className="judge-index-empty">
-              No Supreme Court justices found in the local index yet. Use the Search tab to find
-              and cache them first.
-            </p>
-          ) : (
-            <>
-              <p className="section-subheading" style={{ marginBottom: "1rem" }}>
-                Justices of the United States Supreme Court, ordered by seniority.
-              </p>
-              <div className="judge-index-grid">
-                {scotusJudges.map((judge) => (
-                  <JudgeCard key={judge.id} judge={judge} />
-                ))}
-              </div>
-            </>
-          )}
+        <div style={{ marginTop: "2rem", maxWidth: "480px" }}>
+          <p className="section-subheading" style={{ marginBottom: "1.25rem" }}>
+            Browse all Supreme Court justices side-by-side with their full profiles and written
+            opinions on the dedicated SCOTUS page.
+          </p>
+          <Link
+            to="/judges/scotus"
+            className="duel-start-button"
+            style={{ display: "inline-block", textDecoration: "none" }}
+          >
+            Go to Supreme Court →
+          </Link>
         </div>
       )}
     </div>
