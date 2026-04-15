@@ -81,24 +81,27 @@ function YearGroup({ year, opinions }) {
 function JusticeProfile({ justice, profileRef }) {
   const [opinions, setOpinions] = useState(null);
   const [opinionsError, setOpinionsError] = useState(null);
-  const fetchedForRef = useRef(null);
 
   useEffect(() => {
     if (!justice) return;
-    if (fetchedForRef.current === justice.id) return;
-    fetchedForRef.current = justice.id;
+    let cancelled = false;
     setOpinions(null);
     setOpinionsError(null);
     getOpinionsForJudge(String(justice.id))
-      .then((ops) => setOpinions(Array.isArray(ops) ? ops : []))
+      .then((ops) => {
+        if (!cancelled) setOpinions(Array.isArray(ops) ? ops : []);
+      })
       .catch((err) => {
-        setOpinionsError(
-          err.status === 503
-            ? "Opinion data is only available on the live site."
-            : err.message || "Could not load opinions."
-        );
-        setOpinions([]);
+        if (!cancelled) {
+          setOpinionsError(
+            err.status === 503
+              ? "Opinion data is only available on the live site."
+              : err.message || "Could not load opinions."
+          );
+          setOpinions([]);
+        }
       });
+    return () => { cancelled = true; };
   }, [justice]);
 
   if (!justice) {
@@ -111,6 +114,10 @@ function JusticeProfile({ justice, profileRef }) {
 
   const yearsOnBench = justice.serviceStartYear
     ? new Date().getFullYear() - justice.serviceStartYear
+    : null;
+
+  const serviceYears = justice.serviceStartYear && yearsOnBench !== null
+    ? `${justice.serviceStartYear} – present (${yearsOnBench} years)`
     : null;
 
   const genderLabel =
@@ -154,11 +161,9 @@ function JusticeProfile({ justice, profileRef }) {
       )}
 
       <div className="profile-bio-grid" style={{ marginTop: "1rem" }}>
+        <BioRow label="Service Years" value={serviceYears} />
         <BioRow label="Appointing President" value={justice.appointer} />
         <BioRow label="Gender" value={genderLabel} />
-        {!justice.serviceStartYear && (
-          <BioRow label="Service Started" value={null} />
-        )}
       </div>
 
       <div className="scotus-profile-actions" style={{ marginTop: "1.25rem" }}>
