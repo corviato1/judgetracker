@@ -67,5 +67,10 @@ export async function fetchDuelPair(filters = {}) {
   return data;
 }
 
-const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchDuelPair };
+export async function fetchCorpusStats() {
+  const data = await apiFetch("/api/judges/corpus-stats");
+  return data;
+}
+
+const courtListenerApi = { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchDuelPair, fetchCorpusStats };
 export default courtListenerApi;

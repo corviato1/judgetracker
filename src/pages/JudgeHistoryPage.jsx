@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
+import AdSpots from "../components/AdSpots";
 import { getJudgeHistory } from "../API/api";
 
 function HistoryEntry({ entry, showSnippet }) {
@@ -104,6 +105,7 @@ const JudgeHistoryPage = () => {
   return (
     <div>
       <h2 className="section-heading">Judge History</h2>
+      <AdSpots pageKey="profile" />
       <p className="section-subheading">
         Search for a judge to view their ruling history, including reversals by
         higher courts, bail and release decisions in violent felony cases, and

@@ -1,4 +1,4 @@
-import { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchAllJudges, fetchJudgeHistory, fetchLocalJudge } from "./courtListenerApi";
+import { searchJudges, fetchJudgeById, fetchJudgeOpinions, fetchJudgeStats, fetchAllJudges, fetchJudgeHistory, fetchLocalJudge, fetchCorpusStats } from "./courtListenerApi";
 
 export async function searchJudgesByName(query) {
   return await searchJudges(query);
@@ -31,4 +31,8 @@ export async function getJudgeStats(judgeId) {
 
 export async function getJudgeHistory(judgeId) {
   return await fetchJudgeHistory(String(judgeId));
+}
+
+export async function getCorpusStats() {
+  return await fetchCorpusStats();
 }

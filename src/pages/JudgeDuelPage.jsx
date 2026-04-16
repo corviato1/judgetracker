@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDuelPair } from "../API/courtListenerApi";
+import AdSpots from "../components/AdSpots";
 
 const TOTAL_ROUNDS = 5;
 
@@ -410,6 +411,7 @@ const JudgeDuelPage = () => {
 
   return (
     <div className="duel-page">
+      <AdSpots pageKey="duel" />
       {phase === "filter" && <FilterScreen onStart={handleStart} />}
 
       {phase === "game" && (

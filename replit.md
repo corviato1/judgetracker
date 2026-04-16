@@ -102,6 +102,23 @@ The agent has no legitimate reason to ever want them. Replit is local developmen
 
 ---
 
+## Navigation Structure
+
+The site is organized into three top-level sections:
+
+| Section | Pages |
+|---------|-------|
+| About | Home (`/`), Advertise (`/advertise`) |
+| Raw Data | Judge Search (`/judges`), SCOTUS (`/judges/scotus`), Judge Profile (`/judge-history`) |
+| Games | Which Judge Are You? (`/which-judge`), Judge Duel (`/judge-duel`) |
+
+## Ad System
+
+- `src/components/AdSpots.jsx` — Banner ad slot component accepting `pageKey` and optional `sponsorUrl`/`sponsorImageUrl` props
+- `src/media/ads/` — 7 unique in-house fallback ad images (one per page context)
+- Page keys: `home`, `judges`, `scotus`, `profile`, `which-judge`, `duel`, `advertise`
+- Future sponsor ads: pass `sponsorUrl` and `sponsorImageUrl` props to AdSpots
+
 ## Architecture
 
 ### Frontend (React 19 / Vite)
@@ -114,6 +131,7 @@ The agent has no legitimate reason to ever want them. Replit is local developmen
 - Proxies CourtListener API calls and caches results in PostgreSQL
 - Requires `COURTLISTENER_API_TOKEN` env secret for live data (graceful 503 without it)
 - Admin dashboard protected by JWT-based session cookie
+- `/api/judges/corpus-stats` — Returns real-time corpus counts (judge count from DB, opinion count from CourtListener if token is set)
 
 ### Database (Replit PostgreSQL)
 - Schema: `judges`, `opinions`, `api_cache`, `judge_stats`, `group_stats`, `duel_plays`, `events`, `game_sessions`, `game_rounds`, `quiz_email_submissions`, `ad_placements`, `ad_impressions`

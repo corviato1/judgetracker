@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AdSpots from "../components/AdSpots";
 
 const AdvertisePage = () => {
   const [form, setForm] = useState({
@@ -62,6 +63,8 @@ const AdvertisePage = () => {
             We review every placement for editorial independence
           </li>
         </ul>
+
+        <AdSpots pageKey="advertise" />
 
         <p className="advertise-footnote">
           Interested in a data or analytics partnership instead?{" "}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getJudgeById, getLocalJudge, getOpinionsForJudge, getJudgeStats, getJudgeHistory } from "../API/api";
 import JudgeComparison from "../components/JudgeComparison";
+import AdSpots from "../components/AdSpots";
 
 const REVERSAL_RE = /\b(revers|overrul|vacat|overturned|remand)\b/i;
 const VIOLENT_RE = /\b(assault|murder|homicide|robbery|rape|kidnap|weapon|firearm|gun|battery|manslaughter|carjack|arson|trafficking|sex.offend|armed)\b/i;
@@ -265,6 +266,7 @@ const JudgeProfilePage = () => {
     return (
       <div>
         <button className="profile-back-btn" onClick={() => navigate(-1)}>← Back to search</button>
+        <AdSpots pageKey="profile" />
         <h2 className="section-heading">Judge Profile</h2>
         <p className="section-subheading">Loading judge data...</p>
       </div>
@@ -275,6 +277,7 @@ const JudgeProfilePage = () => {
     return (
       <div>
         <button className="profile-back-btn" onClick={() => navigate(-1)}>← Back to search</button>
+        <AdSpots pageKey="profile" />
         <h2 className="section-heading">Judge Profile</h2>
         <p className="section-subheading">{error}</p>
       </div>
@@ -285,6 +288,7 @@ const JudgeProfilePage = () => {
     return (
       <div>
         <button className="profile-back-btn" onClick={() => navigate(-1)}>← Back to search</button>
+        <AdSpots pageKey="profile" />
         <h2 className="section-heading">Judge Profile</h2>
         <p className="section-subheading">No judge found for this identifier.</p>
       </div>
@@ -303,6 +307,8 @@ const JudgeProfilePage = () => {
   return (
     <div className="profile-page">
       <button className="profile-back-btn" onClick={() => navigate(-1)}>← Back to search</button>
+
+      <AdSpots pageKey="profile" />
 
       {usedFallback && (
         <div className="profile-fallback-banner">

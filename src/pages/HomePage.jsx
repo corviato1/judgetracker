@@ -9,7 +9,7 @@ const HomePage = () => {
     <div>
       <HeroSection />
       <FeatureHighlights />
-      <AdSpots />
+      <AdSpots pageKey="home" />
       <DataCoverageSection />
     </div>
   );

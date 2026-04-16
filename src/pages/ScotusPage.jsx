@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { listAllJudges, getOpinionsForJudge } from "../API/api";
+import AdSpots from "../components/AdSpots";
 
 function isScotus(judge) {
   return (judge.courtName || "").toLowerCase().includes("supreme court of the united states");
@@ -247,6 +248,7 @@ const ScotusPage = () => {
 
   return (
     <div className="scotus-page">
+      <AdSpots pageKey="scotus" />
       <div className="scotus-page-nav">
         <Link to="/judges" className="profile-back-btn">
           ← Back to Judge Search

@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import JudgeSearchForm from "../components/JudgeSearchForm";
 import JudgeIndex from "../components/JudgeIndex";
 import JudgeList from "../components/JudgeList";
-import { listAllJudges } from "../API/api";
+import AdSpots from "../components/AdSpots";
+import { listAllJudges, getCorpusStats } from "../API/api";
 
 const TABS = [
   { id: "random", label: "Random Judge" },
@@ -174,6 +175,69 @@ const RandomTab = ({ allJudges }) => {
   );
 };
 
+function CorpusStatsPanel() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    getCorpusStats()
+      .then((data) => setStats(data))
+      .catch(() => setStats(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="corpus-stats-panel">
+        <div className="corpus-stat-box">
+          <span className="corpus-stat-value">—</span>
+          <span className="corpus-stat-label">Judges Indexed</span>
+        </div>
+        <div className="corpus-stat-box">
+          <span className="corpus-stat-value">—</span>
+          <span className="corpus-stat-label">Opinions in Corpus</span>
+        </div>
+        <div className="corpus-stat-box">
+          <span className="corpus-stat-value">—</span>
+          <span className="corpus-stat-label">Last Updated</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  const formattedOpinions = stats.totalOpinions != null
+    ? stats.totalOpinions.toLocaleString()
+    : "N/A";
+  const formattedJudges = stats.totalJudges != null
+    ? stats.totalJudges.toLocaleString()
+    : "N/A";
+  const lastUpdatedDate = stats.lastUpdated
+    ? new Date(stats.lastUpdated).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
+    : "N/A";
+
+  return (
+    <div className="corpus-stats-panel">
+      <div className="corpus-stat-box">
+        <span className="corpus-stat-value">{formattedJudges}</span>
+        <span className="corpus-stat-label">Judges Indexed</span>
+      </div>
+      <div className="corpus-stat-box">
+        <span className="corpus-stat-value">{formattedOpinions}</span>
+        <span className="corpus-stat-label">Opinions in Corpus</span>
+      </div>
+      <div className="corpus-stat-box">
+        <span className="corpus-stat-value">{lastUpdatedDate}</span>
+        <span className="corpus-stat-label">Last Updated</span>
+      </div>
+    </div>
+  );
+}
+
 const JudgesPage = () => {
   const [activeTab, setActiveTab] = useState("random");
   const [results, setResults] = useState(null);
@@ -216,6 +280,9 @@ const JudgesPage = () => {
       <p className="section-subheading">
         Discover a random judge, search by name, or browse the Supreme Court.
       </p>
+
+      <CorpusStatsPanel />
+      <AdSpots pageKey="judges" />
 
       <div className="search-tab-bar">
         {TABS.map((tab) => (

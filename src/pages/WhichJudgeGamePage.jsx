@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import QuizIntro from "../components/QuizIntro";
 import QuizQuestionCard from "../components/QuizQuestionCard";
 import QuizResult from "../components/QuizResult";
+import AdSpots from "../components/AdSpots";
 
 import quizQuestions from "../data/quizQuestions";
 import judgeList, { philosophies } from "../data/JudgeGameJudgeList";
@@ -107,6 +108,8 @@ const WhichJudgeGamePage = () => {
         judicial opinions and rulings history — the result maps your reasoning
         style to one of five distinct approaches to the law.
       </p>
+
+      <AdSpots pageKey="which-judge" />
 
       {!started && !result && <QuizIntro onStart={handleStart} />}
 

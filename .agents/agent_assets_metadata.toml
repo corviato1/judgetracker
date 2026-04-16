@@ -6,3 +6,45 @@ id = "MDcymugwTiBOX5nWto1jl"
 uri = "file://src/media/ads/template-ad-banner.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "Q4sGRTlrRDKpP5PRZ0CAJ"
+uri = "file://src/media/ads/ad-home.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "FLgWTHJoU5nn1gk5ztGkX"
+uri = "file://src/media/ads/ad-judges.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "nKcPtebSZhmxz-xqRScIe"
+uri = "file://src/media/ads/ad-scotus.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Qs0_-YN3iBufd3oACAjZI"
+uri = "file://src/media/ads/ad-profile.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "xtPISv24EzaZ6hCAd-wsh"
+uri = "file://src/media/ads/ad-which-judge.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Bm20MS1DyRhXHY7hjMsSB"
+uri = "file://src/media/ads/ad-duel.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "k4zi8YYCH2rlFuE1g5ygF"
+uri = "file://src/media/ads/ad-advertise.png"
+type = "image"
+title = "generated_image"

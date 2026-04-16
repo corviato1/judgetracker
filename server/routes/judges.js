@@ -42,6 +42,53 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/corpus-stats", async (req, res) => {
+  const cacheKey = "corpus:stats";
+  const cached = await getCached(cacheKey);
+  if (cached) return res.json(cached);
+
+  try {
+    const countResult = await pool.query("SELECT COUNT(*) AS total FROM judges");
+    const totalJudges = parseInt(countResult.rows[0]?.total || 0, 10);
+
+    let totalOpinions = null;
+    let lastUpdated = null;
+
+    const token = process.env.COURTLISTENER_API_TOKEN;
+    if (token) {
+      try {
+        const opRes = await fetch(`${CL_BASE}/opinions/?format=json&page_size=1`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        if (opRes.ok) {
+          const opData = await opRes.json();
+          totalOpinions = opData.count || null;
+        }
+      } catch {
+        totalOpinions = null;
+      }
+    }
+
+    const updatedRes = await pool.query(
+      "SELECT MAX(created_at) AS last_updated FROM judges"
+    );
+    lastUpdated = updatedRes.rows[0]?.last_updated || null;
+
+    const payload = {
+      totalJudges,
+      totalOpinions,
+      lastUpdated: lastUpdated ? new Date(lastUpdated).toISOString() : null,
+      fetchedAt: new Date().toISOString(),
+    };
+
+    await setCache(cacheKey, payload, 1);
+    return res.json(payload);
+  } catch (err) {
+    console.error("[CORPUS STATS] Error:", err.message);
+    return res.status(500).json({ error: "Could not fetch corpus stats." });
+  }
+});
+
 router.get("/search", searchLimiter, validateSearchQuery, async (req, res) => {
   const q = req.cleanQuery;
   const cacheKey = `search:${q.toLowerCase()}`;
