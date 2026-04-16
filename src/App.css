@@ -12,8 +12,8 @@
   --bg-hover:       rgba(255, 255, 255, 0.08);
 
   /* Borders */
-  --border-s:     rgba(255, 255, 255, 0.08);
-  --border-m:     rgba(255, 255, 255, 0.16);
+  --border-s:     rgba(255, 255, 255, 0.14);
+  --border-m:     rgba(255, 255, 255, 0.28);
   --border-l:     rgba(255, 255, 255, 0.25);
   --border-input: rgba(255, 255, 255, 0.35);
 
@@ -27,6 +27,13 @@
   --text-answer:    #dde1ff;
   --text-dim:       #b2b8e8;
   --text-faint:     #8187b3;
+
+  /* Radius tokens */
+  --radius-card: 0.2rem;
+  --radius-btn:  0.25rem;
+
+  /* Editorial gold accent */
+  --accent-gold: #d4920a;
 
   /* Accent — identical in both themes */
   --accent:            #4f6df5;
@@ -101,8 +108,8 @@
   --bg-hover:       rgba(79, 109, 245, 0.07);
 
   /* Borders */
-  --border-s:     rgba(0, 0, 0, 0.08);
-  --border-m:     rgba(0, 0, 0, 0.12);
+  --border-s:     rgba(0, 0, 0, 0.14);
+  --border-m:     rgba(0, 0, 0, 0.24);
   --border-l:     rgba(0, 0, 0, 0.18);
   --border-input: rgba(0, 0, 0, 0.25);
 
@@ -212,7 +219,7 @@ footer {
   color: var(--nav-link-color);
   font-size: 0.95rem;
   padding: 0.35rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -235,7 +242,7 @@ footer {
   display: grid;
   gap: 1.5rem;
   padding: 1.5rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   background: var(--hero-gradient);
   box-shadow: 0 18px 40px var(--shadow-hero);
   transition: background 0.3s ease;
@@ -261,7 +268,7 @@ footer {
 
 .hero-pill {
   padding: 0.15rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--on-blue-border);
   font-size: 0.75rem;
   color: var(--on-blue-text);
@@ -277,7 +284,7 @@ footer {
 .hero-button-primary,
 .hero-button-secondary {
   padding: 0.6rem 1.1rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
@@ -325,7 +332,7 @@ footer {
 
 .card {
   background-color: var(--bg-card);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   padding: 1rem;
   border: 1px solid var(--border-s);
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -383,7 +390,7 @@ footer {
   flex: 1;
   min-width: 220px;
   padding: 0.55rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--border-input);
   background-color: var(--bg-page);
   color: var(--text-primary);
@@ -396,7 +403,7 @@ footer {
 
 .search-button {
   padding: 0.55rem 1.2rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: none;
   background-color: var(--accent);
   color: var(--header-text);
@@ -416,7 +423,7 @@ footer {
 
 .judge-card {
   background-color: var(--bg-card);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-s);
   display: flex;
@@ -441,7 +448,7 @@ footer {
 
 .judge-card-button {
   padding: 0.4rem 0.9rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: none;
   background-color: var(--accent-dark);
   color: var(--header-text);
@@ -472,7 +479,7 @@ footer {
   font-weight: 500;
   cursor: pointer;
   margin-bottom: -2px;
-  border-radius: 0.35rem 0.35rem 0 0;
+  border-radius: 0.2rem 0.2rem 0 0;
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -507,7 +514,7 @@ footer {
   align-items: center;
   gap: 0.4rem;
   padding: 0.55rem 1.4rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: none;
   background-color: var(--accent);
   color: #fff;
@@ -579,7 +586,7 @@ footer {
 .quiz-answer-button {
   text-align: left;
   padding: 0.75rem 0.85rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   border: 1px solid var(--border-m);
   background-color: var(--bg-surface);
   color: var(--text-primary);
@@ -607,7 +614,7 @@ footer {
 
 .quiz-breakdown {
   margin-top: 0.5rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   border: 1px solid var(--border-m);
   background-color: var(--bg-surface);
   padding: 0.5rem 0.75rem;
@@ -647,7 +654,7 @@ footer {
 
 .ad-card {
   background-color: var(--bg-card);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   padding: 1rem;
   border: 1px dashed var(--border-l);
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -661,7 +668,7 @@ footer {
 
 .ad-placeholder {
   margin-top: 0.75rem;
-  border-radius: 0.65rem;
+  border-radius: var(--radius-card);
   border: 1px solid var(--border-l);
   padding: 0.75rem;
   font-size: 0.8rem;
@@ -688,7 +695,7 @@ footer {
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 0.65rem;
+  border-radius: var(--radius-card);
   object-fit: cover;
   object-position: center;
 }
@@ -698,7 +705,7 @@ footer {
   width: 100%;
   height: 100%;
   cursor: pointer;
-  border-radius: 0.65rem;
+  border-radius: var(--radius-card);
   outline-offset: 2px;
 }
 
@@ -732,7 +739,7 @@ footer {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   background: var(--duel-banner-gradient);
   border: 1px solid var(--border-s);
   transition: background 0.3s ease, border-color 0.3s ease;
@@ -757,7 +764,7 @@ footer {
 
 .duel-filter-card {
   background-color: var(--bg-card);
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   padding: 1.5rem;
   border: 1px solid var(--border-s);
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -794,7 +801,7 @@ footer {
 
 .duel-filter-select {
   padding: 0.45rem 0.65rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--border-l);
   background-color: var(--bg-page);
   color: var(--text-primary);
@@ -809,7 +816,7 @@ footer {
 
 .duel-start-button {
   padding: 0.65rem 1.4rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: none;
   background-color: var(--accent);
   color: var(--header-text);
@@ -825,7 +832,7 @@ footer {
 
 .duel-secondary-button {
   padding: 0.6rem 1.2rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--border-l);
   background-color: transparent;
   color: var(--text-secondary);
@@ -866,7 +873,7 @@ footer {
 .duel-progress-bar {
   height: 6px;
   background-color: var(--progress-bg);
-  border-radius: 999px;
+  border-radius: 99px;
   overflow: hidden;
   max-width: 300px;
   transition: background-color 0.3s ease;
@@ -875,13 +882,13 @@ footer {
 .duel-progress-fill {
   height: 100%;
   background-color: var(--accent);
-  border-radius: 999px;
+  border-radius: 99px;
   transition: width 0.4s ease;
 }
 
 .duel-score-badge {
   padding: 0.35rem 0.85rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   background-color: var(--bg-elevated);
   font-size: 0.9rem;
   font-weight: 600;
@@ -892,7 +899,7 @@ footer {
 .duel-question-banner {
   padding: 1rem 1.25rem;
   background: var(--duel-question-gradient);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   border-left: 4px solid var(--accent);
   transition: background 0.3s ease;
 }
@@ -924,7 +931,7 @@ footer {
 
 .duel-card {
   background-color: var(--bg-card);
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   padding: 1.1rem;
   border: 2px solid var(--border-s);
   cursor: pointer;
@@ -971,7 +978,7 @@ footer {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.15rem 0.55rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 0.5rem;
@@ -1045,7 +1052,7 @@ footer {
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0.85rem 1.1rem;
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   font-weight: 500;
   font-size: 0.95rem;
 }
@@ -1070,7 +1077,7 @@ footer {
 .duel-next-button {
   margin-left: auto;
   padding: 0.45rem 1.1rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   border: none;
   background-color: var(--accent);
   color: var(--header-text);
@@ -1094,7 +1101,7 @@ footer {
   padding: 1rem 1.25rem;
   background-color: var(--status-wrong-bg);
   border: 1px solid var(--status-wrong-border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   color: var(--status-wrong-text);
   display: flex;
   align-items: center;
@@ -1114,7 +1121,7 @@ footer {
   text-align: center;
   padding: 2rem 1.5rem;
   background: var(--duel-results-gradient);
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   border: 1px solid var(--border-s);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
@@ -1147,7 +1154,7 @@ footer {
 
 .duel-results-breakdown {
   background-color: var(--bg-card);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   border: 1px solid var(--border-s);
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -1268,7 +1275,7 @@ footer {
 .advertise-form-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-m);
-  border-radius: 1rem;
+  border-radius: var(--radius-card);
   padding: 1.75rem;
 }
 
@@ -1288,7 +1295,7 @@ footer {
 .advertise-input {
   width: 100%;
   padding: 0.65rem 0.85rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--border-input);
   background-color: var(--bg-surface);
   color: var(--text-primary);
@@ -1321,7 +1328,7 @@ footer {
 .advertise-submit {
   width: 100%;
   padding: 0.75rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   border: none;
   background-color: var(--accent);
   color: #fff;
@@ -1364,7 +1371,7 @@ footer {
 .profile-back-btn {
   background: none;
   border: 1px solid var(--border-s);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   padding: 0.4rem 0.85rem;
   font-size: 0.82rem;
   cursor: pointer;
@@ -1381,7 +1388,7 @@ footer {
   background: var(--bg-card);
   border: 1px solid var(--border-s);
   border-left: 4px solid var(--color-accent, #7c83fd);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   padding: 0.65rem 1rem;
   font-size: 0.84rem;
   margin-bottom: 1.25rem;
@@ -1390,12 +1397,6 @@ footer {
 
 .profile-header {
   margin-bottom: 1.75rem;
-}
-
-.profile-name {
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin: 0 0 0.25rem;
 }
 
 .profile-court {
@@ -1412,7 +1413,7 @@ footer {
 
 .profile-accordion {
   border: 1px solid var(--border-s);
-  border-radius: 0.8rem;
+  border-radius: var(--radius-card);
   background: var(--bg-card);
   overflow: hidden;
 }
@@ -1446,7 +1447,7 @@ footer {
 .profile-accordion-badge {
   background: var(--color-accent, #7c83fd);
   color: #fff;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.1rem 0.5rem;
@@ -1497,7 +1498,7 @@ footer {
   box-sizing: border-box;
   padding: 0.55rem 0.85rem;
   border: 1px solid var(--border-s);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   background: var(--bg-secondary, transparent);
   color: var(--text-primary);
   font-size: 0.88rem;
@@ -1527,7 +1528,7 @@ footer {
 .profile-page-btn {
   background: none;
   border: 1px solid var(--border-s);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   padding: 0.35rem 0.8rem;
   font-size: 0.82rem;
   cursor: pointer;
@@ -1548,12 +1549,165 @@ footer {
   opacity: 0.7;
 }
 
+.profile-court-breadcrumb {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-gold);
+  margin: 0 0 0.4rem;
+}
+
+.profile-name {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin: 0 0 0.2rem;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
 .profile-bench-since {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-accent, #7c83fd);
   margin: 0.25rem 0 0;
   letter-spacing: 0.01em;
+}
+
+/* Stat block row */
+.profile-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin: 1.25rem 0 1.75rem;
+}
+
+.profile-stat-box {
+  border: 1px solid var(--border-m);
+  border-radius: var(--radius-card);
+  padding: 0.85rem 1rem;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-stat-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-gold);
+}
+
+.profile-stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .profile-stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Case table tab bar */
+.profile-tab-section {
+  margin-bottom: 0.75rem;
+}
+
+.profile-tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border-s);
+  margin-bottom: 1rem;
+}
+
+.profile-tab-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.profile-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.profile-tab-btn--active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+}
+
+/* Flat compact case table */
+.profile-case-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.profile-case-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border-m);
+}
+
+.profile-case-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border-s);
+  color: var(--text-card);
+  vertical-align: top;
+}
+
+.profile-case-table tr:last-child td {
+  border-bottom: none;
+}
+
+.profile-case-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+.profile-case-name-cell {
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 320px;
+}
+
+.profile-case-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.profile-case-link:hover {
+  text-decoration: underline;
+}
+
+.profile-case-table-empty {
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  font-style: italic;
 }
 
 .profile-opinions-by-year {
@@ -1595,7 +1749,7 @@ footer {
   margin: 0 0 1rem;
   padding: 0.6rem 0.75rem;
   border-left: 3px solid var(--color-accent, #7c83fd);
-  border-radius: 0 0.4rem 0.4rem 0;
+  border-radius: 0 0.2rem 0.2rem 0;
   background: var(--bg-secondary, rgba(255,255,255,0.03));
 }
 
@@ -1643,7 +1797,7 @@ footer {
 
 .opinion-card {
   border: 1px solid var(--border-s);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-card);
   background: var(--bg-secondary, rgba(255,255,255,0.02));
   cursor: pointer;
   transition: border-color 0.15s;
@@ -1714,7 +1868,7 @@ footer {
   gap: 0.75rem;
   background: var(--bg-card);
   border: 1px solid var(--border-s);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-card);
   padding: 0.65rem 1rem;
   cursor: pointer;
   text-align: left;
@@ -1763,7 +1917,7 @@ footer {
 .history-back-btn {
   background: none;
   border: 1px solid var(--border-s);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   padding: 0.4rem 0.8rem;
   font-size: 0.82rem;
   cursor: pointer;
@@ -1786,7 +1940,7 @@ footer {
   padding: 1.25rem;
   background: var(--bg-card);
   border: 1px solid var(--border-s);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
 }
 
 .history-section-title {
@@ -1817,7 +1971,7 @@ footer {
 .history-entry {
   padding: 0.85rem 1rem;
   border: 1px solid var(--border-s);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-card);
   background: var(--bg-secondary, rgba(255,255,255,0.02));
 }
 
@@ -1897,7 +2051,7 @@ footer {
   top: 1rem;
   background: var(--bg-card);
   border: 1px solid var(--border-s);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   overflow: hidden;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -1952,7 +2106,7 @@ footer {
 .scotus-profile {
   background: var(--bg-card);
   border: 1px solid var(--border-s);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
   padding: 1.5rem;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -1972,7 +2126,7 @@ footer {
   font-size: 0.72rem;
   font-weight: 600;
   padding: 0.2rem 0.65rem;
-  border-radius: 999px;
+  border-radius: var(--radius-btn);
   color: #fff;
   white-space: nowrap;
   align-self: flex-start;
@@ -2014,7 +2168,7 @@ footer {
   font-style: italic;
   background: var(--bg-card);
   border: 1px solid var(--border-s);
-  border-radius: 0.85rem;
+  border-radius: var(--radius-card);
 }
 
 .scotus-opinions-heading {
@@ -2033,7 +2187,7 @@ footer {
 
 .scotus-year-group {
   border: 1px solid var(--border-s);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-card);
   overflow: hidden;
   background: var(--bg-surface);
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -2085,7 +2239,7 @@ footer {
 .scotus-opinion-row {
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--border-s);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-btn);
   background: var(--bg-card);
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }

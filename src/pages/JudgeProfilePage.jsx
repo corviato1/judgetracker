@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getJudgeById, getLocalJudge, getOpinionsForJudge, getJudgeStats, getJudgeHistory } from "../API/api";
 import JudgeComparison from "../components/JudgeComparison";
-import OpinionCard from "../components/OpinionCard";
 
 const REVERSAL_RE = /\b(revers|overrul|vacat|overturned|remand)\b/i;
 const VIOLENT_RE = /\b(assault|murder|homicide|robbery|rape|kidnap|weapon|firearm|gun|battery|manslaughter|carjack|arson|trafficking|sex.offend|armed)\b/i;
@@ -52,24 +51,6 @@ function deriveLocalHistory(opinions) {
     opinionsByYear,
     derived: true,
   };
-}
-
-function groupOpinionsByYear(opinions) {
-  const groups = {};
-  for (const op of opinions) {
-    const year = op.dateFiled ? String(op.dateFiled).slice(0, 4) : "Unknown";
-    if (!groups[year]) groups[year] = [];
-    groups[year].push(op);
-  }
-  const sortedYears = Object.keys(groups).sort((a, b) => {
-    const numA = parseInt(a, 10);
-    const numB = parseInt(b, 10);
-    if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
-    if (isNaN(numA)) return 1;
-    if (isNaN(numB)) return -1;
-    return numB - numA;
-  });
-  return sortedYears.map((year) => ({ year, opinions: groups[year] }));
 }
 
 function AccordionSection({ title, defaultOpen = false, children, badge }) {
@@ -169,8 +150,8 @@ const JudgeProfilePage = () => {
   const [historyError, setHistoryError] = useState(null);
   const [usedFallback, setUsedFallback] = useState(false);
   const [filterText, setFilterText] = useState("");
-  const [expandedOpinionId, setExpandedOpinionId] = useState(null);
   const [opinionsPage, setOpinionsPage] = useState(0);
+  const [caseTab, setCaseTab] = useState("ALL");
   const OPINIONS_PER_PAGE = 10;
 
   useEffect(() => {
@@ -190,8 +171,8 @@ const JudgeProfilePage = () => {
     setStatsData(undefined);
     setHistory(null);
     setFilterText("");
-    setExpandedOpinionId(null);
     setOpinionsPage(0);
+    setCaseTab("ALL");
 
     async function loadJudge() {
       try {
@@ -271,10 +252,6 @@ const JudgeProfilePage = () => {
     return () => { cancelled = true; };
   }, [judgeId]);
 
-  const handleExpand = useCallback((id) => {
-    setExpandedOpinionId(id);
-  }, []);
-
   const filteredOpinions = opinions.filter((op) =>
     !filterText || (op.caseName || "").toLowerCase().includes(filterText.toLowerCase())
   );
@@ -323,8 +300,6 @@ const JudgeProfilePage = () => {
       ? deriveLocalHistory(opinions)
       : null;
 
-  const opinionYearGroups = groupOpinionsByYear(pagedOpinions);
-
   return (
     <div className="profile-page">
       <button className="profile-back-btn" onClick={() => navigate(-1)}>← Back to search</button>
@@ -338,14 +313,65 @@ const JudgeProfilePage = () => {
 
       <div className="profile-header">
         <div>
+          {judge.courtName && (
+            <p className="profile-court-breadcrumb">{judge.courtName}</p>
+          )}
           <h2 className="profile-name">{judge.fullName}</h2>
           <p className="profile-court">
-            {[judge.courtName, judge.jurisdiction].filter(Boolean).join(" · ")}
+            {[judge.jurisdiction, judge.appointer ? `Appointed by ${judge.appointer}` : null].filter(Boolean).join(" · ")}
           </p>
           {judge.serviceStartYear && (
             <p className="profile-bench-since">On the bench since {judge.serviceStartYear}</p>
           )}
         </div>
+      </div>
+
+      {/* 4-stat block row */}
+      <div className="profile-stat-row">
+        {[
+          {
+            label: "Total Opinions",
+            value: opinionsLoading ? "—" : opinions.length,
+          },
+          {
+            label: "Reversals",
+            value:
+              historyLoading
+                ? "—"
+                : history
+                ? history.reversals?.length ?? 0
+                : localHistory
+                ? localHistory.reversals?.length ?? 0
+                : "—",
+          },
+          {
+            label: "Violent Releases",
+            value:
+              historyLoading
+                ? "—"
+                : history
+                ? history.violentFelonyReleases?.length ?? 0
+                : localHistory
+                ? localHistory.violentFelonyReleases?.length ?? 0
+                : "—",
+          },
+          {
+            label: "Citations",
+            value:
+              historyLoading
+                ? "—"
+                : history
+                ? history.citations?.length ?? 0
+                : localHistory
+                ? localHistory.citations?.length ?? 0
+                : "—",
+          },
+        ].map(({ label, value }) => (
+          <div className="profile-stat-box" key={label}>
+            <span className="profile-stat-number">{value}</span>
+            <span className="profile-stat-label">{label}</span>
+          </div>
+        ))}
       </div>
 
       <div className="profile-accordions">
@@ -362,81 +388,163 @@ const JudgeProfilePage = () => {
           </div>
         </AccordionSection>
 
-        <AccordionSection
-          title="Rulings & Opinions"
-          badge={opinionsLoading ? null : opinions.length || 0}
-        >
-          {opinionsError ? (
-            <p className="profile-section-empty">{opinionsError}</p>
-          ) : opinionsLoading ? (
-            <p className="profile-section-empty">Loading opinions...</p>
-          ) : (
-            <>
-              <input
-                type="text"
-                className="profile-filter-input"
-                placeholder="Filter by case name..."
-                value={filterText}
-                onChange={(e) => {
-                  setFilterText(e.target.value);
-                  setExpandedOpinionId(null);
-                  setOpinionsPage(0);
-                }}
-              />
-              {filteredOpinions.length === 0 ? (
-                <p className="profile-section-empty">
-                  {filterText
-                    ? `No opinions match "${filterText}"`
-                    : "No opinions found for this judge yet."}
-                </p>
-              ) : (
-                <>
-                  <div className="profile-opinions-by-year">
-                    {opinionYearGroups.map(({ year, opinions: yearOps }) => (
-                      <div key={year} className="profile-year-group">
-                        <div className="profile-year-heading">
-                          <span className="profile-year-label">{year}</span>
-                          <span className="profile-year-count">{yearOps.length} opinion{yearOps.length !== 1 ? "s" : ""}</span>
-                        </div>
-                        <div className="opinion-list">
-                          {yearOps.map((op) => (
-                            <OpinionCard
-                              key={op.id}
-                              opinion={op}
-                              expandedId={expandedOpinionId}
-                              onExpand={handleExpand}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {totalPages > 1 && (
-                    <div className="profile-pagination">
-                      <button
-                        className="profile-page-btn"
-                        onClick={() => { setOpinionsPage((p) => p - 1); setExpandedOpinionId(null); }}
-                        disabled={opinionsPage === 0}
-                      >
-                        ← Prev
-                      </button>
-                      <span className="profile-page-info">
-                        Page {opinionsPage + 1} of {totalPages}
-                      </span>
-                      <button
-                        className="profile-page-btn"
-                        onClick={() => { setOpinionsPage((p) => p + 1); setExpandedOpinionId(null); }}
-                        disabled={opinionsPage >= totalPages - 1}
-                      >
-                        Next →
-                      </button>
-                    </div>
-                  )}
-                </>
+        {/* Tab-filtered case table replacing the old Rulings & Opinions accordion */}
+        <div className="profile-accordion profile-tab-section">
+          <div className="profile-accordion-header" style={{ cursor: "default" }}>
+            <span className="profile-accordion-title">
+              Rulings &amp; Opinions
+              {!opinionsLoading && (
+                <span className="profile-accordion-badge">{opinions.length}</span>
               )}
-            </>
-          )}
-        </AccordionSection>
+            </span>
+          </div>
+          <div className="profile-accordion-body">
+            <div className="profile-tab-bar">
+              {["ALL", "REVERSALS", "RELEASES", "CITATIONS"].map((tab) => (
+                <button
+                  key={tab}
+                  className={`profile-tab-btn${caseTab === tab ? " profile-tab-btn--active" : ""}`}
+                  onClick={() => {
+                    setCaseTab(tab);
+                    setOpinionsPage(0);
+                    setFilterText("");
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {caseTab === "ALL" && (
+              <>
+                {opinionsError ? (
+                  <p className="profile-section-empty">{opinionsError}</p>
+                ) : opinionsLoading ? (
+                  <p className="profile-section-empty">Loading opinions...</p>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      className="profile-filter-input"
+                      placeholder="Filter by case name..."
+                      value={filterText}
+                      onChange={(e) => {
+                        setFilterText(e.target.value);
+                        setOpinionsPage(0);
+                      }}
+                    />
+                    {filteredOpinions.length === 0 ? (
+                      <p className="profile-case-table-empty">
+                        {filterText ? `No opinions match "${filterText}"` : "No opinions found for this judge yet."}
+                      </p>
+                    ) : (
+                      <>
+                        <table className="profile-case-table">
+                          <thead>
+                            <tr>
+                              <th>Case Name</th>
+                              <th>Filed</th>
+                              <th>Court</th>
+                              <th>Link</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {pagedOpinions.map((op) => {
+                              const clUrl = op.url || (op.id ? `https://www.courtlistener.com/opinion/${op.id}/` : null);
+                              return (
+                                <tr key={op.id}>
+                                  <td className="profile-case-name-cell">{op.caseName || "Untitled case"}</td>
+                                  <td>{op.dateFiled ? String(op.dateFiled).slice(0, 10) : "—"}</td>
+                                  <td>{op.courtName || "—"}</td>
+                                  <td>
+                                    {clUrl ? (
+                                      <a href={clUrl} target="_blank" rel="noopener noreferrer" className="profile-case-link">
+                                        View →
+                                      </a>
+                                    ) : "—"}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                        {totalPages > 1 && (
+                          <div className="profile-pagination">
+                            <button
+                              className="profile-page-btn"
+                              onClick={() => setOpinionsPage((p) => p - 1)}
+                              disabled={opinionsPage === 0}
+                            >
+                              ← Prev
+                            </button>
+                            <span className="profile-page-info">
+                              Page {opinionsPage + 1} of {totalPages}
+                            </span>
+                            <button
+                              className="profile-page-btn"
+                              onClick={() => setOpinionsPage((p) => p + 1)}
+                              disabled={opinionsPage >= totalPages - 1}
+                            >
+                              Next →
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+
+            {(caseTab === "REVERSALS" || caseTab === "RELEASES" || caseTab === "CITATIONS") && (() => {
+              const srcHistory = history || localHistory;
+              const key = caseTab === "REVERSALS" ? "reversals" : caseTab === "RELEASES" ? "violentFelonyReleases" : "citations";
+              const label = caseTab === "REVERSALS" ? "reversals" : caseTab === "RELEASES" ? "violent felony releases" : "citations";
+              if (historyLoading && opinionsLoading) {
+                return <p className="profile-section-empty">Loading...</p>;
+              }
+              if (!srcHistory) {
+                return (
+                  <p className="profile-section-empty">
+                    {historyError || "No ruling history available."}
+                  </p>
+                );
+              }
+              const entries = srcHistory[key] || [];
+              if (entries.length === 0) {
+                return <p className="profile-case-table-empty">No {label} found in the opinions retrieved.</p>;
+              }
+              return (
+                <table className="profile-case-table">
+                  <thead>
+                    <tr>
+                      <th>Case Name</th>
+                      <th>Filed</th>
+                      <th>Court</th>
+                      <th>Link</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {entries.map((entry) => (
+                      <tr key={entry.id}>
+                        <td className="profile-case-name-cell">{entry.caseName || "Untitled case"}</td>
+                        <td>{entry.dateFiled ? String(entry.dateFiled).slice(0, 10) : "—"}</td>
+                        <td>{entry.court || "—"}</td>
+                        <td>
+                          {entry.url ? (
+                            <a href={entry.url} target="_blank" rel="noopener noreferrer" className="profile-case-link">
+                              View →
+                            </a>
+                          ) : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              );
+            })()}
+          </div>
+        </div>
 
         <AccordionSection title="Statistics & Comparisons">
           {statsLoading ? (
