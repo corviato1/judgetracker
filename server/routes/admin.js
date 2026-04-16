@@ -376,6 +376,44 @@ router.get("/quiz-email-submissions/:id/pdf", requireAdmin, async (req, res) => 
   }
 });
 
+router.get("/ads/placements", async (req, res) => {
+  try {
+    const rows = await pool.query(
+      `SELECT id, page_key, sponsor_url, sponsor_image_url, name
+       FROM ad_placements
+       WHERE active = true AND page_key IS NOT NULL AND sponsor_url IS NOT NULL AND sponsor_image_url IS NOT NULL`
+    );
+    const byPageKey = {};
+    for (const row of rows.rows) {
+      if (row.page_key) byPageKey[row.page_key] = row;
+    }
+    res.json({ placements: byPageKey });
+  } catch (err) {
+    console.error("[ads/placements public]", err.message);
+    res.status(500).json({ error: "Internal error." });
+  }
+});
+
+router.post("/ads/impression", async (req, res) => {
+  try {
+    const { pageKey, sessionId } = req.body || {};
+    if (!pageKey) return res.status(400).json({ error: "pageKey required." });
+    const placement = await pool.query(
+      `SELECT id FROM ad_placements WHERE page_key = $1 AND active = true LIMIT 1`,
+      [pageKey]
+    );
+    if (!placement.rows.length) return res.json({ ok: false });
+    await pool.query(
+      `INSERT INTO ad_impressions (placement_id, session_id) VALUES ($1, $2)`,
+      [placement.rows[0].id, sessionId || null]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[ads/impression]", err.message);
+    res.status(500).json({ error: "Internal error." });
+  }
+});
+
 router.get("/ads", requireAdmin, async (req, res) => {
   try {
     const rows = await pool.query("SELECT * FROM ad_placements ORDER BY created_at DESC");
@@ -388,14 +426,21 @@ router.get("/ads", requireAdmin, async (req, res) => {
 
 router.post("/ads", requireAdmin, async (req, res) => {
   try {
-    const { name, slug, dimensions, notes, active = true } = req.body || {};
+    const { name, slug, dimensions, notes, active = true, page_key, sponsor_url, sponsor_image_url } = req.body || {};
     if (!name || !slug) return res.status(400).json({ error: "name and slug are required." });
     const result = await pool.query(
-      "INSERT INTO ad_placements (name, slug, dimensions, notes, active) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [name, slug, dimensions || "", notes || "", active]
+      `INSERT INTO ad_placements (name, slug, dimensions, notes, active, page_key, sponsor_url, sponsor_image_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [name, slug, dimensions || "", notes || "", active, page_key || null, sponsor_url || null, sponsor_image_url || null]
     );
     res.status(201).json({ placement: result.rows[0] });
   } catch (err) {
+    if (err.code === "23505") {
+      if (err.constraint && err.constraint.includes("page_key")) {
+        return res.status(409).json({ error: "Another active placement already uses that page key. Deactivate it first." });
+      }
+      return res.status(409).json({ error: "A placement with that slug already exists." });
+    }
     console.error("[ADMIN ads create]", err.message);
     res.status(500).json({ error: "Internal error." });
   }
@@ -404,20 +449,26 @@ router.post("/ads", requireAdmin, async (req, res) => {
 router.patch("/ads/:id", requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, slug, dimensions, notes, active } = req.body || {};
+    const { name, slug, dimensions, notes, active, page_key, sponsor_url, sponsor_image_url } = req.body || {};
     const result = await pool.query(
       `UPDATE ad_placements SET
         name = COALESCE($1, name),
         slug = COALESCE($2, slug),
         dimensions = COALESCE($3, dimensions),
         notes = COALESCE($4, notes),
-        active = COALESCE($5, active)
-       WHERE id = $6 RETURNING *`,
-      [name, slug, dimensions, notes, active, id]
+        active = COALESCE($5, active),
+        page_key = COALESCE($6, page_key),
+        sponsor_url = COALESCE($7, sponsor_url),
+        sponsor_image_url = COALESCE($8, sponsor_image_url)
+       WHERE id = $9 RETURNING *`,
+      [name, slug, dimensions, notes, active, page_key, sponsor_url, sponsor_image_url, id]
     );
     if (!result.rows.length) return res.status(404).json({ error: "Not found." });
     res.json({ placement: result.rows[0] });
   } catch (err) {
+    if (err.code === "23505" && err.constraint && err.constraint.includes("page_key")) {
+      return res.status(409).json({ error: "Another active placement already uses that page key. Deactivate it first." });
+    }
     console.error("[ADMIN ads update]", err.message);
     res.status(500).json({ error: "Internal error." });
   }

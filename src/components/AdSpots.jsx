@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import adHome from "../media/ads/ad-home.png";
 import adJudges from "../media/ads/ad-judges.png";
@@ -28,22 +28,68 @@ const AD_ALTS = {
   advertise: "Advertise on JudgeTracker.info — reach legal professionals",
 };
 
+let placementsCache = null;
+let placementsFetchPromise = null;
+
+function fetchPlacements() {
+  if (placementsCache !== null) return Promise.resolve(placementsCache);
+  if (placementsFetchPromise) return placementsFetchPromise;
+  placementsFetchPromise = fetch("/api/admin/ads/placements")
+    .then((r) => (r.ok ? r.json() : { placements: {} }))
+    .then((data) => {
+      placementsCache = data.placements || {};
+      placementsFetchPromise = null;
+      return placementsCache;
+    })
+    .catch(() => {
+      placementsFetchPromise = null;
+      placementsCache = {};
+      return {};
+    });
+  return placementsFetchPromise;
+}
+
 const AdSpots = ({ pageKey = "home", sponsorUrl = null, sponsorImageUrl = null }) => {
   const fallbackImage = AD_IMAGES[pageKey] || adHome;
   const fallbackAlt = AD_ALTS[pageKey] || "JudgeTracker.info";
 
-  if (sponsorUrl && sponsorImageUrl) {
+  const [sponsorData, setSponsorData] = useState(null);
+  const [impressionSent, setImpressionSent] = useState(false);
+
+  useEffect(() => {
+    if (sponsorUrl && sponsorImageUrl) return;
+    fetchPlacements().then((placements) => {
+      const placement = placements[pageKey] || null;
+      setSponsorData(placement);
+    });
+  }, [pageKey, sponsorUrl, sponsorImageUrl]);
+
+  const resolvedSponsorUrl = sponsorUrl || (sponsorData && sponsorData.sponsor_url) || null;
+  const resolvedSponsorImageUrl = sponsorImageUrl || (sponsorData && sponsorData.sponsor_image_url) || null;
+
+  useEffect(() => {
+    if (resolvedSponsorUrl && resolvedSponsorImageUrl && !impressionSent) {
+      setImpressionSent(true);
+      fetch("/api/admin/ads/impression", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageKey }),
+      }).catch(() => {});
+    }
+  }, [resolvedSponsorUrl, resolvedSponsorImageUrl, impressionSent, pageKey]);
+
+  if (resolvedSponsorUrl && resolvedSponsorImageUrl) {
     return (
       <div className="ad-banner-slot">
         <a
-          href={sponsorUrl}
+          href={resolvedSponsorUrl}
           target="_blank"
           rel="noopener noreferrer sponsored"
           className="ad-banner-link"
           aria-label="Sponsored advertisement"
         >
           <img
-            src={sponsorImageUrl}
+            src={resolvedSponsorImageUrl}
             alt="Sponsored"
             className="ad-banner-image"
           />

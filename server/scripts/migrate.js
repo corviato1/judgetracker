@@ -176,6 +176,12 @@ const migrations = [
 
   `DROP INDEX IF EXISTS idx_events_created_retention`,
   `DROP INDEX IF EXISTS idx_ad_impressions_created_retention`,
+
+  `ALTER TABLE ad_placements ADD COLUMN IF NOT EXISTS page_key VARCHAR(100)`,
+  `ALTER TABLE ad_placements ADD COLUMN IF NOT EXISTS sponsor_url TEXT`,
+  `ALTER TABLE ad_placements ADD COLUMN IF NOT EXISTS sponsor_image_url TEXT`,
+  `DROP INDEX IF EXISTS idx_ad_placements_page_key`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_ad_placements_unique_active_page_key ON ad_placements(page_key) WHERE active = true AND page_key IS NOT NULL`,
 ];
 
 const SEED_JUDGES = [

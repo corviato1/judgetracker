@@ -641,15 +641,95 @@ function RateLimitsTab() {
   );
 }
 
+const PAGE_KEY_OPTIONS = ["home", "judges", "scotus", "profile", "which-judge", "duel", "advertise"];
+
+function SponsorEditRow({ placement, onSaved }) {
+  const [fields, setFields] = useState({
+    page_key: placement.page_key || "",
+    sponsor_url: placement.sponsor_url || "",
+    sponsor_image_url: placement.sponsor_image_url || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setErr("");
+    setSaving(true);
+    try {
+      const body = {
+        page_key: fields.page_key || null,
+        sponsor_url: fields.sponsor_url || null,
+        sponsor_image_url: fields.sponsor_image_url || null,
+      };
+      const res = await fetch(`/api/admin/ads/${placement.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setErr(d.error || "Save failed.");
+      } else {
+        onSaved();
+      }
+    } catch {
+      setErr("Network error.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <tr>
+      <td colSpan="7" style={{ padding: "0.75rem 1rem", background: "rgba(124,158,255,0.07)" }}>
+        <form onSubmit={handleSave} style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
+          <select
+            className="adm-filter-input"
+            style={{ minWidth: "120px" }}
+            value={fields.page_key}
+            onChange={(e) => setFields((f) => ({ ...f, page_key: e.target.value }))}
+          >
+            <option value="">— Page Key —</option>
+            {PAGE_KEY_OPTIONS.map((k) => (
+              <option key={k} value={k}>{k}</option>
+            ))}
+          </select>
+          <input
+            className="adm-filter-input"
+            style={{ flex: "1", minWidth: "200px" }}
+            placeholder="Sponsor URL (https://…)"
+            value={fields.sponsor_url}
+            onChange={(e) => setFields((f) => ({ ...f, sponsor_url: e.target.value }))}
+          />
+          <input
+            className="adm-filter-input"
+            style={{ flex: "1", minWidth: "200px" }}
+            placeholder="Sponsor Image URL (https://…)"
+            value={fields.sponsor_image_url}
+            onChange={(e) => setFields((f) => ({ ...f, sponsor_image_url: e.target.value }))}
+          />
+          {err && <span className="adm-err" style={{ margin: 0 }}>{err}</span>}
+          <button className="adm-pdf-btn" type="submit" disabled={saving} style={{ whiteSpace: "nowrap" }}>
+            {saving ? "Saving…" : "Save Sponsor"}
+          </button>
+        </form>
+      </td>
+    </tr>
+  );
+}
+
 function AdsTab() {
   const [placements, setPlacements] = useState(null);
   const [impressions, setImpressions] = useState(null);
   const [inquiries, setInquiries] = useState(null);
   const [inquiryPage, setInquiryPage] = useState(1);
   const [err, setErr] = useState(null);
-  const [form, setForm] = useState({ name: "", slug: "", dimensions: "", notes: "", active: true });
+  const [form, setForm] = useState({ name: "", slug: "", dimensions: "", notes: "", active: true, page_key: "", sponsor_url: "", sponsor_image_url: "" });
   const [saving, setSaving] = useState(false);
   const [formErr, setFormErr] = useState("");
+  const [expandedId, setExpandedId] = useState(null);
 
   const loadPlacements = () =>
     fetch("/api/admin/ads", { credentials: "include" })
@@ -678,17 +758,23 @@ function AdsTab() {
     if (!form.name || !form.slug) { setFormErr("Name and slug are required."); return; }
     setSaving(true);
     try {
+      const body = {
+        ...form,
+        page_key: form.page_key || null,
+        sponsor_url: form.sponsor_url || null,
+        sponsor_image_url: form.sponsor_image_url || null,
+      };
       const res = await fetch("/api/admin/ads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(form),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
         setFormErr(d.error || "Save failed.");
       } else {
-        setForm({ name: "", slug: "", dimensions: "", notes: "", active: true });
+        setForm({ name: "", slug: "", dimensions: "", notes: "", active: true, page_key: "", sponsor_url: "", sponsor_image_url: "" });
         await loadPlacements();
       }
     } catch {
@@ -713,30 +799,63 @@ function AdsTab() {
   return (
     <div>
       <h3 className="adm-section-title">Ad Placements</h3>
+      <p style={{ fontSize: "0.82rem", opacity: 0.65, marginBottom: "0.75rem" }}>
+        Set a Page Key, Sponsor URL, and Sponsor Image URL to replace the house banner on that page with a live sponsor ad.
+      </p>
       {!placements ? <p className="adm-loading">Loading…</p> : (
         <table className="adm-table adm-table-full">
           <thead>
-            <tr><th>Name</th><th>Slug</th><th>Dimensions</th><th>Notes</th><th>Active</th></tr>
+            <tr>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Page Key</th>
+              <th>Sponsor URL</th>
+              <th>Sponsor Image</th>
+              <th>Active</th>
+              <th>Sponsor</th>
+            </tr>
           </thead>
           <tbody>
             {placements.map((p) => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
-                <td className="adm-mono">{p.slug}</td>
-                <td>{p.dimensions || "—"}</td>
-                <td className="adm-truncate">{p.notes || "—"}</td>
-                <td>
-                  <button
-                    className={p.active ? "adm-toggle-on" : "adm-toggle-off"}
-                    onClick={() => toggleActive(p.id, p.active)}
-                  >
-                    {p.active ? "Active" : "Inactive"}
-                  </button>
-                </td>
-              </tr>
+              <React.Fragment key={p.id}>
+                <tr>
+                  <td>{p.name}</td>
+                  <td className="adm-mono">{p.slug}</td>
+                  <td className="adm-mono">{p.page_key || "—"}</td>
+                  <td className="adm-truncate" title={p.sponsor_url || ""} style={{ maxWidth: "140px" }}>
+                    {p.sponsor_url ? <a href={p.sponsor_url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>↗ link</a> : "—"}
+                  </td>
+                  <td className="adm-truncate" style={{ maxWidth: "120px" }}>
+                    {p.sponsor_image_url ? <a href={p.sponsor_image_url} target="_blank" rel="noopener noreferrer" style={{ color: "inherit" }}>↗ image</a> : "—"}
+                  </td>
+                  <td>
+                    <button
+                      className={p.active ? "adm-toggle-on" : "adm-toggle-off"}
+                      onClick={() => toggleActive(p.id, p.active)}
+                    >
+                      {p.active ? "Active" : "Inactive"}
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="adm-pdf-btn"
+                      style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }}
+                      onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
+                    >
+                      {expandedId === p.id ? "Close" : "Edit"}
+                    </button>
+                  </td>
+                </tr>
+                {expandedId === p.id && (
+                  <SponsorEditRow
+                    placement={p}
+                    onSaved={() => { setExpandedId(null); loadPlacements(); }}
+                  />
+                )}
+              </React.Fragment>
             ))}
             {!placements.length && (
-              <tr><td colSpan="5" className="adm-empty">No placements yet</td></tr>
+              <tr><td colSpan="7" className="adm-empty">No placements yet</td></tr>
             )}
           </tbody>
         </table>
@@ -752,6 +871,20 @@ function AdsTab() {
           onChange={(e) => setForm((f) => ({ ...f, dimensions: e.target.value }))} />
         <input className="adm-filter-input" placeholder="Notes" value={form.notes}
           onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+        <select
+          className="adm-filter-input"
+          value={form.page_key}
+          onChange={(e) => setForm((f) => ({ ...f, page_key: e.target.value }))}
+        >
+          <option value="">— Page Key (optional) —</option>
+          {PAGE_KEY_OPTIONS.map((k) => (
+            <option key={k} value={k}>{k}</option>
+          ))}
+        </select>
+        <input className="adm-filter-input" placeholder="Sponsor URL (optional)" value={form.sponsor_url}
+          onChange={(e) => setForm((f) => ({ ...f, sponsor_url: e.target.value }))} />
+        <input className="adm-filter-input" placeholder="Sponsor Image URL (optional)" value={form.sponsor_image_url}
+          onChange={(e) => setForm((f) => ({ ...f, sponsor_image_url: e.target.value }))} />
         {formErr && <p className="adm-err">{formErr}</p>}
         <button className="adm-pdf-btn" type="submit" disabled={saving}>{saving ? "Saving…" : "Add Placement"}</button>
       </form>
