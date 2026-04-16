@@ -54,6 +54,82 @@ function deriveLocalHistory(opinions) {
   };
 }
 
+function OpinionsBarChart({ opinions }) {
+  if (!opinions || opinions.length === 0) return null;
+
+  const yearCounts = {};
+  for (const op of opinions) {
+    const y = op.dateFiled ? String(op.dateFiled).slice(0, 4) : null;
+    if (y && !isNaN(parseInt(y, 10))) {
+      yearCounts[y] = (yearCounts[y] || 0) + 1;
+    }
+  }
+
+  const entries = Object.entries(yearCounts).sort(([a], [b]) => parseInt(a) - parseInt(b));
+  if (entries.length < 2) return null;
+
+  const maxCount = Math.max(...entries.map(([, c]) => c));
+  const BAR_W = 22;
+  const GAP = 5;
+  const CHART_H = 88;
+  const LABEL_H = 20;
+  const svgW = entries.length * (BAR_W + GAP) - GAP;
+  const svgH = CHART_H + LABEL_H;
+
+  const skipEvery = entries.length > 20
+    ? Math.ceil(entries.length / 12)
+    : entries.length > 10
+    ? 2
+    : 1;
+
+  return (
+    <div className="profile-chart-section">
+      <p className="profile-chart-label">Opinions by year</p>
+      <div className="profile-chart-scroll">
+        <svg
+          width={svgW}
+          height={svgH}
+          viewBox={`0 0 ${svgW} ${svgH}`}
+          className="profile-bar-chart"
+          role="img"
+          aria-label="Opinions per year bar chart"
+        >
+          {entries.map(([year, count], i) => {
+            const barH = Math.max(3, Math.round((count / maxCount) * CHART_H));
+            const x = i * (BAR_W + GAP);
+            const barY = CHART_H - barH;
+            const showLabel = i % skipEvery === 0 || i === entries.length - 1;
+            return (
+              <g key={year}>
+                <title>{year}: {count} opinion{count !== 1 ? "s" : ""}</title>
+                <rect
+                  x={x}
+                  y={barY}
+                  width={BAR_W}
+                  height={barH}
+                  rx="2"
+                  className="profile-bar-rect"
+                />
+                {showLabel && (
+                  <text
+                    x={x + BAR_W / 2}
+                    y={svgH - 3}
+                    textAnchor="middle"
+                    className="profile-bar-year"
+                  >
+                    {year.slice(2)}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+          <line x1="0" y1={CHART_H} x2={svgW} y2={CHART_H} className="profile-chart-baseline" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 function AccordionSection({ title, defaultOpen = false, children, badge }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -405,6 +481,9 @@ const JudgeProfilePage = () => {
             </span>
           </div>
           <div className="profile-accordion-body">
+            {!opinionsLoading && opinions.length > 0 && (
+              <OpinionsBarChart opinions={opinions} />
+            )}
             <div className="profile-tab-bar">
               {["ALL", "REVERSALS", "RELEASES", "CITATIONS"].map((tab) => (
                 <button

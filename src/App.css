@@ -1818,6 +1818,55 @@ footer {
   font-style: italic;
 }
 
+/* Opinions-per-year bar chart */
+.profile-chart-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border-s);
+}
+
+.profile-chart-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin: 0 0 0.6rem;
+}
+
+.profile-chart-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-m) transparent;
+}
+
+.profile-bar-chart {
+  display: block;
+  min-width: 100%;
+}
+
+.profile-bar-rect {
+  fill: var(--accent);
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.profile-bar-rect:hover {
+  opacity: 1;
+}
+
+.profile-bar-year {
+  font-size: 9px;
+  fill: var(--text-faint);
+  font-family: system-ui, sans-serif;
+}
+
+.profile-chart-baseline {
+  stroke: var(--border-m);
+  stroke-width: 1;
+}
+
 .profile-opinions-by-year {
   display: flex;
   flex-direction: column;
