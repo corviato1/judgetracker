@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getJudgeById, getLocalJudge, getOpinionsForJudge, getJudgeStats, getJudgeHistory } from "../API/api";
 import JudgeComparison from "../components/JudgeComparison";
@@ -132,6 +132,16 @@ function OpinionsBarChart({ opinionsByYear }) {
         </svg>
       </div>
     </div>
+  );
+}
+
+function ProfileChartsAndCategories({ opinions }) {
+  const opinionsByYear = useMemo(() => deriveOpinionsByYear(opinions), [opinions]);
+  return (
+    <>
+      <OpinionsBarChart opinionsByYear={opinionsByYear} />
+      <CategoryBreakdown opinions={opinions} />
+    </>
   );
 }
 
@@ -519,10 +529,7 @@ const JudgeProfilePage = () => {
           </div>
           <div className="profile-accordion-body">
             {!opinionsLoading && opinions.length > 0 && (
-              <>
-                <OpinionsBarChart opinionsByYear={deriveOpinionsByYear(opinions)} />
-                <CategoryBreakdown opinions={opinions} />
-              </>
+              <ProfileChartsAndCategories opinions={opinions} />
             )}
             <div className="profile-tab-bar">
               {["ALL", "REVERSALS", "RELEASES", "CITATIONS"].map((tab) => (
