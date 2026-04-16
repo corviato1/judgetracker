@@ -54,9 +54,11 @@ function deriveLocalHistory(opinions) {
   };
 }
 
-function OpinionsBarChart({ opinions }) {
-  if (!opinions || opinions.length === 0) return null;
+const CRIMINAL_RE = /\b(criminal|felony|misdemeanor|assault|murder|homicide|robbery|theft|burglary|drug|dui|dwi|traffic|incarcerat|prison|sentence|probation|parole|weapon|firearms?|trafficking)\b/i;
+const CIVIL_RE = /\b(civil|civil rights|contract|tort|negligence|property|employment|discrimination|damages|plaintiff|defendant|liability|civil action|injunction|class action|antitrust|patent|trademark|copyright)\b/i;
+const FAMILY_RE = /\b(family|divorce|custody|adoption|domestic|child support|guardianship|alimony|marital|parental|juvenile|termination of parental)\b/i;
 
+function computeOpinionsByYear(opinions) {
   const yearCounts = {};
   for (const op of opinions) {
     const y = op.dateFiled ? String(op.dateFiled).slice(0, 4) : null;
@@ -64,21 +66,25 @@ function OpinionsBarChart({ opinions }) {
       yearCounts[y] = (yearCounts[y] || 0) + 1;
     }
   }
+  return Object.entries(yearCounts)
+    .sort(([a], [b]) => parseInt(a) - parseInt(b))
+    .map(([year, count]) => ({ year, count }));
+}
 
-  const entries = Object.entries(yearCounts).sort(([a], [b]) => parseInt(a) - parseInt(b));
-  if (entries.length < 2) return null;
+function OpinionsBarChart({ opinionsByYear }) {
+  if (!opinionsByYear || opinionsByYear.length === 0) return null;
 
-  const maxCount = Math.max(...entries.map(([, c]) => c));
+  const maxCount = Math.max(...opinionsByYear.map((e) => e.count));
   const BAR_W = 22;
   const GAP = 5;
   const CHART_H = 88;
   const LABEL_H = 20;
-  const svgW = entries.length * (BAR_W + GAP) - GAP;
+  const svgW = opinionsByYear.length * (BAR_W + GAP) - GAP;
   const svgH = CHART_H + LABEL_H;
 
-  const skipEvery = entries.length > 20
-    ? Math.ceil(entries.length / 12)
-    : entries.length > 10
+  const skipEvery = opinionsByYear.length > 20
+    ? Math.ceil(opinionsByYear.length / 12)
+    : opinionsByYear.length > 10
     ? 2
     : 1;
 
@@ -94,11 +100,11 @@ function OpinionsBarChart({ opinions }) {
           role="img"
           aria-label="Opinions per year bar chart"
         >
-          {entries.map(([year, count], i) => {
+          {opinionsByYear.map(({ year, count }, i) => {
             const barH = Math.max(3, Math.round((count / maxCount) * CHART_H));
             const x = i * (BAR_W + GAP);
             const barY = CHART_H - barH;
-            const showLabel = i % skipEvery === 0 || i === entries.length - 1;
+            const showLabel = i % skipEvery === 0 || i === opinionsByYear.length - 1;
             return (
               <g key={year}>
                 <title>{year}: {count} opinion{count !== 1 ? "s" : ""}</title>
@@ -125,6 +131,38 @@ function OpinionsBarChart({ opinions }) {
           })}
           <line x1="0" y1={CHART_H} x2={svgW} y2={CHART_H} className="profile-chart-baseline" />
         </svg>
+      </div>
+    </div>
+  );
+}
+
+function CategoryBreakdown({ opinions }) {
+  if (!opinions || opinions.length === 0) return null;
+  let criminal = 0, civil = 0, family = 0, other = 0;
+  for (const op of opinions) {
+    const text = `${op.caseName || ""} ${op.summary || ""}`;
+    if (FAMILY_RE.test(text)) { family++; }
+    else if (CRIMINAL_RE.test(text)) { criminal++; }
+    else if (CIVIL_RE.test(text)) { civil++; }
+    else { other++; }
+  }
+  const cats = [
+    { label: "Criminal", count: criminal, cls: "cat-criminal" },
+    { label: "Civil", count: civil, cls: "cat-civil" },
+    { label: "Family", count: family, cls: "cat-family" },
+    { label: "Other", count: other, cls: "cat-other" },
+  ].filter((c) => c.count > 0);
+  if (cats.length === 0) return null;
+  return (
+    <div className="profile-category-section">
+      <p className="profile-chart-label">Category breakdown</p>
+      <div className="profile-category-row">
+        {cats.map(({ label, count, cls }) => (
+          <div key={label} className={`profile-category-badge ${cls}`}>
+            <span className="profile-category-count">{count}</span>
+            <span className="profile-category-label">{label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -481,9 +519,15 @@ const JudgeProfilePage = () => {
             </span>
           </div>
           <div className="profile-accordion-body">
-            {!opinionsLoading && opinions.length > 0 && (
-              <OpinionsBarChart opinions={opinions} />
-            )}
+            {!opinionsLoading && opinions.length > 0 && (() => {
+              const opinionsByYear = computeOpinionsByYear(opinions);
+              return (
+                <>
+                  <OpinionsBarChart opinionsByYear={opinionsByYear} />
+                  <CategoryBreakdown opinions={opinions} />
+                </>
+              );
+            })()}
             <div className="profile-tab-bar">
               {["ALL", "REVERSALS", "RELEASES", "CITATIONS"].map((tab) => (
                 <button

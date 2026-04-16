@@ -1867,6 +1867,47 @@ footer {
   stroke-width: 1;
 }
 
+/* Category breakdown badges */
+.profile-category-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border-s);
+}
+
+.profile-category-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-category-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-m);
+  background: var(--surface-2);
+  font-size: 0.8rem;
+}
+
+.profile-category-count {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.profile-category-label {
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.profile-category-badge.cat-criminal .profile-category-count { color: #ef4444; }
+.profile-category-badge.cat-civil .profile-category-count    { color: #4f6df5; }
+.profile-category-badge.cat-family .profile-category-count   { color: var(--accent-gold); }
+.profile-category-badge.cat-other .profile-category-count    { color: var(--text-faint); }
+
 .profile-opinions-by-year {
   display: flex;
   flex-direction: column;
