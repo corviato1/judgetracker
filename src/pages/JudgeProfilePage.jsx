@@ -8,17 +8,32 @@ const REVERSAL_RE = /\b(revers|overrul|vacat|overturned|remand)\b/i;
 const VIOLENT_RE = /\b(assault|murder|homicide|robbery|rape|kidnap|weapon|firearm|gun|battery|manslaughter|carjack|arson|trafficking|sex.offend|armed)\b/i;
 const RELEASE_RE = /\b(bail|bond|releas|detention|pretrial|custody)\b/i;
 
+function deriveOpinionsByYear(opinions) {
+  const yearCounts = {};
+  for (const op of opinions) {
+    const year = op.dateFiled ? String(op.dateFiled).slice(0, 4) : "Unknown";
+    yearCounts[year] = (yearCounts[year] || 0) + 1;
+  }
+  return Object.entries(yearCounts)
+    .sort(([a], [b]) => {
+      const numA = parseInt(a, 10);
+      const numB = parseInt(b, 10);
+      if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
+      if (isNaN(numA)) return 1;
+      if (isNaN(numB)) return -1;
+      return numB - numA;
+    })
+    .map(([year, count]) => ({ year, count }));
+}
+
 function deriveLocalHistory(opinions) {
   const reversals = [];
   const violentFelonyReleases = [];
   const citations = [];
-  const yearCounts = {};
 
   for (const op of opinions) {
     const combined = `${op.caseName || ""} ${op.summary || ""}`;
     const clUrl = op.url || (op.id ? `https://www.courtlistener.com/opinion/${op.id}/` : null);
-    const year = op.dateFiled ? String(op.dateFiled).slice(0, 4) : "Unknown";
-    yearCounts[year] = (yearCounts[year] || 0) + 1;
 
     const entry = {
       id: String(op.id),
@@ -34,22 +49,11 @@ function deriveLocalHistory(opinions) {
     citations.push(entry);
   }
 
-  const opinionsByYear = Object.entries(yearCounts)
-    .sort(([a], [b]) => {
-      const numA = parseInt(a, 10);
-      const numB = parseInt(b, 10);
-      if (isNaN(numA) && isNaN(numB)) return a.localeCompare(b);
-      if (isNaN(numA)) return 1;
-      if (isNaN(numB)) return -1;
-      return numB - numA;
-    })
-    .map(([year, count]) => ({ year, count }));
-
   return {
     reversals: reversals.slice(0, 20),
     violentFelonyReleases: violentFelonyReleases.slice(0, 20),
     citations: citations.slice(0, 30),
-    opinionsByYear,
+    opinionsByYear: deriveOpinionsByYear(opinions),
     derived: true,
   };
 }
@@ -58,21 +62,16 @@ const CRIMINAL_RE = /\b(criminal|felony|misdemeanor|assault|murder|homicide|robb
 const CIVIL_RE = /\b(civil|civil rights|contract|tort|negligence|property|employment|discrimination|damages|plaintiff|defendant|liability|civil action|injunction|class action|antitrust|patent|trademark|copyright)\b/i;
 const FAMILY_RE = /\b(family|divorce|custody|adoption|domestic|child support|guardianship|alimony|marital|parental|juvenile|termination of parental)\b/i;
 
-function computeOpinionsByYear(opinions) {
-  const yearCounts = {};
-  for (const op of opinions) {
-    const y = op.dateFiled ? String(op.dateFiled).slice(0, 4) : null;
-    if (y && !isNaN(parseInt(y, 10))) {
-      yearCounts[y] = (yearCounts[y] || 0) + 1;
-    }
-  }
-  return Object.entries(yearCounts)
-    .sort(([a], [b]) => parseInt(a) - parseInt(b))
-    .map(([year, count]) => ({ year, count }));
-}
-
 function OpinionsBarChart({ opinionsByYear }) {
   if (!opinionsByYear || opinionsByYear.length === 0) return null;
+  // deriveOpinionsByYear returns descending with "Unknown" last; chart needs
+  // ascending numeric years only.
+  const ascending = opinionsByYear
+    .filter((e) => !isNaN(parseInt(e.year, 10)))
+    .slice()
+    .reverse();
+  if (ascending.length === 0) return null;
+  opinionsByYear = ascending;
 
   const maxCount = Math.max(...opinionsByYear.map((e) => e.count));
   const BAR_W = 22;
@@ -519,15 +518,12 @@ const JudgeProfilePage = () => {
             </span>
           </div>
           <div className="profile-accordion-body">
-            {!opinionsLoading && opinions.length > 0 && (() => {
-              const opinionsByYear = computeOpinionsByYear(opinions);
-              return (
-                <>
-                  <OpinionsBarChart opinionsByYear={opinionsByYear} />
-                  <CategoryBreakdown opinions={opinions} />
-                </>
-              );
-            })()}
+            {!opinionsLoading && opinions.length > 0 && (
+              <>
+                <OpinionsBarChart opinionsByYear={deriveOpinionsByYear(opinions)} />
+                <CategoryBreakdown opinions={opinions} />
+              </>
+            )}
             <div className="profile-tab-bar">
               {["ALL", "REVERSALS", "RELEASES", "CITATIONS"].map((tab) => (
                 <button

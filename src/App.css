@@ -220,6 +220,34 @@ footer {
   align-items: center;
   gap: 0.15rem;
   flex-wrap: wrap;
+  position: relative;
+}
+
+.nav-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-btn);
+  color: var(--text-dim);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-section-toggle:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-hover-text);
+}
+
+.nav-section-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.nav-section-open .nav-section-toggle {
+  color: var(--text-strong, var(--text));
 }
 
 .nav-section-label {
@@ -227,13 +255,30 @@ footer {
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  padding: 0 0.4rem;
-  opacity: 0.65;
+  opacity: 0.85;
   white-space: nowrap;
-  border-right: 1px solid var(--border-s);
-  margin-right: 0.2rem;
-  align-self: center;
+}
+
+.nav-section-chevron {
+  display: inline-block;
+  font-size: 0.7rem;
+  line-height: 1;
+  transition: transform 0.18s ease;
+  opacity: 0.7;
+}
+
+.nav-section-chevron-open {
+  transform: rotate(90deg);
+}
+
+.nav-section-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+  padding: 0 0.25rem;
+  border-left: 1px solid var(--border-s);
+  margin-left: 0.25rem;
 }
 
 .nav-link {
